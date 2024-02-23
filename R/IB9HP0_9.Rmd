@@ -1,0 +1,179 @@
+---
+title: "IB9HP0_9"
+author: "Group_9"
+date: "2024-02-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, attr.source='.numberLines', eval = FALSE)
+library(dplyr)
+library(RSQLite)
+library(readr)
+library(ggplot2)
+```
+
+## Implementing Logical Schema
+
+### Create the Database and Set up the Tables
+
+```{r connection-establishment}
+# Create connection to SQL database
+db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
+```
+
+### Main Tables for Entities
+  
+```{sql connection = db_connection}
+-- Products
+CREATE TABLE 'products' (
+  'prod_id' INT PRIMARY KEY,
+  'prod_name' VARCHAR (50) NOT NULL,
+  'prod_quantity' INT NOT NULL,
+  'voucher' VARCHAR (50),
+  'prod_uom' VARCHAR(20) NOT NULL,
+  'prod_review' VARCHAR (250), -- Composite attribute, create an extra table 'product_reviews'
+  'prod_category' VARCHAR (50) NOT NULL,
+  'prod_url' VARCHAR (250) NOT NULL,
+  'prod_unit_price' DECIMAL NOT NULL
+)
+```
+
+
+```{sql connection = db_connection}
+-- Customers
+CREATE TABLE 'customers' (
+  'cust_id' INT PRIMARY KEY,
+  'cust_name' VARCHAR (50) NOT NULL,
+  'cust_email' VARCHAR (50) UNIQUE NOT NULL,
+  'password' VARCHAR (50) NOT NULL,
+  'username' VARCHAR (50) UNIQUE NOT NULL, -- fix the code
+  'cust_birthdate' DATE,
+  'shipping_address' VARCHAR (100) NOT NULL, -- multi-valued attribute
+  'billing_address' VARCHAR (100) NOT NULL, -- multi-valued attribute
+  'cust_phone' VARCHAR(10), -- multi-valued attribute, set constraint to 10 digits
+--  'order_id' INT,
+--FOREIGN KEY ('order_id')
+--  REFERENCES orders ('order_id') -- no foreign key for customers from orders
+)
+```
+```{sql connection = db_connection}
+-- Orders
+CREATE TABLE 'orders' ( 
+  -- Need to name the entities as Orders because there's function Order in sql
+  'order_id' INT PRIMARY KEY,
+  'order_quantity' INT NOT NULL,
+  'order_date' DATE,
+  'order_value' DECIMAL NOT NULL, -- rename attribute from price to value
+  'delivery_destination' VARCHAR (100) NOT NULL,
+  'order_status' VARCHAR(100) NOT NULL,
+  'prod_id' INT,
+  'cust_id' INT,
+  FOREIGN KEY ('prod_id')
+    REFERENCES products ('prod_id'),
+
+  FOREIGN KEY ('cust_id')
+    REFERENCES customers ('cust_id')
+)
+```
+
+```{sql connection = db_connection}
+-- Transactions
+CREATE TABLE 'transactions' (
+  'transaction_id' INT PRIMARY KEY,
+  'transaction_status' VARCHAR (100) NOT NULL,
+  'transaction_date' DATE, 
+  'transaction_amount' DECIMAL NOT NULL, 
+  'payment_method' VARCHAR (100) NOT NULL
+  'order_id' INT,
+  FOREIGN KEY ('order_id')
+    REFERENCES orders ('order_id')
+)
+```
+
+```{sql connection = db_connection}
+-- Supplier
+CREATE TABLE 'suppliers' (
+  'supplier_id' INT PRIMARY KEY,
+  'supplier_name' VARCHAR (50) NOT NULL,
+  'supplier_desc' VARCHAR (100) NOT NULL,
+  'supplier_address' VARCHAR (100) NOT NULL,
+  'supplier_contact_info' VARCHAR (10) NOT NULL,
+  'prod_id' INT,
+  FOREIGN KEY ('prod_id')
+    REFERENCES products ('prod_id')
+);
+```
+
+```{sql connection = db_connection}
+-- Shippers
+CREATE TABLE 'shippers' (
+  'shipper_id' INT PRIMARY KEY,
+  'delivery_departed_date' DATE,
+  'delivery_received_date' DATE,
+  'estimated_delivery_date' DATE,
+  'delivery_service_provider' VARCHAR (100) NOT NULL,
+  'delivery_recipient_name' VARCHAR (50) NOT NULL,
+  'delivery_fee' DECIMAL,
+  --'delivery_id' INT,
+  'delivery_status' VARCHAR (50),
+  'tracking_number' INT NOT NULL,
+  'delivery_destination' VARCHAR(100),
+  'order_id' INT,
+  FOREIGN KEY ('order_id')
+    REFERENCES orders('order_id')
+  FOREIGN KEY ('delivery_destination')
+    REFERENCES orders('delivery_destination')
+)
+```
+
+```{sql connection = db_connection}
+-- Purchase Return
+CREATE TABLE 'purchase_returns' (
+  'return_id' INT PRIMARY KEY,
+  'refund_amount' DECIMAL,
+  'return_status' VARCHAR (100) NOT NULL,
+  'return_date' DATE,
+  'order_id' INT,
+  'cust_id' INT,
+  FOREIGN KEY ('order_id')
+    REFERENCES orders ('order_id'),
+  
+  FOREIGN KEY ('cust_id')
+    REFERENCES customers ('cust_id')
+)
+```
+
+### Additional relational tables
+
+```{sql connection = db_connection}
+-- Product Reviews
+CREATE TABLE 'product_reviews' (
+  'review_desc' VARCHAR (500) NOT NULL,
+  'prod_rating' INT -- if there is limit?
+  'prod_id' INT,
+  'cust_id' INT,
+  FOREIGN KEY ('prod_id') 
+    REFERENCES products ('prod_id')
+  FOREIGN KEY ('cust_id') 
+    REFERENCES customers ('cust_id')
+)
+```
+
+{sql connection = db_connection}
+-- Product Ads 
+CREATE TABLE 'product_ads' (
+  'ads_name' VARCHAR (50) NOT NULL,
+  'ads_type' VARCHAR (50) NOT NULL, -- types of ads: banner, influencer's reviews, intro video, etc.
+  'advertiser' VARCHAR (50) NOT NULL,
+  'ads_air_date' DATETIME,
+  'prod_id' INT,
+  FOREIGN KEY ('prod_id') REFERENCES products ('prod_id')
+)
+
+## Load Data into Tables
+
+
+# ```{r load-data-files}
+# 
+# ```
