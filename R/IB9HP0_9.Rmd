@@ -18,6 +18,7 @@ library(randomNames)
 library(Pareto)
 library(uuid)
 library(writexl)
+library(charlatan) #for credit card number
 ```
 
 ## Implementing Logical Schema
@@ -180,7 +181,9 @@ CREATE TABLE 'product_ads' (
 
 ## Generate Synthetic Data
 
-```{r data-gen-customer}
+### 'customers' table
+
+```{r data-gen-customers}
 n_customers <- 50
 #Create n unique customer IDs with random names
 customers_data <- 
@@ -212,6 +215,34 @@ customers_data <- customers_data %>%
 #Shipping Address
 cv_postcode <- read.csv("../data_uploads/ONSPD_AUG_2023_UK_CV.csv")
 
+#Save data to data file
+write.csv(customers_data, "../data_uploads/R_synth_customers.csv")
+```
+
+### 'products' table
+
+```{r data-gen-prods}
+#Getting brand and product names from Gemini
+gemini_prods <- 
+  read.csv("../data_uploads/gemini_data_products.csv",
+           col.names = c("category", "prod_name", "prod_desc"))
+#Assign product ID, and adding product names
+products_data <- 
+  conjurer::buildProd(20, minPrice = 1, maxPrice = 100) %>% 
+  mutate("prod_name" = sample(gemini_prods$prod_name, 20)) %>%
+  left_join(select(gemini_prods, -category), 
+            by = join_by(prod_name)) %>%
+  rename(prod_id = SKU) %>%
+  mutate("prod_id" = gsub("sku", "prod", products_data$prod_id))
+```
+
+
+### 'orders' table
+
+```{r data-gen-orders}
+orders_data <- genTrans(cycles = "y", spike = 12, outliers = 0, transactions = 10)
+
+orders_data <- buildPareto(products_data$SKU, orders_data$transactionID, pareto = c(80,20))
 ```
 
 
