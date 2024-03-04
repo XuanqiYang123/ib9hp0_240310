@@ -8,9 +8,16 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, attr.source='.numberLines', eval = FALSE)
 library(dplyr)
+library(tidyr)
 library(RSQLite)
 library(readr)
 library(ggplot2)
+#packages for synthetic data generation
+library(conjurer) 
+library(randomNames)
+library(Pareto)
+library(uuid)
+library(writexl)
 ```
 
 ## Implementing Logical Schema
@@ -173,14 +180,37 @@ CREATE TABLE 'product_ads' (
 
 ## Generate Synthetic Data
 
-```{r data-gen-packages}
-library(conjurer)
-
-```
-
-
 ```{r data-gen-customer}
-customers_data <- buildCust(50)
+n_customers <- 50
+#Create n unique customer IDs with random names
+customers_data <- 
+  data.frame("cust_id" = conjurer::buildCust(n_customers),
+             "cust_name" = randomNames::randomNames(n_customers)) %>% 
+  separate(cust_name, into = c("last_name", "first_name"), sep = ", ")
+
+#Update the df with email column, created by merging last and first name of the customer, with the email domain @gmail.com
+customers_data <- customers_data %>% 
+  unite(cust_email, c(last_name, first_name), sep = ".", remove = F) %>%
+  mutate("mail_domain" = "gmail.com") %>% 
+  unite(cust_email, c(cust_email, mail_domain), sep = "@", remove = T)
+
+#Generate user's password, using random string generation package
+customers_data$password <- stringi::stri_rand_strings(n=n_customers, length=8, pattern="[A-Za-z0-9]") 
+
+#Adding customer birthyear
+customers_data$cust_birth_year <- 
+  conjurer::buildNum(n_customers, st = 1934, en = 2006, outliers = 0) %>% 
+  as.integer()
+
+#Adding customer's telephone number
+customers_data$cust_telephone <- stringi::stri_rand_strings(n=n_customers, length=7, pattern="[0-9]") #create unique random strings of 7 digits
+#adding the phone code in UK
+customers_data <- customers_data %>%
+  mutate("phone_domain" = "075") %>% 
+  unite(cust_telephone, c(phone_domain, cust_telephone), sep = "", remove = T)
+
+#Shipping Address
+cv_postcode <- read.csv("../data_uploads/ONSPD_AUG_2023_UK_CV.csv")
 
 ```
 
