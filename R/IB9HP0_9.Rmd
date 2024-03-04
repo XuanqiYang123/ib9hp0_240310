@@ -234,6 +234,9 @@ products_data <-
             by = join_by(prod_name)) %>%
   rename(prod_id = SKU) %>%
   mutate("prod_id" = gsub("sku", "prod", products_data$prod_id))
+
+#Save to .csv file
+write.csv(products_data, "../data_uploads/R_synth_products.csv")
 ```
 
 
