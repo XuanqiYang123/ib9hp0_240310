@@ -171,9 +171,41 @@ CREATE TABLE 'product_ads' (
   FOREIGN KEY ('prod_id') REFERENCES products ('prod_id')
 )
 
-## Load Data into Tables
+## Generate Synthetic Data
+
+```{r data-gen-packages}
+library(conjurer)
+
+```
 
 
-# ```{r load-data-files}
-# 
-# ```
+```{r data-gen-customer}
+customers_data <- buildCust(50)
+
+```
+
+
+## Notes from Workshop Feb 23rd
+
+### Load the Data
+
+```{r}
+print("Loading the data")
+data_files <- list.files("../data_uploads", pattern = "MOCK_DATA_PRODUCTS", full.names = T)
+data_to_write <- data.frame()
+#for each csv file
+for (file in data_files) {
+  print(paste("Reading file:", file))
+  this_file_rows <- read.csv(file, stringsAsFactors = F)
+  data_to_write <- rbind(data_to_write, this_file_rows)
+}
+
+print("Write them to the database")
+
+connection <- RSQLite::dbConnect(RSQLite::SQLite(),"group_9.db")
+RSQLite::dbWriteTable(connection, "products", data_to_write, overwrite = T)
+RSQLite::dbDisconnect(connection)
+print("Done")
+```
+
+
