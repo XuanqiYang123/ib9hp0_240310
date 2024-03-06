@@ -31,8 +31,8 @@ jobs:
           Rscript R/transformation.R
       - name: Add files
         run: |
-          git config --global user.email "nikos.korfiatis@gmail.com"
-          git config --global user.name "nkorf"
+          git config --global user.email "Xuanqi.Yang@warwick.ac.uk"
+          git config --global user.name "XuanqiYang123"
           git add --all database/
       - name: Commit files
         run: |
