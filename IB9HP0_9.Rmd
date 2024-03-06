@@ -1,0 +1,201 @@
+---
+title: "IB9HPO_9"
+output: html_document
+date: "2024-03-02"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,attr.source='.numberLines', eval = FALSE)
+```
+
+```{r}
+#Load library
+library(RSQLite)
+```
+
+```{r}
+# Create connection to SQL database
+db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
+```
+
+```{sql connection = db_connection}
+-- Product
+CREATE TABLE 'products' (
+  'prod_id' INT PRIMARY KEY,
+  'prod_name' VARCHAR (50) NOT NULL,
+  'prod_desc' VARCHAR (100) NOT NULL,
+  'prod_uom' VARCHAR(20) NOT NULL,
+  'voucher' VARCHAR (50),
+  'prod_url' VARCHAR (250) NOT NULL,
+  'prod_unit_price' DECIMAL NOT NULL
+  );
+```
+
+```{sql connection = db_connection}
+-- Review
+CREATE TABLE 'reviews' (
+  'review_id' INT PRIMARY KEY,
+  'prod_rating' DECIMAL NOT NULL,
+  'Review_date' DATE NOT NULL,
+  'comment' TEXT,
+  'prod_id' INT,
+  FOREIGN KEY ('prod_id')
+    REFERENCES products('prod_id')
+  );
+```
+
+```{sql connection = db_connection}
+-- Membership
+CREATE TABLE 'memberships' (
+  'membership_type_id' INT PRIMARY KEY,
+  'membership_desc' VARCHAR (50) NOT NULL
+  );
+```
+
+```{sql connection = db_connection}
+-- Customer
+CREATE TABLE 'customers' (
+  'cust_id' INT PRIMARY KEY,
+  'first_name' VARCHAR (50) NOT NULL,
+  'last_name' VARCHAR (50) NOT NULL,
+  'cust_email' VARCHAR (50) UNIQUE,
+  'password' VARCHAR (50) NOT NULL,
+  'cust_bod' DATE,
+  'shipping_address' VARCHAR (100) UNIQUE,
+  'billing_address' VARCHAR (100) NOT NULL,
+  'cust_telephone' INT UNIQUE,
+  'membership_type_id' INT,
+  FOREIGN KEY ('membership_type_id')
+    REFERENCES memberships('membership_type_id')
+  );
+```
+
+```{sql connection = db_connection}
+-- Orders
+CREATE TABLE 'orders' (
+  'order_id' INT PRIMARY KEY,
+  'cust_id' INT,
+  FOREIGN KEY ('cust_id')
+    REFERENCES customers('cust_id')
+    );
+```
+
+```{sql connection = db_connection}
+-- Payments
+CREATE TABLE 'payments' (
+  'payment_method' VARCHAR (100) NOT NULL,
+  'payment_amount' DECIMAL NOT NULL,
+  'payment_status' VARCHAR (100) NOT NULL,
+  'payment_date' DATE,
+  'order_id' INT,
+  FOREIGN KEY ('order_id')
+    REFERENCES orders('order_id')
+    );
+```
+
+```{sql connection = db_connection}
+-- Orders Details
+CREATE TABLE 'order_details' (
+  'order_quantity' INT NOT NULL,
+  'order_date' DATE,
+  'order_price' DECIMAL NOT NULL,
+  'order_value' DECIMAL NOT NULL,
+  'delivery_status' VARCHAR (50) NOT NULL,
+  'delivery_fee' DECIMAL NOT NULL,
+  'delivery_recipient' VARCHAR (50) NOT NULL,
+  'shipper_name' VARCHAR (50) NOT NULL,
+  'estimated_delivery_date' DATE,
+  'delivery_departed_date' DATE,
+  'delivery_received_date' DATE,
+  'prod_id' INT,
+  'order_id' INT,
+  FOREIGN KEY ('prod_id')
+    REFERENCES products('prod_id'),
+  FOREIGN KEY ('order_id')
+    REFERENCES orders('order_id')
+    );
+```
+
+```{sql connection = db_connection}
+-- Supplier
+CREATE TABLE 'suppliers' (
+  'supplier_id' INT PRIMARY KEY,
+  'supplier_name' VARCHAR (50) NOT NULL UNIQUE,
+  'supplier_address' VARCHAR (100) NOT NULL UNIQUE,
+  'contact_info' INT NOT NULL UNIQUE
+  );
+```
+
+```{sql connection = db_connection}
+-- Supply
+CREATE TABLE 'supplies' (
+  'inventory_quantity' INT NOT NULL,
+  'sold_quantity' INT NOT NULL,
+  'supplier_id' INT,
+  'prod_id' INT,
+  FOREIGN KEY ('supplier_id')
+    REFERENCES suppliers('supplier_id'),
+  FOREIGN KEY ('prod_id')
+    REFERENCES products('prod_id')
+  );
+```
+
+```{sql connection = db_connection}
+-- Customer Query
+CREATE TABLE 'customer_queries' (
+  'query_id' INT PRIMARY KEY,
+  'query_title' VARCHAR (50) NOT NULL,
+  'query_detail' TEXT NOT NULL,
+  'query_submission_date' DATE,
+  'query_status' VARCHAR (50) NOT NULL,
+  'cust_id' INT,
+  FOREIGN KEY ('cust_id')
+    REFERENCES customers('cust_id')
+    );
+```
+
+```{sql connection = db_connection}
+-- Category
+CREATE TABLE 'categories' (
+  'category_id' INT PRIMARY KEY,
+  'category_name' VARCHAR (50) NOT NULL UNIQUE
+  );
+```
+
+```{sql connection = db_connection}
+-- Product Category
+CREATE TABLE 'product_categories' (
+  'category_id' INT,
+  'prod_id' INT,
+  FOREIGN KEY ('prod_id')
+    REFERENCES categories('category_id'),
+  FOREIGN KEY ('prod_id')
+    REFERENCES products('prod_id')
+  );
+```
+
+```{sql connection = db_connection}
+-- Advertiser
+CREATE TABLE 'advertisers' (
+  'advertiser_id' INT PRIMARY KEY,
+  'ddvertiser_name' VARCHAR (50) NOT NULL UNIQUE,
+  'advertiser_email' VARCHAR (50) UNIQUE
+  );
+```
+
+```{sql connection = db_connection}
+-- Advertisement
+CREATE TABLE 'advertisements' (
+  'ads_id' INT PRIMARY KEY,
+  'ads_start_date' DATE,
+  'ads_end_date' DATE,
+  'ads_image' VARBINARY, -- is this the correct data type?
+  'ads_content' TEXT,
+  'prod_id' INT UNIQUE,
+  'advertiser_id' INT,
+  FOREIGN KEY ('prod_id')
+    REFERENCES products('prod_id'),
+  FOREIGN KEY ('advertiser_id')
+    REFERENCES advertisers('advertiser_id')  
+  );
+```
