@@ -283,11 +283,12 @@ write.csv(products_data, "../data_uploads/R_synth_products.csv")
 ### 'orders' table
 
 ```{r data-gen-orders}
+#is this order_id or order_detail_id?
 orders_data <- genTrans(cycles = "y", spike = 12, outliers = 0, transactions = 10)
 
-orders_data <- buildPareto(products_data$prod_id, orders_data$transactionID, pareto = c(80,20))
+orders_data <- buildPareto(products_data$prod_id, 
+                           orders_data$transactionID, pareto = c(80,20))
 ```
-
 
 ## Notes from Workshop Feb 23rd
 
