@@ -200,10 +200,12 @@ customers_data <- customers_data %>%
 #Generate user's password, using random string generation package
 customers_data$password <- stringi::stri_rand_strings(n=n_customers, length=8, pattern="[A-Za-z0-9]") 
 
-#Adding customer birthyear
-customers_data$cust_birth_year <- 
-  conjurer::buildNum(n_customers, st = 1934, en = 2006, outliers = 0) %>% 
-  as.integer()
+#Adding customer BOD
+birthdate <- sample(seq(from = as.Date("1934/01/01"), to = as.Date("2006/12/31"), by = "day"), n_customers)
+customers_data$cust_birth_date <- 
+  sample(birthdate, nrow(customers_data), replace = T)
+  # conjurer::buildNum(n_customers, st = 1934, en = 2006, outliers = 0) %>% 
+  # as.integer()
 
 #Adding customer's telephone number
 customers_data$cust_telephone <- stringi::stri_rand_strings(n=n_customers, length=7, pattern="[0-9]") #create unique random strings of 7 digits
@@ -226,19 +228,57 @@ write.csv(customers_data, "../data_uploads/R_synth_customers.csv")
 gemini_prods <- 
   read.csv("../data_uploads/gemini_data_products.csv",
            col.names = c("category", "prod_name", "prod_desc"))
-#Assign product ID, and adding product names
+
+#Define parameters for products
+n_prods <- 20
+voucher <- c("10% off", "20% off", "50% off", "Flash Sale")
+ratings <- c(1,2,3,4,5)
+
+#Assign product ID, and adding product names and URL
 products_data <- 
-  conjurer::buildProd(20, minPrice = 1, maxPrice = 100) %>% 
+  #generate product id
+  conjurer::buildProd(n_prods, minPrice = 1, maxPrice = 100) %>% 
+  #add product name and description from gemini's file
   mutate("prod_name" = sample(gemini_prods$prod_name, 20)) %>%
   left_join(select(gemini_prods, -category), 
             by = join_by(prod_name)) %>%
-  rename(prod_id = SKU) %>%
-  mutate("prod_id" = gsub("sku", "prod", prod_id))
+  #rename columns to fit schema
+  rename(prod_id = SKU, prod_unit_price = Price) %>%
+  #rename `sku` with `prod`
+  mutate("prod_id" = gsub("sku", "prod", prod_id)) %>%
+  #add product url
+  mutate("web_prefix" = "https://group9.co.uk/",
+         "prod_url1" = gsub(" ", "-", products_data$prod_name)) %>%
+  unite(prod_url, c(prod_url1, prod_id), sep = "-", remove = F) %>%
+  unite(prod_url, c(web_prefix, prod_url), sep = "", remove = T) %>%
+  #drop temp url
+  select(-prod_url1)
+
+#Create vouchers
+products_data$voucher[!(products_data$prod_id %in% c("prod10", "prod11")) ] <- 
+  sample(voucher, sum(!(products_data$prod_id %in% c("prod10", "prod11"))), 
+         replace = T)
+
+#Create ratings
+products_data$prod_rating <- 
+  sample(ratings, nrow(products_data), replace = T)
+
+#Review date
+date <- sample(seq(from = as.Date("2004/03/06"), to = as.Date("2024/03/06"), by = "day"), 12)
+products_data$review_date <- 
+  sample(date, nrow(products_data), replace = T)
+
+#Assign review ID
+products_data <- products_data %>%
+  mutate("review_id" = 
+           conjurer::buildCust(sum(!is.na(products_data$prod_rating)))) %>%
+  mutate(review_id = gsub("cust", "rev", review_id)) %>%
+  #rearrange order of columns
+  select(2,4,5,3,1,9,7,8,6)
 
 #Save to .csv file
 write.csv(products_data, "../data_uploads/R_synth_products.csv")
 ```
-
 
 ### 'orders' table
 
