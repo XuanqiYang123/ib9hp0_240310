@@ -28,7 +28,7 @@ jobs:
           Rscript -e 'install.packages(c("RSQLite"))'
       - name: Execute R script
         run: |
-          Rscript IB9HP0_9.Rmd
+          Rscript R/IB9HP0_9.Rmd
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
