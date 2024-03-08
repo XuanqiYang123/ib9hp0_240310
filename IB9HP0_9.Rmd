@@ -327,3 +327,21 @@ orders_data <- buildPareto(products_data$prod_id,
 
 #test for workflows -- take 3
 ```
+
+### 'memberships' table
+
+```{r data-gen-membership}
+memberships_type <- data.frame("membership_type_id" = c(rep(seq(1,3,1),2)),
+                               "membership_type" =  c("Student", "Trial", "Premium"))
+
+#Start with the cust_id as the foreign key
+memberships_data <- data.frame(customers_data$cust_id)
+
+#Randomly assign membership type to all customers
+memberships_data$membership_type <- 
+  sample(memberships_type$membership_type, as.numeric(nrow(memberships_data)), replace = T)
+#Lookup membership_id
+memberships_data <- merge(memberships_type, memberships_data, by = "membership_type") %>%
+  rename(cust_id = customers_data.cust_id) %>%
+  select(2,3,1)
+```
