@@ -26,9 +26,6 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           Rscript -e 'install.packages(c("RSQLite"))'
-      - name: Execute R script
-        run: |
-          Rscript R/transformation.R
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
