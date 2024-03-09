@@ -2,6 +2,8 @@
 title: "IB9HPO_9"
 output: html_document
 date: "2024-03-02"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Load Packages
@@ -401,12 +403,15 @@ suppliers_data <-
 
 ```{r data-gen-membership}
 membership_lookup <- 
-  data.frame("membership_type" =  c("Student", "Trial", "Premium"),
-             "membership_type_id" = 
-               seq(1,length(membership_lookup$membership_type),1))
+  data.frame(
+    "membership_type" =  c("Student", "Trial", "Premium")) %>%
+  mutate("membership_type_id" = row_number())
+    
              
-#Start with the cust_id as the foreign key
-memberships_data <- data.frame(customers_data$cust_id) %>%
+#Start with the foreign key cust_id 
+memberships_data <- data.frame(customers_data$cust_id) 
+
+memberships_data <- memberships_data %>%
   #Randomly assign membership type to all customers
   mutate("membership_type" = 
            sample(membership_lookup$membership_type, 
