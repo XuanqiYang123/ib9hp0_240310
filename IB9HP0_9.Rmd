@@ -241,9 +241,8 @@ customers_data <-
   separate(cust_name, into = c("last_name", "first_name"), sep = ", ") %>%
   #Create email column, by merging last & first name with email domain @gmail.com
   unite(cust_email, c(last_name, first_name), sep = ".", remove = F) %>%
-  mutate("mail_domain" = "gmail.com") %>% 
-  unite(cust_email, c(cust_email, mail_domain), sep = "@", remove = T) %>%
   mutate(
+    "cust_email" = paste(cust_email,"gmail.com", sep = "@"),
     #Generate user's password, using random string generation package
     "password" = 
       stringi::stri_rand_strings(n=n_customers, length=8, pattern="[A-Za-z0-9]"),
@@ -364,13 +363,105 @@ write.csv(categories_data, "data_uploads/R_synth_categories.csv")
 ### 'orders' table
 
 ```{r data-gen-orders, warning=FALSE, message=FALSE}
-#is this order_id or order_detail_id?
-orders_data <- genTrans(cycles = "y", 
-                        spike = 12, outliers = 0, transactions = 10)
+#Define parameters
+origin_date <- "1970-01-01"
+n_orders <- 100
+pymt_method <- 
+  c("Bank Transfer", "Visa", "Mastercard", "PayPal", "GPay", "Apple Pay")
+pymt_status <- c("Done", "Verifying")
+shipper_lookup <- 
+  data.frame("shipper_name" = c("DHL", "Group9DL", "DPD"),
+             "delivery_fee" = c(5,2,3),
+             "ETA" = c(1,5,3))
+delivery_status <- c("Delivered", "In Progress", 
+                     "Failed to contact", "Delayed")
+orders_col_order <- 
+  c("order_id", "cust_id", "prod_id", "order_detail_id", "order_quantity",
+    "order_date", "order_value", "order_price", "payment_id", "payment_method",
+    "payment_status", "payment_date", "delivery_departed_date",
+    "delivery_received_date", "est_delivery_date", "shipper_name", 
+    "delivery_recipient", "delivery_fee", "delivery_status")
 
-orders_data <- buildPareto(products_data$prod_id, 
-                           orders_data$transactionID, pareto = c(80,20))
+#generate n order IDs and assign customers to them, including order date
+orders_data <- 
+  #Create n unique order IDs
+  data.frame("order_id" = conjurer::buildCust(n_orders)) %>%
+  mutate(order_id = gsub("cust", "o", order_id),
+         payment_id = gsub("o", "pm", order_id),
+         cust_id = sample(customers_data$cust_id, n_orders, replace = T),
+         order_date = sample(date, n_orders, replace = T),
+         payment_method = sample(pymt_method, n_orders, replace = T),
+         payment_status = sample(pymt_status, n_orders, replace = T),
+         delivery_recipient = randomNames::randomNames(n_orders))
+
+#adding payment date with logic dependent on payment status
+orders_data <- orders_data %>%
+  mutate("payment_date" = ifelse(payment_status == "Done", order_date, NA)) %>%
+  mutate("payment_date" = as.Date(payment_date, 
+                                  origin = origin_date))
+
+#randomly replicate certain orders to map with products
+set.seed(123)
+orders_data <- orders_data %>% bind_rows() %>%
+rbind(sample_n(orders_data, 0.4*nrow(orders_data)),
+      sample_n(orders_data, 0.5*nrow(orders_data)),
+      sample_n(orders_data, 0.8*nrow(orders_data)))
+
+#assign products to orders
+orders_data <- orders_data %>%
+  mutate(
+    "prod_id" = sample(products_data$prod_id, 
+                       nrow(orders_data), replace = T),
+    "order_detail_id" = paste("od",row_number(), sep = ""),
+    #generate order quantity
+    "order_quantity" = sample(seq(1,10,1), nrow(orders_data), replace = T)) %>%
+  merge(select(products_data, c(prod_id, prod_unit_price, voucher)), 
+        by = "prod_id")
+
+#Order value and shipper
+orders_data <- orders_data %>%
+  #order price and value
+  mutate(
+    voucher = as.numeric(gsub("%", "", voucher))/100,
+    order_price = prod_unit_price * voucher,
+    order_value = order_price * order_quantity,
+    #assign shippers to products
+    shipper_name = 
+      sample(shipper_lookup$shipper_name, nrow(orders_data), replace = T),
+    #add delivery status
+    delivery_status = 
+      ifelse(payment_status != "Done", "Not Started",
+             sample(delivery_status, nrow(orders_data), replace = T)) ) %>%
+  #lookup delivery fee
+  merge(shipper_lookup, by = "shipper_name")
+
+#dates of delivery
+orders_data <- orders_data %>%
+  #departure and ETA
+  mutate(
+    delivery_departed_date = 
+      ifelse(!is.na(payment_date), (payment_date + days(2)), NA),
+    est_delivery_date = delivery_departed_date + ETA) %>%
+  #departure and ETA - format as date
+  mutate(
+    delivery_departed_date = 
+      as.Date(delivery_departed_date, origin = origin_date),
+    est_delivery_date = 
+      as.Date(est_delivery_date, origin = origin_date)) %>%
+  #received
+  mutate(
+    delivery_received_date = 
+      ifelse(delivery_status != "Delivered", NA, est_delivery_date)) %>%
+  #drop ETA
+  select(-ETA)
+
+#reorder the columns
+orders_data <- orders_data[,orders_col_order]
+
+#Save data to data file
+write.csv(orders_data, "data_uploads/R_synth_orders.csv")
 ```
+
 ### 'suppliers' table
 
 ```{r data-gen-suppliers}
@@ -382,6 +473,7 @@ wc_postcode <- read.csv("data_uploads/ONSPD_AUG_2023_UK_WC.csv")[,1]
 suppliers_data <- 
   #Pull seller name from gemini file
   distinct(select(gemini_prods, seller_name)) %>%
+  rename("supplier_name" = "seller_name") %>%
   mutate("supplier_id" = seq(1, n_suppliers,1),
          "prefix" = "s") %>%
   unite(supplier_id, c(prefix, supplier_id), sep = "", remove = T) %>%
@@ -397,6 +489,54 @@ suppliers_data <-
   unite(supplier_contact, 
         c(phone_domain, supplier_contact), sep = "", remove = T) %>%
   select(2,1,4,3)
+
+#Save data to data file
+write.csv(suppliers_data, "data_uploads/R_synth_suppliers.csv")
+```
+
+### 'supply' table
+
+```{r data-gen-supply}
+#Define parameters for supply table
+order_quant_by_prod <- orders_data %>%
+  group_by(prod_id) %>% summarise(sold_quantity = sum(order_quantity))
+supply_col_order <- c("supply_id", "supplier_id", "prod_id", 
+                      "inventory_quantity", "sold_quantity")
+
+#Create supply table
+supply_data <- select(products_data, c(prod_id, prod_name)) %>%
+  merge(order_quant_by_prod, by = "prod_id") %>%
+  mutate(sold_quantity = as.integer(sample(seq(0.2,1),1)*sold_quantity)) %>%
+  mutate(inventory_quantity = 
+           as.integer(sold_quantity * sample(seq(1.1, 2.3), 1))) %>%
+  merge(select(gemini_prods, c(seller_name, prod_name)), by = "prod_name") %>%
+  rename("supplier_name" = "seller_name") %>%
+  merge(select(suppliers_data, c(supplier_id, supplier_name)), 
+        by = "supplier_name")
+  
+#Create competitors for M:N relationship
+supply_competitors <- select(products_data, c(prod_id, prod_name)) %>%
+  mutate(supplier_name = 
+           sample(suppliers_data$supplier_name, n_prods, replace = T)) %>%
+  merge(select(suppliers_data, c(supplier_id, supplier_name)), 
+        by = "supplier_name") %>%
+  merge(order_quant_by_prod, by = "prod_id") %>%
+  mutate(sold_quantity = as.integer(sample(seq(0.2,1),1)*sold_quantity)) %>%
+  mutate(inventory_quantity = 
+           as.integer(sold_quantity * sample(seq(1.1, 2.3), 1))) %>%
+  select(2,3,1,5,6,4)
+
+#Combine supply and competitors
+supply_data <- 
+  rbind(supply_data, supply_competitors) %>% 
+  mutate(supply_id = row_number()) %>%
+  select(-c(supplier_name, prod_name))
+
+#reorder columns
+supply_data <- supply_data[, supply_col_order]
+
+#Save data to data file
+write.csv(supply_data, "data_uploads/R_synth_supply.csv")
 ```
 
 ### 'memberships' table
@@ -407,7 +547,6 @@ membership_lookup <-
     "membership_type" =  c("Student", "Trial", "Premium")) %>%
   mutate("membership_type_id" = row_number())
     
-             
 #Start with the foreign key cust_id 
 memberships_data <- data.frame(customers_data$cust_id) 
 
