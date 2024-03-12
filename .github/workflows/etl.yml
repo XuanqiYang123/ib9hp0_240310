@@ -28,7 +28,7 @@ jobs:
           Rscript -e 'install.packages(c("RSQLite"))'
       - name: Execute R script
         run: |
-          Rscript IB9HP0_9.Rmd
+          Rscript R/transformation.R
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
@@ -36,9 +36,9 @@ jobs:
           git add --all database/
       - name: Commit files
         run: |
-          git commit -m "Update codes"
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update codes"
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            branch: main
+          github_token: ${{ secrets.WORKFLOW }}
+          branch: main

@@ -556,6 +556,7 @@ memberships_data <- memberships_data %>%
 write.csv(memberships_data, "data_uploads/R_synth_memberships.csv")
 ```
 
+<<<<<<< HEAD
 ## Load Files in an sqlite database
 
 ```{r}
@@ -583,4 +584,52 @@ for (variable in all_files) {
 RSQLite::dbListTables(db_connection)
 
 RSQLite::dbDisconnect(db_connection)
+=======
+### 'customer_queries' table
+
+```{r}
+
+# customer_queries table
+n_queries <- 20
+customer_queries_data <- data.frame(
+  QueryID = sprintf("Q%d", 1:n_queries),
+  CustID = sample(customers_data$cust_id, n_queries, replace = TRUE),
+  QueryTitle = sample(c("Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", "Wrong Delivery"), n_queries, replace = TRUE),
+  QuerySubmitDate = sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), n_queries, replace = TRUE),
+  QueryStatus = sample(c("Closed", "On Progress", "Submitted"), n_queries, replace = TRUE)
+)
+
+#Save to .csv file
+write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries.csv", row.names = FALSE)
+```
+
+### 'advertisers' table
+
+```{r}
+# advertisers table
+n_advertisers <- 5
+advertisers_data <- data.frame(
+  AdvertiserID = sprintf("ADV%d", 1:n_advertisers),
+  AdvertiserName = c("Ads Life", "Ads Idol", "Ads is Life", "Ads Master", "Ads Expert"),
+  AdvertiserEmail = sprintf("advertiser%d@example.com", 1:n_advertisers)
+)
+write.csv(advertisers_data, "data_uploads/R_synth_advertisers.csv", row.names = FALSE)
+```
+
+### 'advertisements' table
+
+```{r}
+# advertisements table
+n_ads <- 4
+advertisements_data <- data.frame(
+  AdsmID = sprintf("AM%d", 1:n_ads),
+  ProdID = sample(products_data$prod_id, n_ads, replace = TRUE),
+  AdvertiserID = sample(advertisers_data$AdvertiserID, n_ads, replace = TRUE),
+  AdsStartDate = sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), n_ads, replace = TRUE),
+  AdsEndDate = sample(seq(as.Date('2024-01-01'), as.Date('2024-12-31'), by="day"), n_ads, replace = TRUE)
+)
+
+#Save to .csv file
+write.csv(advertisements_data, "data_uploads/R_synth_advertisements.csv", row.names = FALSE)
+>>>>>>> 9d66bc556582ec900ccef7354c951af4840ccf03
 ```
