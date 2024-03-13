@@ -29,11 +29,14 @@ jobs:
       - name: Execute R script
         run: |
           Rscript R/transformation.R
+      - name: Generate transaction charts
+        run: |
+          Rscript R/transaction_trend.R
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
           git config --global user.name "duong4595"
-          git add --all database/
+          git add --all database/transaction_charts
       - name: Commit files
         run: |
           git diff --quiet && git diff --staged --quiet || git commit -m "Update codes"
