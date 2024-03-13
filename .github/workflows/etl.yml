@@ -25,7 +25,7 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          Rscript -e 'install.packages(c("RSQLite"))'
+          Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr"))'
       - name: Execute R script
         run: |
           Rscript R/transformation.R
