@@ -2,7 +2,7 @@ library(RSQLite)
 
 # Load the data
 print("Loading the data")
-data_files <- list.files("data_uploads", pattern = "MOCK_DATA_PRODUCTS", full.names = TRUE)
+data_files <- list.files("data_uploads", pattern = "R_synth_products.csv", full.names = TRUE)
 data_to_write <- data.frame()
 # for each csv file 
 for (file in data_files) {
