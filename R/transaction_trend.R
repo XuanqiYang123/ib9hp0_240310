@@ -7,7 +7,7 @@ db_path <- "database/orders.db"
 connection <- dbConnect(SQLite(), db_path)
 
 # extract data
-query <- "SELECT order_date, order_value FROM order"
+query <- "SELECT order_date, order_value FROM "order""
 orders_data <- dbGetQuery(connection, query)
 
 # disconnect the database
