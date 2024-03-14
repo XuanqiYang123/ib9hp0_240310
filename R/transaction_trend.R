@@ -3,7 +3,7 @@ library(ggplot2)
 library(dplyr)
 
 # link to database
-db_path <- "database/orders.db"
+db_path <- "database/IB9HP0_9.db"
 connection <- dbConnect(SQLite(), db_path)
 
 # extract data
