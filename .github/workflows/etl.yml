@@ -22,13 +22,10 @@ jobs:
           key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
           restore-keys: |
             ${{ runner.os }}-r-
+      - name: Install CRAN packages
+        run: Rscript -e 'install.packages(c("devtools", "RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr"))'
       - name: Install conjurer package from GitHub
-        run: |
-          Rscript -e 'if(!require(devtools)) install.packages("devtools"); devtools::install_github("duong4595/ib9hp0_group_9")'
-      - name: Install R packages from CRAN
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: |
-          Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate","knitr"))'
+        run: Rscript -e 'devtools::install_github("duong4595/ib9hp0_group_9")'
       - name: Execute R script synth_1
         run: |
           Rscript IB9HP0_9_synth_1.R
