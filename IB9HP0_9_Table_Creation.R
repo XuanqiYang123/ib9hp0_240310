@@ -10,14 +10,15 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 # Create table for products
 dbExecute(db_connection, 
-           "CREATE TABLE products (
+          "CREATE TABLE products (
               prod_id VARCHAR (50) PRIMARY KEY,
               prod_name VARCHAR (50) NOT NULL,
               prod_desc VARCHAR (100) NOT NULL,
               voucher VARCHAR (50),
               prod_url VARCHAR (250) NOT NULL,
               prod_unit_price DECIMAL NOT NULL
-              )")
+              )"
+          )
 
 #Create table for reviews
 dbExecute(db_connection, 
@@ -28,21 +29,23 @@ dbExecute(db_connection,
               prod_id VARCHAR (50),
               FOREIGN KEY (prod_id)
               REFERENCES products(prod_id)
-              )")
+              )"
+          )
 
 #Create table for memberships
 dbExecute(db_connection, 
           "CREATE TABLE memberships (
               membership_type_id VARCHAR (50) PRIMARY KEY,
-              membership_desc VARCHAR (50) NOT NULL
-              )")
+              membership_type VARCHAR (50) NOT NULL
+              )"
+          )
 
 #Create table for customers
 dbExecute(db_connection, 
           "CREATE TABLE customers (
               cust_id VARCHAR (50) PRIMARY KEY,
               first_name VARCHAR (50) NOT NULL,
-              last_name VARCHAR (50) NOT NULL,
+              last_name VARCHAR (50),
               cust_email VARCHAR (50) UNIQUE,
               password VARCHAR (50) NOT NULL,
               cust_birth_date DATE,
@@ -53,7 +56,8 @@ dbExecute(db_connection,
               membership_type_id VARCHAR (50),
               FOREIGN KEY (membership_type_id)
                 REFERENCES memberships(membership_type_id)
-              )")
+              )"
+          )
 
 #Create table for orders
 dbExecute(db_connection, 
@@ -62,7 +66,8 @@ dbExecute(db_connection,
               cust_id VARCHAR (50),
               FOREIGN KEY (cust_id)
                 REFERENCES customers(cust_id)
-              )")
+              )"
+          )
 
 #Create table for order details
 dbExecute(db_connection, 
@@ -77,7 +82,8 @@ dbExecute(db_connection,
                 REFERENCES products(prod_id),
               FOREIGN KEY (order_id)
                 REFERENCES orders(order_id)
-              )")
+              )"
+          )
 
 #Create table for payment
 dbExecute(db_connection, 
@@ -90,7 +96,8 @@ dbExecute(db_connection,
               order_id VARCHAR (50),
               FOREIGN KEY (order_id)
                 REFERENCES orders(order_id)
-              )")
+              )"
+          )
 
 #Create table for shipment
 dbExecute(db_connection, 
