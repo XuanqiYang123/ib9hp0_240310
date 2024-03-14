@@ -4,7 +4,6 @@ library(tidyr)
 library(readr)
 library(ggplot2)
 #packages for synthetic data generation
-library(conjurer) 
 library(randomNames)
 library(Pareto)
 library(uuid)
@@ -13,7 +12,11 @@ library(charlatan) #for credit card number
 library(RSQLite)
 library(stringi) #random strings
 library(lubridate)
-
+if (!requireNamespace("devtools", quietly = TRUE)) {
+    install.packages("devtools")
+}
+library(devtools)
+library(conjurer) 
 
 ## Db Connection
 
