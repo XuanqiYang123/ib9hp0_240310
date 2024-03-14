@@ -404,5 +404,3 @@ advertisements_data <- data.frame(
 )
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round2.csv", row.names = FALSE)
-
-#Duong tests to push
