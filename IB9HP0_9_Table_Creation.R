@@ -11,7 +11,7 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 # Create table for products
 dbExecute(db_connection, 
            "CREATE TABLE products (
-              prod_id INT PRIMARY KEY,
+              prod_id VARCHAR (50) PRIMARY KEY,
               prod_name VARCHAR (50) NOT NULL,
               prod_desc VARCHAR (100) NOT NULL,
               voucher VARCHAR (50),
@@ -22,10 +22,10 @@ dbExecute(db_connection,
 #Create table for reviews
 dbExecute(db_connection, 
           "CREATE TABLE reviews (
-              review_id INT PRIMARY KEY,
+              review_id VARCHAR (50) PRIMARY KEY,
               prod_rating DECIMAL NOT NULL,
               review_date DATE NOT NULL,
-              prod_id INT,
+              prod_id VARCHAR (50),
               FOREIGN KEY (prod_id)
               REFERENCES products(prod_id)
               )")
@@ -33,14 +33,14 @@ dbExecute(db_connection,
 #Create table for memberships
 dbExecute(db_connection, 
           "CREATE TABLE memberships (
-              membership_type_id INT PRIMARY KEY,
+              membership_type_id VARCHAR (50) PRIMARY KEY,
               membership_desc VARCHAR (50) NOT NULL
               )")
 
 #Create table for customers
 dbExecute(db_connection, 
           "CREATE TABLE customers (
-              cust_id INT PRIMARY KEY,
+              cust_id VARCHAR (50) PRIMARY KEY,
               first_name VARCHAR (50) NOT NULL,
               last_name VARCHAR (50) NOT NULL,
               cust_email VARCHAR (50) UNIQUE,
@@ -50,7 +50,7 @@ dbExecute(db_connection,
               block_num VARCHAR (50),
               postcode VARCHAR (50),
               cust_telephone INT UNIQUE,
-              membership_type_id INT,
+              membership_type_id VARCHAR (50),
               FOREIGN KEY (membership_type_id)
                 REFERENCES memberships(membership_type_id)
               )")
@@ -58,8 +58,8 @@ dbExecute(db_connection,
 #Create table for orders
 dbExecute(db_connection, 
           "CREATE TABLE orders (
-              order_id INT PRIMARY KEY,
-              cust_id INT,
+              order_id VARCHAR (50) PRIMARY KEY,
+              cust_id VARCHAR (50),
               FOREIGN KEY (cust_id)
                 REFERENCES customers(cust_id)
               )")
@@ -71,8 +71,8 @@ dbExecute(db_connection,
               order_date DATE,
               order_price DECIMAL,
               order_value DECIMAL,
-              prod_id INT,
-              order_id INT,
+              prod_id VARCHAR (50),
+              order_id VARCHAR (50),
               FOREIGN KEY (prod_id)
                 REFERENCES products(prod_id),
               FOREIGN KEY (order_id)
@@ -82,12 +82,12 @@ dbExecute(db_connection,
 #Create table for payment
 dbExecute(db_connection, 
           "CREATE TABLE payments (
-              payment_id INT PRIMARY KEY,
+              payment_id VARCHAR (50) PRIMARY KEY,
               payment_method VARCHAR (100) NOT NULL,
               payment_amount DECIMAL,
               payment_status VARCHAR (100) NOT NULL,
               payment_date DATE,
-              order_id INT,
+              order_id VARCHAR (50),
               FOREIGN KEY (order_id)
                 REFERENCES orders(order_id)
               )")
@@ -95,7 +95,7 @@ dbExecute(db_connection,
 #Create table for shipment
 dbExecute(db_connection, 
           "CREATE TABLE shipments (
-              shipment_id INT PRIMARY KEY,
+              shipment_id VARCHAR (50) PRIMARY KEY,
               delivery_status VARCHAR (50),
               delivery_fee DECIMAL,
               delivery_recipient VARCHAR (50),
@@ -103,8 +103,8 @@ dbExecute(db_connection,
               est_delivery_date DATE,
               delivery_departed_date DATE,
               delivery_received_date DATE,
-              prod_id INT,
-              order_id INT,
+              prod_id VARCHAR (50),
+              order_id VARCHAR (50),
               FOREIGN KEY (prod_id)
                 REFERENCES products(prod_id),
               FOREIGN KEY (order_id)
@@ -115,7 +115,7 @@ dbExecute(db_connection,
 #Create table for supplier
 dbExecute(db_connection, 
           "CREATE TABLE suppliers (
-              supplier_id INT PRIMARY KEY,
+              supplier_id VARCHAR (50) PRIMARY KEY,
               supplier_name VARCHAR (50) NOT NULL UNIQUE,
               supplier_postcode VARCHAR (100) NOT NULL UNIQUE,
               supplier_contact INT NOT NULL UNIQUE
@@ -125,11 +125,11 @@ dbExecute(db_connection,
 #Create table for supplies
 dbExecute(db_connection, 
           "CREATE TABLE supplies (
-              supply_id INT PRIMARY KEY,
+              supply_id VARCHAR (50) PRIMARY KEY,
               inventory_quantity INT NOT NULL,
               sold_quantity INT NOT NULL,
-              supplier_id INT,
-              prod_id INT,
+              supplier_id VARCHAR (50),
+              prod_id VARCHAR (50),
               FOREIGN KEY (supplier_id)
                 REFERENCES suppliers(supplier_id),
               FOREIGN KEY (prod_id)
@@ -140,12 +140,12 @@ dbExecute(db_connection,
 #Create table for customer queries
 dbExecute(db_connection, 
           "CREATE TABLE customer_queries (
-              query_id INT PRIMARY KEY,
+              query_id VARCHAR (50) PRIMARY KEY,
               query_title VARCHAR (50) NOT NULL,
               query_submission_date DATE,
               query_closure_date DATE,
               query_status VARCHAR (50) NOT NULL,
-              cust_id INT,
+              cust_id VARCHAR (50),
               FOREIGN KEY (cust_id)
                 REFERENCES customers(cust_id)
             )"
@@ -154,7 +154,7 @@ dbExecute(db_connection,
 #Create table for categories
 dbExecute(db_connection, 
           "CREATE TABLE categories (
-              category_id INT PRIMARY KEY,
+              category_id VARCHAR (50) PRIMARY KEY,
               category_name VARCHAR (50) NOT NULL UNIQUE
             )"
           )
@@ -162,8 +162,8 @@ dbExecute(db_connection,
 #Create table for product categories
 dbExecute(db_connection, 
           "CREATE TABLE product_categories (
-              category_id INT,
-              prod_id INT,
+              category_id VARCHAR (50),
+              prod_id VARCHAR (50),
               FOREIGN KEY (prod_id)
                 REFERENCES categories(category_id),
               FOREIGN KEY (prod_id)
@@ -174,7 +174,7 @@ dbExecute(db_connection,
 #Create table for advertiser
 dbExecute(db_connection, 
           "CREATE TABLE advertisers (
-              advertiser_id INT PRIMARY KEY,
+              advertiser_id VARCHAR (50) PRIMARY KEY,
               advertiser_name VARCHAR (50) NOT NULL UNIQUE,
               advertiser_email VARCHAR (50) UNIQUE
             )"
@@ -183,11 +183,11 @@ dbExecute(db_connection,
 #Create table for advertisements
 dbExecute(db_connection, 
           "CREATE TABLE advertisements (
-              ads_id INT PRIMARY KEY,
+              ads_id VARCHAR (50) PRIMARY KEY,
               ads_start_date DATE,
               ads_end_date DATE,
-              prod_id INT UNIQUE,
-              advertiser_id INT,
+              prod_id VARCHAR (50) UNIQUE,
+              advertiser_id VARCHAR (50),
               FOREIGN KEY (prod_id)
                 REFERENCES products(prod_id),
               FOREIGN KEY (advertiser_id)
