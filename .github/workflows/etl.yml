@@ -19,9 +19,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
+          key: ${{ runner.os }}-r-packages-v1
           restore-keys: |
-            ${{ runner.os }}-r-
+            ${{ runner.os }}-r-packages-
       - name: Install CRAN packages
         run: Rscript -e 'install.packages(c("devtools", "RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr"))'
       - name: Install conjurer package from GitHub
