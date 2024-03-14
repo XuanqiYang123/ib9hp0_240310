@@ -26,8 +26,8 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 #Define parameters for customers
 set.seed(123)
 n_customers <- 50
-birthdate <- sample(seq(from = as.Date(today() - years(80)), 
-                        to = as.Date(today() - years(18)), by = "day"),
+birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
+                        to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),
                     n_customers)
 cv_postcode <- 
   read.csv("data_uploads/ONSPD_AUG_2023_UK_CV.csv")[, 1] %>% 
@@ -67,6 +67,7 @@ customers_data <-
         c(phone_domain, cust_telephone), sep = "", remove = T) %>%
   #reorder the columns
   select(1,4,3,2,5,6,8,9,10,7)
+customers_data$cust_birth_date <- format(customers_data$cust_birth_date, "%d-%m-%Y")
 #Save data to data file
 write.csv(customers_data, "data_uploads/R_synth_customers.csv")
 
@@ -105,7 +106,7 @@ products_data <-
     #Create ratings
     "prod_rating" = sample(ratings, n_prods, replace = T),
     #Review date
-    "review_date" = sample(date, n_prods, replace = T),
+    "review_date" = sample(format(date, "%d-%m-%Y"), n_prods, replace = T),
     #Assign review ID
     "review_id" = 
       conjurer::buildCust(sum(!is.na(prod_rating))),
@@ -209,11 +210,15 @@ orders_data <- orders_data %>%
   mutate(
     delivery_received_date = 
       ifelse(delivery_status != "Delivered", NA, est_delivery_date)) %>%
+  mutate(
+    delivery_received_date = 
+      as.Date(delivery_received_date, origin = origin_date)) %>%
   #drop ETA
   select(-ETA)
 
 ### generate 'shipment' from orders
-shipment_colnames <- c("order_id", "prod_id", "delivery_departed_date",
+shipment_colnames <- c("order_id", "prod_id", 
+                       "delivery_departed_date",
                        "delivery_received_date", "est_delivery_date",
                        "shipper_name", "delivery_recipient",
                        "delivery_fee", "delivery_status")
@@ -221,6 +226,11 @@ shipment_data <- select(orders_data, shipment_colnames)
 shipment_data <- shipment_data %>% 
   mutate(shipment_id = paste("sm", rownames(shipment_data), sep = ""), 
          .before = "order_id")
+#reformat date
+shipment_dates <- c("delivery_departed_date",
+                    "delivery_received_date", "est_delivery_date")
+shipment_data[shipment_dates] <- lapply(shipment_data[shipment_dates],
+                                        format, "%d-%m-%Y")
 #Save data to data file
 write.csv(shipment_data, "data_uploads/R_synth_shipment.csv")
 
@@ -232,6 +242,8 @@ payment_data <- orders_data %>% group_by(payment_id) %>%
   summarise(payment_amount = sum(order_value)) %>%
   merge(select(orders_data, payment_colnames), by = "payment_id") %>%
   select(1,3,2,4,5)
+#re-format date
+payment_data$payment_date <- format(payment_data$payment_date, "%d-%m-%Y")
 #Save data to data file
 write.csv(payment_data, "data_uploads/R_synth_payment.csv")
 
