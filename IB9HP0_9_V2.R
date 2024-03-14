@@ -1,12 +1,5 @@
----
-  title: "IB9HPO_9"
-output: html_document
-date: "2024-03-02"
-editor_options: 
-  chunk_output_type: console
----
-  
-  ## Load Packages
+
+## Load Packages
   
 
 knitr::opts_chunk$set(echo = TRUE,attr.source='.numberLines', eval = FALSE)
