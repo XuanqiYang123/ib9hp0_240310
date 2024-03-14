@@ -51,7 +51,7 @@ order_details_table <- orders_file %>%
 
 ##Normalising Payments Table
 payments_table <- payment_file %>%
-  select()
+  select(payment_id,order_id,payment_amount,payment_method,payment_status,payment_date)
 
 ##Normalising Shipments Table
 shipments_table <- shipments_file %>%
@@ -84,4 +84,52 @@ advertisers_table <- advertisers_file
 ##Normalising Advertisement Table
 advertisements_table <- advertisements_file
 
+# Create connection to SQL database
+db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
+# Inserting Dataframe into the sql database
+
+## Inserting Products table
+dbWriteTable(db_connection,"products",products_table, append = TRUE)
+
+## Inserting Reviews table
+dbWriteTable(db_connection,"reviews",reviews_table, append = TRUE)
+
+## Inserting Memberships table
+dbWriteTable(db_connection,"memberships",memberships_table, append = TRUE)
+
+## Inserting Customers table
+dbWriteTable(db_connection,"customers",customers_table, append = TRUE)
+
+## Inserting Orders table
+dbWriteTable(db_connection,"orders",orders_table, append = TRUE)
+
+## Inserting Payment table
+dbWriteTable(db_connection,"payments",payments_table, append = TRUE)
+
+## Inserting Shipment table
+dbWriteTable(db_connection,"shipments",shipments_table, append = TRUE)
+
+## Inserting Order details table
+dbWriteTable(db_connection,"order_details",order_details_table, append = TRUE)
+
+## Inserting Suppliers table
+dbWriteTable(db_connection,"suppliers",suppliers_table, append = TRUE)
+
+## Inserting Supplies table
+dbWriteTable(db_connection,"supplies",supplies_table, append = TRUE)
+
+## Inserting Customer queries table
+dbWriteTable(db_connection,"customer_queries",customer_queries_table, append = TRUE)
+
+## Inserting Categories table
+dbWriteTable(db_connection,"categories",categories_table, append = TRUE)
+
+## Inserting Product Categories table
+dbWriteTable(db_connection,"product_categories",product_categories_table, append = TRUE)
+
+## Inserting Advertisers table
+dbWriteTable(db_connection,"advertisers",advertisers_table, append = TRUE)
+
+## Inserting Advertisements table
+dbWriteTable(db_connection,"advertisements",advertisements_table, append = TRUE)
