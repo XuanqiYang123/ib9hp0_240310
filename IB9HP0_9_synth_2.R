@@ -235,13 +235,15 @@ shipment_data[shipment_dates] <- lapply(shipment_data[shipment_dates],
 write.csv(shipment_data, "data_uploads/R_synth_shipment_round2.csv")
 
 ### generate 'payment' from orders
-payment_colnames <- c("payment_id", "payment_method", 
+payment_colnames <- c("payment_id", "payment_method", "order_id",
                       "payment_status", "payment_date")
 #Add payment amount
 payment_data <- orders_data %>% group_by(payment_id) %>%
   summarise(payment_amount = sum(order_value)) %>%
-  merge(select(orders_data, payment_colnames), by = "payment_id") %>%
-  select(1,3,2,4,5)
+  left_join(select(orders_data,payment_colnames), by = "payment_id")
+#remove duplicates
+payment_data <- distinct(payment_data, payment_id, .keep_all = T) %>%
+  select(1,4,3,2,5,6)
 #re-format date
 payment_data$payment_date <- format(payment_data$payment_date, "%d-%m-%Y")
 #Save data to data file
@@ -312,12 +314,12 @@ supply_competitors <- select(products_data, c(prod_id, prod_name)) %>%
 #Combine supply and competitors
 supply_data <- 
   rbind(supply_data, supply_competitors) %>% 
-  mutate(supply_id = row_number()) %>%
+  mutate(supply_id = paste("sp", row_number(), sep = "")) %>%
   select(-c(supplier_name, prod_name))
 #reorder columns
 supply_data <- supply_data[, supply_col_order]
 #Save data to data file
-write.csv(supply_data, "data_uploads/R_synth_supply.csv")
+write.csv(supply_data, "data_uploads/R_synth_supply_round2.csv")
 
 ### 'memberships' table
 membership_lookup <- 
