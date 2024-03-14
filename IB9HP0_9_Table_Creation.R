@@ -34,7 +34,7 @@ dbExecute(db_connection,
 dbExecute(db_connection, 
           "CREATE TABLE memberships (
               membership_type_id VARCHAR (50) PRIMARY KEY,
-              membership_desc VARCHAR (50) NOT NULL
+              membership_type VARCHAR (50) NOT NULL
               )")
 
 #Create table for customers
