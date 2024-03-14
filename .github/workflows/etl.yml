@@ -28,7 +28,7 @@ jobs:
           Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr"))'
       - name: Execute R script
         run: |
-          Rscript R/transformation.R
+          Rscript IB9HP0_9_V2.R
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
