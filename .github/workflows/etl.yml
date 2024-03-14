@@ -22,11 +22,10 @@ jobs:
           key: ${{ runner.os }}-r-packages-v1
           restore-keys: |
             ${{ runner.os }}-r-packages-
-
+      - name: check R packages
+        run: Rscript R/check_packages.R
       - name: Install CRAN packages
         run: Rscript -e 'install.packages(c("devtools", "RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr"))'
-      - name: check R packages
-        run: Rscript check_packages.R
       - name: Install conjurer package from GitHub
         run: Rscript -e 'devtools::install_github("duong4595/ib9hp0_group_9")'
       - name: Execute R script synth_1
