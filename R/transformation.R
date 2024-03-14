@@ -2,7 +2,7 @@ library(RSQLite)
 
 # Load the data
 print("Loading the data")
-data_files <- list.files("data_uploads", pattern = "MOCK_DATA_PRODUCTS", full.names = TRUE)
+data_files <- list.files("data_uploads", pattern = "R_synth_orders.csv", full.names = TRUE)
 data_to_write <- data.frame()
 # for each csv file 
 for (file in data_files) {
@@ -13,7 +13,7 @@ for (file in data_files) {
 print("Write them to the database")
 
 
-connection <- RSQLite::dbConnect(RSQLite::SQLite(), "database/products.db")
+connection <- RSQLite::dbConnect(RSQLite::SQLite(), "database/orders.db")
 RSQLite::dbWriteTable(connection, "products", data_to_write, append = TRUE)
 RSQLite::dbDisconnect(connection)
 print("Done!")
