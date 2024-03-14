@@ -84,4 +84,20 @@ advertisers_table <- advertisers_file
 ##Normalising Advertisement Table
 advertisements_table <- advertisements_file
 
+# Create connection to SQL database
+db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
+
+# Inserting Dataframe into the sql database
+
+## Inserting Products table
+dbWriteTable(db_connection,"products",products_table, append = TRUE)
+
+## Inserting Reviews table
+dbWriteTable(db_connection,"reviews",reviews_table, append = TRUE)
+
+## Inserting Memberships table
+dbWriteTable(db_connection,"memberships",memberships_table, append = TRUE)
+
+## Inserting Memberships table
+dbWriteTable(db_connection,"memberships",memberships_table, append = TRUE)
 
