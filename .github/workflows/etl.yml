@@ -25,7 +25,7 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "conjurer", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate"))'
+          Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "conjurer", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate","knitr"))'
       - name: Execute R script
         run: |
           Rscript IB9HP0_9_V2.R
