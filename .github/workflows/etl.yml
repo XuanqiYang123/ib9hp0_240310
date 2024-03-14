@@ -25,16 +25,15 @@ jobs:
       - name: Install packages
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          #  Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "conjurer", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate","knitr"))'
           Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr"))'
-      - name: Execute R script
+      - name: Execute R script synth_1
         run: |
-          Rscript R/transaction_trend.R
+          Rscript IB9HP0_9_synth_1.R
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
           git config --global user.name "duong4595"
-          git add --all database/transaction_charts/
+          git add --all database/
       - name: Commit files
         run: |
           git diff --quiet && git diff --staged --quiet || git commit -m "Update codes"
