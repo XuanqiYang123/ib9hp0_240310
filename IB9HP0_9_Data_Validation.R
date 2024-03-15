@@ -113,6 +113,45 @@ for (i in 1:length(as.Date(customer_queries_file$query_submission_date, format =
 }
 
 
+## Memberships file
+### Checking NA values inside membership_id and membership_type
+if (any(!is.na(memberships_file))) {
+  print("There are no NA values in the dataset")
+} else {
+  print("Error! There are NA values in the dataset")
+}
+
+## Orders file
+### Checking NA values inside order_id, cust_id, order_quantity, order_price, prod_id
+if (any(!is.na(orders_file[,c("order_id", "cust_id", "order_quantity", "order_price", "prod_id")]))) {
+  print("There are no NA values in the dataset")
+} else {
+  print("Error! There are NA values in the dataset")
+}
+
+### Checking date format for the order_date
+if (all(!inherits(try(as.Date(orders_file$order_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+## Payment_file
+### Checking NA values inside payment_id, payment_method, payment_status, and order_id 
+if (any(!is.na(payment_file[,c("payment_id", "payment_method", "payment_status", "order_id")]))) {
+  print("There are no NA values in the dataset")
+} else {
+  print("Error! There are NA values in the dataset")
+}
+
+### Checking date format for the payment_date
+if (all(!inherits(try(as.Date(payment_file$payment_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+## Products_file
 
 
 
