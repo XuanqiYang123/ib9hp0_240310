@@ -1,10 +1,11 @@
+install.packages("conjurer")
 ## Load Packages
+library(conjurer) 
 library(dplyr)
 library(tidyr)
 library(readr)
 library(ggplot2)
 #packages for synthetic data generation
-library(conjurer) 
 library(randomNames)
 library(Pareto)
 library(uuid)
@@ -13,6 +14,7 @@ library(charlatan) #for credit card number
 library(RSQLite)
 library(stringi) #random strings
 library(lubridate)
+
 
 
 ## Db Connection
@@ -352,8 +354,12 @@ customer_queries_data <- data.frame(
   query_title = sample(c("Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", "Wrong Delivery"), n_queries, replace = TRUE),
   query_submission_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-1-31'), by="day"), n_queries, replace = TRUE),
   query_closure_date = sample(seq(as.Date('2023-02-01'), as.Date('2023-03-31'), by="day"), n_queries, replace = TRUE),
-  query_status = sample(c("Closed", "On Progress", "Submitted"), n_queries, replace = TRUE)
+  query_status = sample(c("Closed"), n_queries, replace = TRUE)
 )
+
+customer_queries_data$query_submission_date <- format(customer_queries_data$query_submission_date, "%d-%m-%Y")
+customer_queries_data$query_closure_date <- format(customer_queries_data$query_closure_date, "%d-%m-%Y")
+
 #Save to .csv file
 write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries.csv", row.names = FALSE)
 
@@ -388,14 +394,14 @@ n_advertisers <- 5
 advertisers_data <- data.frame(
   advertiser_id = sprintf("ADV%d", 1:n_advertisers),
   advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", "Ads Master", "Ads Expert"),
-  adverstiser_email = sprintf("advertiser%d@example.com", 1:n_advertisers)
+  advertiser_email = sprintf("advertiser%d@gmail.com", 1:n_advertisers)
 )
 #Save to .csv file
 write.csv(advertisers_data, "data_uploads/R_synth_advertisers.csv", row.names = FALSE)
 
 ### 'advertisements' table
 set.seed(123)
-n_ads <- 10
+n_ads <- 9
 advertisements_data <- data.frame(
   ads_id = sprintf("ADS%d", 1:n_ads),
   prod_id = sample(products_data$prod_id, n_ads, replace = TRUE),
@@ -403,6 +409,10 @@ advertisements_data <- data.frame(
   ads_start_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), n_ads, replace = TRUE),
   ads_end_date = sample(seq(as.Date('2024-01-01'), as.Date('2024-12-31'), by="day"), n_ads, replace = TRUE)
 )
+
+advertisements_data$ads_start_date <- format(advertisements_data$ads_start_date, "%d-%m-%Y")
+advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d-%m-%Y")
+
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements.csv", row.names = FALSE)
 

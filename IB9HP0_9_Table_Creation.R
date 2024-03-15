@@ -1,52 +1,67 @@
+install.packages("tidyverse")
 ## Load Packages
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
 library(RSQLite)
 
+db_file <- "IB9HP0_9.db"
+
+# Check if the database file exists and remove it
+if (file.exists(db_file)) {
+  file.remove(db_file)
+}
 
 # Create connection to SQL database
 db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 # Create table for products
 dbExecute(db_connection, 
-           "CREATE TABLE products (
+          "CREATE TABLE IF NOT EXISTS products (
               prod_id VARCHAR (50) PRIMARY KEY,
               prod_name VARCHAR (50) NOT NULL,
               prod_desc VARCHAR (100) NOT NULL,
               voucher VARCHAR (50),
               prod_url VARCHAR (250) NOT NULL,
               prod_unit_price DECIMAL NOT NULL
-              )")
+              )"
+          )
 
 #Create table for reviews
 dbExecute(db_connection, 
-          "CREATE TABLE reviews (
+          "CREATE TABLE IF NOT EXISTS reviews (
               review_id VARCHAR (50) PRIMARY KEY,
               prod_rating DECIMAL NOT NULL,
               review_date DATE NOT NULL,
               prod_id VARCHAR (50),
               FOREIGN KEY (prod_id)
               REFERENCES products(prod_id)
-              )")
+              )"
+          )
 
 #Create table for memberships
 dbExecute(db_connection, 
-          "CREATE TABLE memberships (
+          "CREATE TABLE IF NOT EXISTS memberships (
               membership_type_id VARCHAR (50) PRIMARY KEY,
+<<<<<<< HEAD
 <<<<<<< HEAD
               membership_desc VARCHAR (50) NOT NULL
 =======
               membership_type VARCHAR (50) NOT NULL
 >>>>>>> fc5b28f05fee16ead44168da75fdf3b9b12c9075
               )")
+=======
+              membership_type VARCHAR (50) NOT NULL
+              )"
+          )
+>>>>>>> 797c30b906ada5962583a85d1a018c32ab61d099
 
 #Create table for customers
 dbExecute(db_connection, 
-          "CREATE TABLE customers (
+          "CREATE TABLE IF NOT EXISTS customers (
               cust_id VARCHAR (50) PRIMARY KEY,
               first_name VARCHAR (50) NOT NULL,
-              last_name VARCHAR (50) NOT NULL,
+              last_name VARCHAR (50),
               cust_email VARCHAR (50) UNIQUE,
               password VARCHAR (50) NOT NULL,
               cust_birth_date DATE,
@@ -57,20 +72,22 @@ dbExecute(db_connection,
               membership_type_id VARCHAR (50),
               FOREIGN KEY (membership_type_id)
                 REFERENCES memberships(membership_type_id)
-              )")
+              )"
+          )
 
 #Create table for orders
 dbExecute(db_connection, 
-          "CREATE TABLE orders (
+          "CREATE TABLE IF NOT EXISTS orders (
               order_id VARCHAR (50) PRIMARY KEY,
               cust_id VARCHAR (50),
               FOREIGN KEY (cust_id)
                 REFERENCES customers(cust_id)
-              )")
+              )"
+          )
 
 #Create table for order details
 dbExecute(db_connection, 
-          "CREATE TABLE order_details (
+          "CREATE TABLE IF NOT EXISTS order_details (
               order_quantity INT NOT NULL,
               order_date DATE,
               order_price DECIMAL,
@@ -81,11 +98,12 @@ dbExecute(db_connection,
                 REFERENCES products(prod_id),
               FOREIGN KEY (order_id)
                 REFERENCES orders(order_id)
-              )")
+              )"
+          )
 
 #Create table for payment
 dbExecute(db_connection, 
-          "CREATE TABLE payments (
+          "CREATE TABLE IF NOT EXISTS payments (
               payment_id VARCHAR (50) PRIMARY KEY,
               payment_method VARCHAR (100) NOT NULL,
               payment_amount DECIMAL,
@@ -94,11 +112,12 @@ dbExecute(db_connection,
               order_id VARCHAR (50),
               FOREIGN KEY (order_id)
                 REFERENCES orders(order_id)
-              )")
+              )"
+          )
 
 #Create table for shipment
 dbExecute(db_connection, 
-          "CREATE TABLE shipments (
+          "CREATE TABLE IF NOT EXISTS shipments (
               shipment_id VARCHAR (50) PRIMARY KEY,
               delivery_status VARCHAR (50),
               delivery_fee DECIMAL,
@@ -118,7 +137,7 @@ dbExecute(db_connection,
 
 #Create table for supplier
 dbExecute(db_connection, 
-          "CREATE TABLE suppliers (
+          "CREATE TABLE IF NOT EXISTS suppliers (
               supplier_id VARCHAR (50) PRIMARY KEY,
               supplier_name VARCHAR (50) NOT NULL UNIQUE,
               supplier_postcode VARCHAR (100) NOT NULL UNIQUE,
@@ -128,7 +147,7 @@ dbExecute(db_connection,
 
 #Create table for supplies
 dbExecute(db_connection, 
-          "CREATE TABLE supplies (
+          "CREATE TABLE IF NOT EXISTS supplies (
               supply_id VARCHAR (50) PRIMARY KEY,
               inventory_quantity INT NOT NULL,
               sold_quantity INT NOT NULL,
@@ -143,7 +162,7 @@ dbExecute(db_connection,
 
 #Create table for customer queries
 dbExecute(db_connection, 
-          "CREATE TABLE customer_queries (
+          "CREATE TABLE IF NOT EXISTS customer_queries (
               query_id VARCHAR (50) PRIMARY KEY,
               query_title VARCHAR (50) NOT NULL,
               query_submission_date DATE,
@@ -157,7 +176,7 @@ dbExecute(db_connection,
 
 #Create table for categories
 dbExecute(db_connection, 
-          "CREATE TABLE categories (
+          "CREATE TABLE IF NOT EXISTS categories (
               category_id VARCHAR (50) PRIMARY KEY,
               category_name VARCHAR (50) NOT NULL UNIQUE
             )"
@@ -165,7 +184,7 @@ dbExecute(db_connection,
 
 #Create table for product categories
 dbExecute(db_connection, 
-          "CREATE TABLE product_categories (
+          "CREATE TABLE IF NOT EXISTS product_categories (
               category_id VARCHAR (50),
               prod_id VARCHAR (50),
               FOREIGN KEY (prod_id)
@@ -177,7 +196,7 @@ dbExecute(db_connection,
 
 #Create table for advertiser
 dbExecute(db_connection, 
-          "CREATE TABLE advertisers (
+          "CREATE TABLE IF NOT EXISTS advertisers (
               advertiser_id VARCHAR (50) PRIMARY KEY,
               advertiser_name VARCHAR (50) NOT NULL UNIQUE,
               advertiser_email VARCHAR (50) UNIQUE
@@ -186,7 +205,7 @@ dbExecute(db_connection,
 
 #Create table for advertisements
 dbExecute(db_connection, 
-          "CREATE TABLE advertisements (
+          "CREATE TABLE IF NOT EXISTS advertisements (
               ads_id VARCHAR (50) PRIMARY KEY,
               ads_start_date DATE,
               ads_end_date DATE,

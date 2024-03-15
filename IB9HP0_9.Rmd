@@ -452,6 +452,8 @@ orders_data <- orders_data[,orders_col_order]
 
 #Save data to data file
 write.csv(orders_data, "data_uploads/R_synth_orders.csv")
+
+orders_data %>% group_by(order_id) %>% summarise(n = n_distinct(payment_id)) %>% arrange(desc(n))
 ```
 
 ### 'suppliers' table
@@ -556,39 +558,10 @@ memberships_data <- memberships_data %>%
 write.csv(memberships_data, "data_uploads/R_synth_memberships.csv")
 ```
 
-<<<<<<< HEAD
-## Load Files in an sqlite database
 
-```{r}
-# Load the library
-library(RSQLite)
-
-# Set up connection to sqlite database
-db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
-
-all_files <- list.files("data_uploads/", pattern = "synth")
-
-for (variable in all_files) {
-  this_filepath <- paste0("data_uploads/", variable)
-  this_file_contents <- readr::read_csv(this_filepath)
-  
-  table_name <- gsub(".csv", variable)
-  #Remove prefix and suffix
-  table_name <- gsub("R_synth_", "", table_name)
-  table_name <- gsub(".csv", table_name)
-  
-  RSQLite::dbWriteTable(db_connection, table_name, this_file_contents,
-                        append = T)
-}
-
-RSQLite::dbListTables(db_connection)
-
-RSQLite::dbDisconnect(db_connection)
-=======
 ### 'customer_queries' table
 
 ```{r}
-
 # customer_queries table
 n_queries <- 20
 customer_queries_data <- data.frame(
@@ -631,5 +604,33 @@ advertisements_data <- data.frame(
 
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements.csv", row.names = FALSE)
->>>>>>> 9d66bc556582ec900ccef7354c951af4840ccf03
+```
+
+## Load Files in an sqlite database
+
+```{r}
+# Load the library
+library(RSQLite)
+
+# Set up connection to sqlite database
+db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
+
+all_files <- list.files("data_uploads/", pattern = "synth")
+
+for (variable in all_files) {
+  this_filepath <- paste0("data_uploads/", variable)
+  this_file_contents <- readr::read_csv(this_filepath)
+  
+  table_name <- gsub(".csv", variable)
+  #Remove prefix and suffix
+  table_name <- gsub("R_synth_", "", table_name)
+  table_name <- gsub(".csv", table_name)
+  
+  RSQLite::dbWriteTable(db_connection, table_name, this_file_contents,
+                        append = T)
+}
+
+RSQLite::dbListTables(db_connection)
+
+RSQLite::dbDisconnect(db_connection)
 ```
