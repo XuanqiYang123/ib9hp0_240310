@@ -11,10 +11,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        
       - name: Setup R environment
         uses: r-lib/actions/setup-r@v2
         with:
           r-version: '4.3.1'
+          
       - name: Cache R packages
         uses: actions/cache@v2
         with:
@@ -22,14 +24,28 @@ jobs:
           key: ${{ runner.os }}-r-packages-v1-${{ hashFiles('**/DESCRIPTION', '**/NAMESPACE') }}
           restore-keys: |
             ${{ runner.os }}-r-packages-
+            
       - name: Install system dependencies for conjurer
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
-      - name: Install CRAN packages
+      - name: Install packages
         run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl"))'
 
       - name: Execute R script synth_1
         run: |
           Rscript IB9HP0_9_synth_1.R
+          
+      - name: Execute R script synth_2
+        run: |
+          Rscript IB9HP0_9_synth_2.R
+          
+      - name: Execute R script table_creation
+        run: |
+          Rscript IB9HP0_9_Table_Creation.R
+
+      - name: Execute R script data_insertion
+        run: |
+          Rscript IB9HP0_9_Data_Insertion_Analysis.R
+          
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
