@@ -25,7 +25,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-r-packages-
             
-      - name: Install system dependencies for conjurer
+      - name: Install system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
