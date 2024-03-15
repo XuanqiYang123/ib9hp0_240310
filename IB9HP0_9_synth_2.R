@@ -413,8 +413,4 @@ advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round2.csv", row.names = FALSE)
 
-<<<<<<< HEAD
 
-#try pushing
-=======
->>>>>>> 797c30b906ada5962583a85d1a018c32ab61d099
