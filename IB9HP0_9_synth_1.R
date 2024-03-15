@@ -1,5 +1,6 @@
 install.packages("conjurer")
 ## Load Packages
+library(conjurer) 
 library(dplyr)
 library(tidyr)
 library(readr)
@@ -13,7 +14,7 @@ library(charlatan) #for credit card number
 library(RSQLite)
 library(stringi) #random strings
 library(lubridate)
-library(conjurer) 
+
 
 
 ## Db Connection
