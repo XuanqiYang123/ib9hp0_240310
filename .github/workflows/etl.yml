@@ -25,7 +25,7 @@ jobs:
       - name: Install system dependencies for conjurer
         run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
       - name: Install CRAN packages
-        run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr"))'
+        run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl"))'
 
       - name: Execute R script synth_1
         run: |
