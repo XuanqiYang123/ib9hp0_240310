@@ -81,7 +81,7 @@ dbExecute(db_connection,
           "CREATE TABLE IF NOT EXISTS order_details (
               order_quantity INT NOT NULL,
               order_date DATE,
-              order_price DECIMAL,
+              order_price DECIMAL NOT NULL,
               order_value DECIMAL,
               prod_id VARCHAR (50),
               order_id VARCHAR (50),
