@@ -1,4 +1,3 @@
-install.packages("conjurer")
 ## Load Packages
 library(conjurer) 
 library(dplyr)
@@ -26,7 +25,7 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 ### 'customers' table
 #Define parameters for customers
-set.seed(122)
+set.seed(212)
 n_customers <- 50
 birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
                         to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),
@@ -131,7 +130,6 @@ write.csv(products_data, "data_uploads/R_synth_products.csv")
 
 ### 'orders' table
 #Define parameters
-set.seed(123)
 origin_date <- "1970-01-01"
 n_orders <- 100
 pymt_method <- 
@@ -147,6 +145,7 @@ orders_col_order <-
   c("order_id", "cust_id", "prod_id", "order_quantity",
     "order_date", "order_value", "order_price")
 #generate n order IDs and assign customers to them, including order date
+set.seed(122)
 orders_data <- 
   #Create n unique order IDs
   data.frame("order_id" = conjurer::buildCust(n_orders)) %>%
@@ -164,7 +163,7 @@ orders_data <- orders_data %>%
   mutate("payment_date" = as.Date(payment_date, 
                                   origin = origin_date))
 #randomly replicate certain orders to map with products
-set.seed(123)
+set.seed(122)
 orders_data <- orders_data %>% bind_rows() %>%
   rbind(sample_n(orders_data, 0.4*nrow(orders_data)),
         sample_n(orders_data, 0.5*nrow(orders_data)),
@@ -416,5 +415,3 @@ advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements.csv", row.names = FALSE)
 
-
-#regenerate data

@@ -129,7 +129,6 @@ write.csv(products_data, "data_uploads/R_synth_products_round2.csv")
 
 ### 'orders' table
 #Define parameters
-set.seed(456)
 origin_date <- "1970-01-01"
 n_orders <- 100
 pymt_method <- 
@@ -145,6 +144,7 @@ orders_col_order <-
   c("order_id", "cust_id", "prod_id", "order_quantity",
     "order_date", "order_value", "order_price")
 #generate n order IDs and assign customers to them, including order date
+set.seed(321)
 orders_data <- 
   #Create n unique order IDs
   data.frame("order_id" = paste("o",seq(101, 101+n_orders-1, 1), sep = "")) %>%
