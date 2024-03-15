@@ -22,9 +22,8 @@ jobs:
           key: ${{ runner.os }}-r-packages-v1
           restore-keys: |
             ${{ runner.os }}-r-packages-
-
-      - name: Install CRAN packages
-        run: Rscript -e 'install.packages(c("devtools", "RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr"))'
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev
 
       - name: Execute R script synth_1
         run: |
