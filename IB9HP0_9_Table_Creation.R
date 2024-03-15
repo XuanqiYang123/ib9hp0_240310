@@ -5,6 +5,12 @@ library(ggplot2)
 library(tidyverse)
 library(RSQLite)
 
+db_file <- "IB9HP0_9.db"
+
+# Check if the database file exists and remove it
+if (file.exists(db_file)) {
+  file.remove(db_file)
+}
 
 # Create connection to SQL database
 db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
