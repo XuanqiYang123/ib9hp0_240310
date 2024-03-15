@@ -43,18 +43,9 @@ dbExecute(db_connection,
 dbExecute(db_connection, 
           "CREATE TABLE IF NOT EXISTS memberships (
               membership_type_id VARCHAR (50) PRIMARY KEY,
-<<<<<<< HEAD
-<<<<<<< HEAD
-              membership_desc VARCHAR (50) NOT NULL
-=======
-              membership_type VARCHAR (50) NOT NULL
->>>>>>> fc5b28f05fee16ead44168da75fdf3b9b12c9075
-              )")
-=======
               membership_type VARCHAR (50) NOT NULL
               )"
           )
->>>>>>> 797c30b906ada5962583a85d1a018c32ab61d099
 
 #Create table for customers
 dbExecute(db_connection, 

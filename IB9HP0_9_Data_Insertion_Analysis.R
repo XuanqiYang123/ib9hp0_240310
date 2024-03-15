@@ -35,7 +35,7 @@ memberships_table <- memberships_table[!duplicated(memberships_table$membership_
 
 ##Normalising Customers Table
 customers_table <- customers_file %>%
-  select(cust_id, first_name, cust_email,password, cust_birth_date, block_num, postcode, address_type,cust_telephone)
+  select(cust_id, first_name, last_name, cust_email,password, cust_birth_date, block_num, postcode, address_type,cust_telephone)
 customers_table <- merge(customers_table,memberships_file, by = "cust_id")
 customers_table$...1 <- NULL
 customers_table$membership_type <- NULL
@@ -84,65 +84,189 @@ advertisers_table <- advertisers_file
 ##Normalising Advertisement Table
 advertisements_table <- advertisements_file
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> 797c30b906ada5962583a85d1a018c32ab61d099
 # Create connection to SQL database
 db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 # Inserting Dataframe into the sql database
 
 ## Inserting Products table
-dbWriteTable(db_connection,"products",products_table, append = TRUE)
+for(i in 1:nrow(products_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO products(prod_id,prod_name,prod_desc,voucher,prod_url,prod_unit_price) VALUES(",
+    "'", products_table$prod_id[i], "',",
+    "'", products_table$prod_name[i], "',",
+    "'", products_table$prod_desc[i], "',",
+    "'", products_table$voucher[i], "',",
+    "'", products_table$prod_url[i], "',",
+    products_table$prod_unit_price[i], ");",sep = "") 
+  )
+}
 
 ## Inserting Reviews table
-dbWriteTable(db_connection,"reviews",reviews_table, append = TRUE)
+for(i in 1:nrow(reviews_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO reviews(review_id,prod_rating,review_date,prod_id) VALUES(",
+    "'", reviews_table$review_id[i], "',",
+    "'", reviews_table$prod_rating[i], "',",
+    "'", reviews_table$review_date[i], "',",
+    "'", reviews_table$prod_id[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Memberships table
-dbWriteTable(db_connection,"memberships",memberships_table, append = TRUE)
+for(i in 1:nrow(memberships_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO memberships(membership_type_id, membership_type) VALUES(",
+    "'", memberships_table$membership_type_id[i], "',",
+    "'", memberships_table$membership_type[i], "');",sep = "") 
+  )
+}
 
-<<<<<<< HEAD
-## Inserting Memberships table
-dbWriteTable(db_connection,"memberships",memberships_table, append = TRUE)
->>>>>>> fc5b28f05fee16ead44168da75fdf3b9b12c9075
-=======
 ## Inserting Customers table
-dbWriteTable(db_connection,"customers",customers_table, append = TRUE)
+for(i in 1:nrow(customers_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO customers(cust_id,first_name,last_name,cust_email,password,cust_birth_date,address_type,block_num,postcode,cust_telephone,membership_type_id) VALUES(",
+    "'", customers_table$cust_id[i], "',",
+    "'", customers_table$first_name[i], "',",
+    "'", customers_table$last_name[i], "',",
+    "'", customers_table$cust_email[i], "',",
+    "'", customers_table$password[i], "',",
+    "'", customers_table$cust_birth_date[i], "',",
+    "'", customers_table$address_type[i], "',",
+    "'", customers_table$block_num[i], "',",
+    "'", customers_table$postcode[i], "',",
+    "'", customers_table$cust_telephone[i], "',",
+    "'", customers_table$membership_type_id[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Orders table
-dbWriteTable(db_connection,"orders",orders_table, append = TRUE)
+for(i in 1:nrow(orders_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO orders(order_id,cust_id) VALUES(",
+    "'", orders_table$order_id[i], "',",
+    "'", orders_table$cust_id[i],"');",sep = "") 
+  )
+}
 
 ## Inserting Payment table
-dbWriteTable(db_connection,"payments",payments_table, append = TRUE)
+for(i in 1:nrow(payments_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO payments(payment_id, payment_method, payment_amount, payment_status, payment_date, order_id) VALUES(",
+    "'", payments_table$payment_id[i], "',",
+    "'", payments_table$payment_method[i], "',",
+    payments_table$payment_amount[i], ",",
+    "'", payments_table$payment_status[i], "',",
+    "'", payments_table$payment_date[i], "',",
+    "'", payments_table$order_id[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Shipment table
-dbWriteTable(db_connection,"shipments",shipments_table, append = TRUE)
+for(i in 1:nrow(shipments_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO shipments(shipment_id, delivery_status, delivery_fee, delivery_recipient, shipper_name, est_delivery_date, delivery_departed_date, delivery_received_date, prod_id, order_id) VALUES(",
+    "'", shipments_table$shipment_id[i], "',",
+    "'", shipments_table$delivery_status[i], "',",
+    shipments_table$delivery_fee[i], ",",
+    "'", shipments_table$delivery_recipient[i], "',",
+    "'", shipments_table$shipper_name[i], "',",
+    "'", shipments_table$est_delivery_date[i], "',",
+    "'", shipments_table$delivery_departed_date[i], "',",
+    "'", shipments_table$delivery_received_date[i], "',",
+    "'", shipments_table$prod_id[i], "',",
+    "'", shipments_table$order_id[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Order details table
-dbWriteTable(db_connection,"order_details",order_details_table, append = TRUE)
+for(i in 1:nrow(order_details_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO order_details(order_quantity,order_date,order_price,order_value,prod_id,order_id) VALUES(",
+    order_details_table$order_quantity[i], ",",
+    "'", order_details_table$order_date[i], "',",
+    order_details_table$order_price[i], ",",
+    order_details_table$order_value[i], ",",
+    "'", order_details_table$prod_id[i], "',",
+    "'", order_details_table$order_id[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Suppliers table
-dbWriteTable(db_connection,"suppliers",suppliers_table, append = TRUE)
+for(i in 1:nrow(suppliers_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO suppliers(supplier_id,supplier_name,supplier_postcode,supplier_contact) VALUES(",
+    "'", suppliers_table$supplier_id[i], "',",
+    "'", suppliers_table$supplier_name[i], "',",
+    "'", suppliers_table$supplier_postcode[i], "',",
+    "'", suppliers_table$supplier_contact[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Supplies table
-dbWriteTable(db_connection,"supplies",supplies_table, append = TRUE)
+for(i in 1:nrow(supplies_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO supplies(supply_id, inventory_quantity, sold_quantity, supplier_id, prod_id) VALUES(",
+    "'", supplies_table$supply_id[i], "',",
+    supplies_table$inventory_quantity[i], ",",
+    supplies_table$sold_quantity[i], ",",
+    "'", supplies_table$supplier_id[i], "',",
+    "'", supplies_table$prod_id[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Customer queries table
-dbWriteTable(db_connection,"customer_queries",customer_queries_table, append = TRUE)
+for(i in 1:nrow(customer_queries_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO customer_queries(query_id, query_title, query_submission_date, query_closure_date, query_status, cust_id) VALUES(",
+    "'", customer_queries_table$query_id[i], "',",
+    "'", customer_queries_table$query_title[i], "',",
+    "'", customer_queries_table$query_submission_date[i], "',",
+    "'", customer_queries_table$query_closure_date[i], "',",
+    "'", customer_queries_table$query_status[i], "',",
+    "'", customer_queries_table$cust_id[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Categories table
-dbWriteTable(db_connection,"categories",categories_table, append = TRUE)
+for(i in 1:nrow(categories_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO categories(category_id, category_name) VALUES(",
+    "'", categories_table$category_id[i], "',",
+    "'", categories_table$category_name[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Product Categories table
-dbWriteTable(db_connection,"product_categories",product_categories_table, append = TRUE)
+for(i in 1:nrow(product_categories_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO product_categories(category_id, prod_id) VALUES(",
+    "'", product_categories_table$category_id[i], "',",
+    "'", product_categories_table$prod_id[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Advertisers table
-dbWriteTable(db_connection,"advertisers",advertisers_table, append = TRUE)
+for(i in 1:nrow(advertisers_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO advertisers(advertiser_id, advertiser_name, advertiser_email) VALUES(",
+    "'", advertisers_table$advertiser_id[i], "',",
+    "'", advertisers_table$advertiser_name[i], "',",
+    "'", advertisers_table$advertiser_email[i], "');",sep = "") 
+  )
+}
 
 ## Inserting Advertisements table
-dbWriteTable(db_connection,"advertisements",advertisements_table, append = TRUE)
+for(i in 1:nrow(advertisements_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO advertisements(ads_id, ads_start_date, ads_end_date, prod_id, advertiser_id) VALUES(",
+    "'", advertisements_table$ads_id[i], "',",
+    "'", advertisements_table$ads_start_date[i], "',",
+    "'", advertisements_table$ads_end_date[i], "',",
+    "'", advertisements_table$prod_id[i], "',",
+    "'", advertisements_table$advertiser_id[i], "');",sep = "") 
+  )
+}
 
 # Advanced Data Analysis
 ## Monthly Sales Trend Analysis by Value
@@ -151,7 +275,7 @@ dbWriteTable(db_connection,"advertisements",advertisements_table, append = TRUE)
                                       GROUP BY month
                                       ORDER BY month"))
 
-ggplot(sales_value_performance, aes(x = month, y = total_sales)) +
+ggplot(sales_value_performance, aes(x = as.Date(paste("01",sales_value_performance$month,sep = "-"), format = "%d-%m-%Y"), y = total_sales)) +
   geom_line(group = 1) +
   labs(y = "Sales Value", x = "Month", title = "Monthly Trend by Sales Value") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
@@ -162,11 +286,10 @@ ggplot(sales_value_performance, aes(x = month, y = total_sales)) +
                                       GROUP BY month
                                       ORDER BY month"))
 
-ggplot(sales_value_performance, aes(x = month, y = total_sales)) +
+ggplot(sales_value_performance, aes(x = as.Date(paste("01",sales_quantity_performance$month,sep = "-"), format = "%d-%m-%Y"), y = total_sales)) +
   geom_line(group = 1) +
   labs(y = "Sales Quantity", x = "Month", title = "Monthly Trend by Sales Quantity") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
 
 ## Product Ratings Analysis
 (product_rating <- dbGetQuery(db_connection, "SELECT p.prod_name, AVG(r.prod_rating) as avg_rating
@@ -179,8 +302,6 @@ ggplot(product_rating, aes (y = prod_name, x = avg_rating)) +
   geom_bar(stat = "identity") +
   labs(y = "Products", x = "Average Rating", title = "Product Rating Analysis") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-
 
 ## Highest Spent based on Customer Segment
 (membership_segmentation <- dbGetQuery(db_connection, "SELECT c. membership_type_id, m. membership_type,  SUM(o.order_value) as total_spent
@@ -255,5 +376,4 @@ ggplot(response_time, aes(x= query_id, y = response_time)) +
   geom_bar(stat = "identity") +
   labs(x = "Queries ID", y = "Response Time", title = "Response Time Trend on Customer Queries") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
->>>>>>> 797c30b906ada5962583a85d1a018c32ab61d099
 
