@@ -1,3 +1,4 @@
+install.packages("conjurer")
 ## Load Packages
 library(dplyr)
 library(tidyr)
@@ -12,11 +13,8 @@ library(charlatan) #for credit card number
 library(RSQLite)
 library(stringi) #random strings
 library(lubridate)
-if (!requireNamespace("devtools", quietly = TRUE)) {
-    install.packages("devtools")
-}
-library(devtools)
 library(conjurer) 
+
 
 ## Db Connection
 
