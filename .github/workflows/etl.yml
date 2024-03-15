@@ -19,7 +19,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-packages-v1
+          key: ${{ runner.os }}-r-packages-v1-${{ hashFiles('**/DESCRIPTION', '**/NAMESPACE') }}
           restore-keys: |
             ${{ runner.os }}-r-packages-
       - name: Install system dependencies for conjurer
@@ -34,7 +34,7 @@ jobs:
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
           git config --global user.name "duong4595"
-          git add --all database/
+          git add --all 
       - name: Commit files
         run: |
           git diff --quiet && git diff --staged --quiet || git commit -m "Update codes"
