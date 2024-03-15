@@ -24,7 +24,7 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 ### 'customers' table
 #Define parameters for customers
-set.seed(123)
+set.seed(122)
 n_customers <- 50
 birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
                         to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),
@@ -154,7 +154,8 @@ orders_data <-
          order_date = sample(date, n_orders, replace = T),
          payment_method = sample(pymt_method, n_orders, replace = T),
          payment_status = sample(pymt_status, n_orders, replace = T),
-         delivery_recipient = randomNames::randomNames(n_orders))
+         delivery_recipient = randomNames::randomNames(n_orders,
+                                                       which.names = "first"))
 #adding payment date with logic dependent on payment status
 orders_data <- orders_data %>%
   mutate("payment_date" = ifelse(payment_status == "Done", order_date, NA)) %>%
@@ -405,3 +406,5 @@ advertisements_data <- data.frame(
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements.csv", row.names = FALSE)
 
+
+#regenerate data

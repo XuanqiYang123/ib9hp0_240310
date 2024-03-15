@@ -37,7 +37,7 @@ address_type <- c("Home", "Office")
 #Create data
 customers_data <- 
   #Create n unique customer IDs with random names
-  data.frame("cust_id" = conjurer::buildCust(n_customers),
+  data.frame("cust_id" = paste("cust", seq(51,51+n_customers-1,1), sep = ""),
              "cust_name" = randomNames::randomNames(n_customers)) %>% 
   separate(cust_name, into = c("last_name", "first_name"), sep = ", ") %>%
   #Create email column, by merging last & first name with email domain @gmail.com
@@ -147,14 +147,15 @@ orders_col_order <-
 #generate n order IDs and assign customers to them, including order date
 orders_data <- 
   #Create n unique order IDs
-  data.frame("order_id" = conjurer::buildCust(n_orders)) %>%
+  data.frame("order_id" = paste("o",seq(101, 101+n_orders-1, 1), sep = "")) %>%
   mutate(order_id = gsub("cust", "o", order_id),
          payment_id = gsub("o", "pm", order_id),
          cust_id = sample(customers_data$cust_id, n_orders, replace = T),
          order_date = sample(date, n_orders, replace = T),
          payment_method = sample(pymt_method, n_orders, replace = T),
          payment_status = sample(pymt_status, n_orders, replace = T),
-         delivery_recipient = randomNames::randomNames(n_orders))
+         delivery_recipient = randomNames::randomNames(n_orders,
+                                                       which.names = "first"))
 #adding payment date with logic dependent on payment status
 orders_data <- orders_data %>%
   mutate("payment_date" = ifelse(payment_status == "Done", order_date, NA)) %>%
@@ -404,3 +405,6 @@ advertisements_data <- data.frame(
 )
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round2.csv", row.names = FALSE)
+
+
+#try pushing
