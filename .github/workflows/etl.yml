@@ -52,6 +52,7 @@ jobs:
           
       - name: Add files
         run: |
+          git config --local --unset-all "http.https://github.com/.extraheader"
           git config --global user.email "duong.trinh@warwick.ac.uk"
           git config --global user.name "duong4595"
           git add --all 
