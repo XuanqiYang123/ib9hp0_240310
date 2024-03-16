@@ -414,4 +414,4 @@ advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round2.csv", row.names = FALSE)
 
 
-#try pushing
+#try pushing mar 16
