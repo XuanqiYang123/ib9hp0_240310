@@ -21,9 +21,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-packages-v1-${{ hashFiles('**/DESCRIPTION', '**/NAMESPACE') }}
+          key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
           restore-keys: |
-            ${{ runner.os }}-r-packages-
+            ${{ runner.os }}-r-
             
       - name: Install system dependencies
         run: |
