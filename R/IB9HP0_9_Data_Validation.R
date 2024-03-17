@@ -333,3 +333,190 @@ if (all(!inherits(try(as.Date(customers_table$cust_birth_date, format = "%d-%m-%
 
 
 
+
+# Create connection to SQL database
+db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
+
+# Inserting Dataframe into the sql database
+
+## Inserting Products table
+for(i in 1:nrow(products_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO products(prod_id,prod_name,prod_desc,voucher,prod_url,prod_unit_price) VALUES(",
+    "'", products_table$prod_id[i], "',",
+    "'", products_table$prod_name[i], "',",
+    "'", products_table$prod_desc[i], "',",
+    "'", products_table$voucher[i], "',",
+    "'", products_table$prod_url[i], "',",
+    products_table$prod_unit_price[i], ");",sep = "") 
+  )
+}
+
+## Inserting Reviews table
+for(i in 1:nrow(reviews_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO reviews(review_id,prod_rating,review_date,prod_id) VALUES(",
+    "'", reviews_table$review_id[i], "',",
+    "'", reviews_table$prod_rating[i], "',",
+    "'", reviews_table$review_date[i], "',",
+    "'", reviews_table$prod_id[i], "');",sep = "") 
+  )
+}
+
+## Inserting Memberships table
+for(i in 1:nrow(memberships_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO memberships(membership_type_id, membership_type) VALUES(",
+    "'", memberships_table$membership_type_id[i], "',",
+    "'", memberships_table$membership_type[i], "');",sep = "") 
+  )
+}
+
+## Inserting Customers table
+for(i in 1:nrow(customers_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO customers(cust_id,first_name,last_name,cust_email,password,cust_birth_date,address_type,block_num,postcode,cust_telephone,membership_type_id) VALUES(",
+    "'", customers_table$cust_id[i], "',",
+    "'", customers_table$first_name[i], "',",
+    "'", customers_table$last_name[i], "',",
+    "'", customers_table$cust_email[i], "',",
+    "'", customers_table$password[i], "',",
+    "'", customers_table$cust_birth_date[i], "',",
+    "'", customers_table$address_type[i], "',",
+    "'", customers_table$block_num[i], "',",
+    "'", customers_table$postcode[i], "',",
+    "'", customers_table$cust_telephone[i], "',",
+    "'", customers_table$membership_type_id[i], "');",sep = "") 
+  )
+}
+
+## Inserting Orders table
+for(i in 1:nrow(orders_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO orders(order_id,cust_id) VALUES(",
+    "'", orders_table$order_id[i], "',",
+    "'", orders_table$cust_id[i],"');",sep = "") 
+  )
+}
+
+## Inserting Payment table
+for(i in 1:nrow(payments_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO payments(payment_id, payment_method, payment_amount, payment_status, payment_date, order_id) VALUES(",
+    "'", payments_table$payment_id[i], "',",
+    "'", payments_table$payment_method[i], "',",
+    payments_table$payment_amount[i], ",",
+    "'", payments_table$payment_status[i], "',",
+    "'", payments_table$payment_date[i], "',",
+    "'", payments_table$order_id[i], "');",sep = "") 
+  )
+}
+
+## Inserting Shipment table
+for(i in 1:nrow(shipments_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO shipments(shipment_id, delivery_status, delivery_fee, delivery_recipient, shipper_name, est_delivery_date, delivery_departed_date, delivery_received_date, prod_id, order_id) VALUES(",
+    "'", shipments_table$shipment_id[i], "',",
+    "'", shipments_table$delivery_status[i], "',",
+    shipments_table$delivery_fee[i], ",",
+    "'", shipments_table$delivery_recipient[i], "',",
+    "'", shipments_table$shipper_name[i], "',",
+    "'", shipments_table$est_delivery_date[i], "',",
+    "'", shipments_table$delivery_departed_date[i], "',",
+    "'", shipments_table$delivery_received_date[i], "',",
+    "'", shipments_table$prod_id[i], "',",
+    "'", shipments_table$order_id[i], "');",sep = "") 
+  )
+}
+
+## Inserting Order details table
+for(i in 1:nrow(order_details_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO order_details(order_quantity,order_date,order_price,order_value,prod_id,order_id) VALUES(",
+    order_details_table$order_quantity[i], ",",
+    "'", order_details_table$order_date[i], "',",
+    order_details_table$order_price[i], ",",
+    order_details_table$order_value[i], ",",
+    "'", order_details_table$prod_id[i], "',",
+    "'", order_details_table$order_id[i], "');",sep = "") 
+  )
+}
+
+## Inserting Suppliers table
+for(i in 1:nrow(suppliers_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO suppliers(supplier_id,supplier_name,supplier_postcode,supplier_contact) VALUES(",
+    "'", suppliers_table$supplier_id[i], "',",
+    "'", suppliers_table$supplier_name[i], "',",
+    "'", suppliers_table$supplier_postcode[i], "',",
+    "'", suppliers_table$supplier_contact[i], "');",sep = "") 
+  )
+}
+
+## Inserting Supplies table
+for(i in 1:nrow(supplies_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO supplies(supply_id, inventory_quantity, sold_quantity, supplier_id, prod_id) VALUES(",
+    "'", supplies_table$supply_id[i], "',",
+    supplies_table$inventory_quantity[i], ",",
+    supplies_table$sold_quantity[i], ",",
+    "'", supplies_table$supplier_id[i], "',",
+    "'", supplies_table$prod_id[i], "');",sep = "") 
+  )
+}
+
+## Inserting Customer queries table
+for(i in 1:nrow(customer_queries_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO customer_queries(query_id, query_title, query_submission_date, query_closure_date, query_status, cust_id) VALUES(",
+    "'", customer_queries_table$query_id[i], "',",
+    "'", customer_queries_table$query_title[i], "',",
+    "'", customer_queries_table$query_submission_date[i], "',",
+    "'", customer_queries_table$query_closure_date[i], "',",
+    "'", customer_queries_table$query_status[i], "',",
+    "'", customer_queries_table$cust_id[i], "');",sep = "") 
+  )
+}
+
+## Inserting Categories table
+for(i in 1:nrow(categories_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO categories(category_id, category_name) VALUES(",
+    "'", categories_table$category_id[i], "',",
+    "'", categories_table$category_name[i], "');",sep = "") 
+  )
+}
+
+## Inserting Product Categories table
+for(i in 1:nrow(product_categories_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO product_categories(category_id, prod_id) VALUES(",
+    "'", product_categories_table$category_id[i], "',",
+    "'", product_categories_table$prod_id[i], "');",sep = "") 
+  )
+}
+
+## Inserting Advertisers table
+for(i in 1:nrow(advertisers_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO advertisers(advertiser_id, advertiser_name, advertiser_email) VALUES(",
+    "'", advertisers_table$advertiser_id[i], "',",
+    "'", advertisers_table$advertiser_name[i], "',",
+    "'", advertisers_table$advertiser_email[i], "');",sep = "") 
+  )
+}
+
+## Inserting Advertisements table
+for(i in 1:nrow(advertisements_table)){
+  dbExecute(db_connection, paste(
+    "INSERT INTO advertisements(ads_id, ads_start_date, ads_end_date, prod_id, advertiser_id) VALUES(",
+    "'", advertisements_table$ads_id[i], "',",
+    "'", advertisements_table$ads_start_date[i], "',",
+    "'", advertisements_table$ads_end_date[i], "',",
+    "'", advertisements_table$prod_id[i], "',",
+    "'", advertisements_table$advertiser_id[i], "');",sep = "") 
+  )
+}
+
+
+
