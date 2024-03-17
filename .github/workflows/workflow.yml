@@ -48,11 +48,11 @@ jobs:
 
       - name: Execute R script data_validation
         run: |
-          Rscript R/IB9HP0_9_Data_Validation.R
+          Rscript R/IB9HP0_9_Data_Validation_Insertion.R
 
-      - name: Execute R script data_insertion_analysis
+      - name: Execute R script data_analysis
         run: |
-          Rscript R/IB9HP0_9_Data_Insertion_Analysis.R
+          Rscript R/IB9HP0_9_Data_Analysis.R
           
       - name: Add files
         run: |
