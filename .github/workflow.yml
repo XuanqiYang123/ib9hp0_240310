@@ -36,19 +36,23 @@ jobs:
 
       - name: Execute R script synth_1
         run: |
-          Rscript IB9HP0_9_synth_1.R
+          Rscript R/IB9HP0_9_synth_1.R
           
       - name: Execute R script synth_2
         run: |
-          Rscript IB9HP0_9_synth_2.R
+          Rscript R/IB9HP0_9_synth_2.R
+
+      - name: Execute R script data_validation
+        run: |
+          Rscript R/IB9HP0_9_Data_Validation.R
           
       - name: Execute R script table_creation
         run: |
-          Rscript IB9HP0_9_Table_Creation.R
+          Rscript R/IB9HP0_9_Table_Creation.R
 
       - name: Execute R script data_insertion
         run: |
-          Rscript IB9HP0_9_Data_Insertion_Analysis.R
+          Rscript R/IB9HP0_9_Data_Insertion_Analysis.R
           
       - name: Add files
         run: |
