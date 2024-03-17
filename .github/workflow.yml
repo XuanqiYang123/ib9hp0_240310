@@ -1,4 +1,4 @@
-name: ETL Workflow for product data
+name: Workflow for database management
 
 on:
   schedule:
