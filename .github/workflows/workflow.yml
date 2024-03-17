@@ -41,16 +41,16 @@ jobs:
       - name: Execute R script synth_2
         run: |
           Rscript R/IB9HP0_9_synth_2.R
-
-      - name: Execute R script data_validation
-        run: |
-          Rscript R/IB9HP0_9_Data_Validation.R
           
       - name: Execute R script table_creation
         run: |
           Rscript R/IB9HP0_9_Table_Creation.R
 
-      - name: Execute R script data_insertion
+      - name: Execute R script data_validation
+        run: |
+          Rscript R/IB9HP0_9_Data_Validation.R
+
+      - name: Execute R script data_insertion_analysis
         run: |
           Rscript R/IB9HP0_9_Data_Insertion_Analysis.R
           
