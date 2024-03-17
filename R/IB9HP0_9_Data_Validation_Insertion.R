@@ -2,6 +2,7 @@
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
+library(RSQLite)
 
 # Read Datafile
 advertisements_file <- read_csv("data_uploads/R_synth_advertisements.csv") 
