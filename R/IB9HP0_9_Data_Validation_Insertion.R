@@ -332,9 +332,6 @@ if (all(!inherits(try(as.Date(customers_table$cust_birth_date, format = "%d-%m-%
 }
 
 
-
-
-
 # Create connection to SQL database
 db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
@@ -342,15 +339,20 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 ## Inserting Products table
 for(i in 1:nrow(products_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO products(prod_id,prod_name,prod_desc,voucher,prod_url,prod_unit_price) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO products(prod_id,prod_name,prod_desc,voucher,prod_url,prod_unit_price)", "SELECT",
     "'", products_table$prod_id[i], "',",
     "'", products_table$prod_name[i], "',",
     "'", products_table$prod_desc[i], "',",
     "'", products_table$voucher[i], "',",
     "'", products_table$prod_url[i], "',",
-    products_table$prod_unit_price[i], ");",sep = "") 
-  )
+    products_table$prod_unit_price[i],
+    "WHERE NOT EXISTS (SELECT 1 FROM products WHERE prod_id = '",products_table$prod_id[i], "')"
+  )) > 0) {
+    print("Data inserted successfully")
+  } else {
+    print("All products id already exists in the database")
+  }
 }
 
 ## Inserting Reviews table
