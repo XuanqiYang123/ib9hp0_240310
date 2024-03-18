@@ -350,7 +350,7 @@ write.csv(memberships_data, "data_uploads/R_synth_memberships_round2.csv")
 set.seed(456)
 n_queries <- 20
 customer_queries_data <- data.frame(
-  query_id = sprintf("Q%d", 21:n_queries),
+  "query_id" = paste("Q",seq(21, 21+n_queries-1, 1), sep = ""),
   cust_id = sample(customers_data$cust_id, n_queries, replace = TRUE),
   query_title = sample(c("Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", "Wrong Delivery"), n_queries, replace = TRUE),
   query_submission_date = sample(seq(as.Date('2024-03-15'), as.Date('2024-03-20'), by="day"), n_queries, replace = TRUE),
@@ -392,7 +392,7 @@ write.csv(categories_data, "data_uploads/R_synth_categories_round2.csv")
 set.seed(456)
 n_advertisers <- 5
 advertisers_data <- data.frame(
-  "advertiser_id" = paste("ADV%d",seq(6, 6+n_advertisers-1, 1), sep = ""),
+  "advertiser_id" = paste("ADV",seq(6, 6+n_advertisers-1, 1), sep = ""),
   advertiser_name = c("Ads Beauty", "Ads Power", "Ads by WBS", "Ads by MSBA", "Ads Master"),
   advertiser_email = sprintf("advertiser%d@gmail.com", 1:n_advertisers)
 )
@@ -403,7 +403,7 @@ write.csv(advertisers_data, "data_uploads/R_synth_advertisers_round2.csv", row.n
 set.seed(456)
 n_ads <- 9
 advertisements_data <- data.frame(
-  "ads_id" = paste("ADS%d",seq(10, 10+n_ads-1, 1), sep = ""),
+  "ads_id" = paste("ADS",seq(10, 10+n_ads-1, 1), sep = ""),
   prod_id = sample(products_data$prod_id, n_ads, replace = TRUE),
   advertiser_id = sample(advertisers_data$advertiser_id, n_ads, replace = TRUE),
   ads_start_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), n_ads, replace = TRUE),
