@@ -1119,15 +1119,16 @@ write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round2.csv",
 Finally, all the data will be generated into csv file which are separated according to the 1NF.
 
 ## Data Import and Quality Assurance
-After generating the data, the csv file is imported. Instead of explicitly specifying the name of the data, a for loop is utilized to import the data dynamically based on the table name pattern. This approach enables the use of read.csv within the loop, facilitating the seamless addition of new data files to the existing data frame. Consequently, no manual edit is needed for new data read. 
 
-Prior to inserting data into the database,  it will undergo a two step validation process.
+After generating the data, the csv file is imported. Instead of explicitly specifying the name of the data, a for loop is utilized to import the data dynamically based on the table name pattern. This approach enables the use of read.csv within the loop, facilitating the seamless addition of new data files to the existing data frame. Consequently, no manual edit is needed for new data read.
+
+Prior to inserting data into the database, it will undergo a two step validation process.
 
 The first step involves assessing the quality of the data. This includes verifying aspects such as the date format of the input data. If the data does not conform to the expected format, it is reformatted according to the standardized date format in the database.
 
-Following the initial quality check, the second step of validation involves verifying whether the new data already exists within the database. If any observations within the new data are found to be duplicates of existing records in the database, these duplicated observations will not be inserted. 
+Following the initial quality check, the second step of validation involves verifying whether the new data already exists within the database. If any observations within the new data are found to be duplicates of existing records in the database, these duplicated observations will not be inserted.
 
-The data insertion is integrated with the second step data validation simultaneously. INSERT INTO function is employed instead of utilising dbWriteTable. This choice allows for the formatting of dates as dd-mm-yyyy, unlike dbWriteTable, where dates are stored as strings. Additionally, each time the data insertion code is executed, an error log is generated. This log serves as a reference, containing information about duplicate observations and successfully stored data within the database. 
+The data insertion is integrated with the second step data validation simultaneously. INSERT INTO function is employed instead of utilising dbWriteTable. This choice allows for the formatting of dates as dd-mm-yyyy, unlike dbWriteTable, where dates are stored as strings. Additionally, each time the data insertion code is executed, an error log is generated. This log serves as a reference, containing information about duplicate observations and successfully stored data within the database.
 
 ```{r}
 # Read Data file
@@ -1847,5 +1848,3 @@ for(i in 1:nrow(advertisements_table)) {
 }
 
 ```
-
-

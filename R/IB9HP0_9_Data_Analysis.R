@@ -141,6 +141,7 @@ membership_by_mnth_date <- membership_segmentation %>%
   filter(year != 2024) %>%
   summarise(total_spend = sum(total_spent))
 
+### Plot spending by membership type
 p.membership <- ggplot(filter(membership_segmentation,
                               format(as.Date(date), "%Y") != 2024), 
          aes(x = membership_type, 
@@ -153,6 +154,7 @@ p.membership <- ggplot(filter(membership_segmentation,
   scale_y_continuous(labels = comma,
                      limits = c(0, 90000))
 
+### Plot spending by membership type by year
 p.membership_mnth <- ggplot(membership_by_mnth_date, 
        aes(fill = year, y = total_spend, 
            x = membership_type)) +
@@ -162,18 +164,18 @@ p.membership_mnth <- ggplot(membership_by_mnth_date,
   theme_light() +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"),
         axis.title.y = element_blank(),
-        axis.text.y = element_blank(),
+        #axis.text.y = element_blank(),
         axis.ticks.y = element_blank()) +
   scale_y_continuous(labels = comma,
                      limits = c(0, 90000))
-
+### Combine two membership charts 
 gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
                         widths = c(0.5, 1.1),
                         top = ggpubr::text_grob("Spending by Membership Type", 
                                                 size = 15, face = "bold"))
 
 ## Analysis 4: Customer QUeries
-### Most Frequent Queries
+### Most Frequent Queries - get data from db
 (queries_frequencies <- 
     dbGetQuery(db_connection,
                "SELECT query_title, COUNT(*) as frequencies
@@ -181,35 +183,49 @@ gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
                GROUP BY query_title
                ORDER BY frequencies DESC"))
 
-ggplot(queries_frequencies, 
+### Plot query types in terms of frequency
+p.query_freq <- ggplot(queries_frequencies, 
        aes(x= reorder(query_title, desc(frequencies)), 
                                 y = frequencies)) +
   geom_bar(stat = "identity") +
-  labs(x = "Queries", y = "Frequencies", title = "Most Frequent Customer Issues") +
+  labs(x = "Query Type", y = "Frequency", 
+       subtitle = "Frequency") +
+  theme_light() +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
-## Response Time Analyis for Customer Queries
+### Response Time Analyis for Customer Queries - get data from the db
 (response_time <- 
     dbGetQuery(db_connection,
                "SELECT query_id, 
+               query_title,
                query_closure_date,
                query_submission_date
                FROM customer_queries
                WHERE query_closure_date <> 'NA'"))
 
+### Transform data - get turnaround time
 response_time <- response_time %>%
-  mutate(closed_date = format(as.Date(query_closure_date), "%d"),
-         submission_date = format(as.Date(query_submission_date), "%d"))
+  mutate(turnaround_time = round(difftime(query_closure_date, query_submission_date,
+                                    units = "weeks"),0) ) %>%
+  group_by(query_title) %>%
+  summarise(avg_turnaround_time = round(mean(turnaround_time),1)) %>%
+  merge(queries_frequencies, by = "query_title", remove = F)
 
-# mutate(turnaround_time = 
-#          difftime(query_closure_date, query_submission_date, units = "days"))
-
-ggplot(response_time, aes(x= query_id, y = response_time)) +
+### Plot query by response time
+p.query_time <- ggplot(response_time, 
+       aes(x= reorder(query_title, desc(frequencies)), 
+           y = avg_turnaround_time)) +
   geom_bar(stat = "identity") +
-  labs(x = "Queries ID", y = "Response Time", title = "Response Time Trend on Customer Queries") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(x = "Query Type", y = "Avg Turnaround Time (weeks)", 
+       subtitle = "Turnaround Time") +
+  theme_light()
+### Combine frequency and turnaround time
+gridExtra::grid.arrange(p.query_freq, p.query_time, ncol = 2,
+                        top = ggpubr::text_grob("Customer Queries", 
+                                                size = 15, face = "bold"))
 
 ## Analysis 5: Payment Method
+### Get data from the db
 (top_payment <- 
     dbGetQuery(db_connection,
                "SELECT payment_method, COUNT(*) AS frequencies,
@@ -217,7 +233,7 @@ ggplot(response_time, aes(x= query_id, y = response_time)) +
                FROM payments
                GROUP BY payment_method
                ORDER BY frequencies DESC"))
-
+### Plot payment method by frequency
 p.frequency <- ggplot(top_payment, aes(x= reorder(payment_method, desc(frequencies)), 
                         y = frequencies)) +
   geom_bar(stat = "identity") +
@@ -226,7 +242,7 @@ p.frequency <- ggplot(top_payment, aes(x= reorder(payment_method, desc(frequenci
   theme_light() +
   theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
   scale_y_continuous(labels = comma)
-
+### Plot payment method by value
 p.payment_amnt <- ggplot(top_payment, 
                          aes(x= reorder(payment_method, desc(frequencies)), 
                                        y = pymnt_amnt)) +
@@ -236,7 +252,7 @@ p.payment_amnt <- ggplot(top_payment,
   theme_light() +
   theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
   scale_y_continuous(labels = comma)
-
+### Combine payment method by frequency and value
 gridExtra::grid.arrange(p.frequency, p.payment_amnt, ncol = 2,
                         top = ggpubr::text_grob("Payment Methods", 
                                                 size = 15, face = "bold"))
