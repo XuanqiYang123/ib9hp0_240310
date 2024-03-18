@@ -110,13 +110,13 @@ gridExtra::grid.arrange(p.top_prod_sales, p.top_prod_rating, ncol = 2,
 ### Highest Spent based on Customer Segment
 (membership_segmentation <- 
     dbGetQuery(db_connection, 
-               "SELECT c. membership_type_id, 
-               m. membership_type,  
+               "SELECT c.membership_type_id, 
+               m.membership_type,  
                SUM(o.order_value) as total_spent
                FROM customers c
-               JOIN memberships m ON c. membership_type_id = m. membership_type_id
-               JOIN orders d ON c. cust_id = d. cust_id
-               JOIN order_details o ON d. order_id = o. order_id
+               JOIN memberships m ON c.membership_type_id = m.membership_type_id
+               JOIN orders d ON c.cust_id = d.cust_id
+               JOIN order_details o ON d.order_id = o.order_id
                GROUP BY c.membership_type_id
                ORDER BY total_spent DESC"))
 
@@ -125,13 +125,24 @@ ggplot(membership_segmentation, aes(x = membership_type, y = total_spent)) +
   labs(x = "Memberships Type", y = "Total Spent", title = "Top Spender based on Membership Tyoe") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
-## Suppliers Popularity
-(top_suppliers <- dbGetQuery(db_connection, "SELECT a.supplier_name AS suppliers, SUM(b.sold_quantity) AS total_sales
-                            FROM suppliers a
-                            JOIN supplies b ON a.supplier_id = b.supplier_id
-                            GROUP BY a.supplier_id
-                            ORDER BY total_sales DESC
-                            LIMIT 5"))
+## Analysis 4: Suppliers Popularity
+### Get the data
+(top_suppliers <- 
+    dbGetQuery(db_connection, 
+               "SELECT a.supplier_name AS suppliers,
+               p.prod_name AS product,
+               SUM(b.sold_quantity) AS volume_sales
+               FROM suppliers a
+               JOIN supplies b ON a.supplier_id = b.supplier_id
+               JOIN products p ON b.prod_id = p.prod_id
+               GROUP BY p.prod_name, a.supplier_id 
+               ORDER BY volume_sales DESC
+               "))
+### Trasform the data
+top_suppliers <- top_suppliers %>%
+  mutate(vol_share = volume_sales/sum(volume_sales)) %>%
+  group_by(suppliers) %>%
+  
 
 ggplot(top_suppliers, aes(x= suppliers, y = total_sales)) +
   geom_bar(stat = "identity") +
