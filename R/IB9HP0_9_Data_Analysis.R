@@ -125,60 +125,85 @@ gridExtra::grid.arrange(p.top_prod_sales, p.top_prod_rating, ncol = 2,
     dbGetQuery(db_connection, 
                "SELECT c.membership_type_id, 
                m.membership_type,  
-               SUM(o.order_value) as total_spent
+               SUM(o.order_value) as total_spent,
+               o.order_date AS date
                FROM customers c
                JOIN memberships m ON c.membership_type_id = m.membership_type_id
                JOIN orders d ON c.cust_id = d.cust_id
                JOIN order_details o ON d.order_id = o.order_id
-               GROUP BY c.membership_type_id
+               GROUP BY o.order_date, c.membership_type_id
                ORDER BY total_spent DESC"))
+### Transform the data
+membership_by_mnth_date <- membership_segmentation %>%
+  mutate("month" = format(as.Date(date), "%m"),
+         "year" = format(as.Date(date), "%Y")) %>%
+  group_by(membership_type, year) %>%
+  filter(year != 2024) %>%
+  summarise(total_spend = sum(total_spent))
 
-ggplot(membership_segmentation, aes(x = membership_type, y = total_spent)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Memberships Type", y = "Total Spent", title = "Top Spender based on Membership Tyoe") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+p.membership <- ggplot(filter(membership_segmentation,
+                              format(as.Date(date), "%Y") != 2024), 
+         aes(x = membership_type, 
+             y = total_spent)) +
+  geom_bar(stat = "identity", show.legend = F) +
+  labs(x = "Membership Type", y = "Total Spend (£)", 
+       subtitle = "Spending") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
+  scale_y_continuous(labels = comma,
+                     limits = c(0, 90000))
+
+p.membership_mnth <- ggplot(membership_by_mnth_date, 
+       aes(fill = year, y = total_spend, 
+           x = membership_type)) +
+  geom_col(position = "dodge", color = "white") + 
+  labs(fill = "Year", x = "Membership Type", y = "Total Spend (£)", 
+       subtitle = "Spending by Year") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        axis.title.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank()) +
+  scale_y_continuous(labels = comma,
+                     limits = c(0, 90000))
+
+gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
+                        widths = c(0.5, 1.1),
+                        top = ggpubr::text_grob("Spending by Membership Type", 
+                                                size = 15, face = "bold"))
 
 ## Analysis 4: Suppliers Popularity
-### Get the data
-(top_suppliers <- 
-    dbGetQuery(db_connection, 
-               "SELECT a.supplier_name AS suppliers,
-               p.prod_name AS product,
-              
-               SUM(b.sold_quantity) AS volume_sales
-               FROM suppliers a
-               JOIN supplies b ON a.supplier_id = b.supplier_id
-               JOIN products p ON b.prod_id = p.prod_id
-               
-               GROUP BY a.supplier_id 
-               ORDER BY volume_sales DESC
-               LIMIT 10"))
-# d.order_date AS date,
-# JOIN order_details d ON b.prod_id = d.prod_id
-### Trasform the data
-suppliers_shr <- top_suppliers %>%
-  mutate(vol_share = volume_sales/sum(volume_sales)) %>%
-  group_by(suppliers, product) %>%
-  summarise(vol_share = sum(vol_share))
-  
-
-ggplot(suppliers_shr, aes(fill= product, y = 100*vol_share, x = suppliers)) +
-  geom_col() + coord_flip() +
-  labs(x = "Suppliers", y = "Total Sales", title = "Top 5 Suppliers of All Time") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
 ## Most Popular Payment Method
-(top_payment <- dbGetQuery(db_connection,"SELECT payment_method, COUNT(*) as frequencies
-                           FROM payments
-                           GROUP BY payment_method
-                           ORDER BY frequencies DESC
-                           LIMIT 5"))
+(top_payment <- 
+    dbGetQuery(db_connection,
+               "SELECT payment_method, COUNT(*) AS frequencies,
+               SUM(payment_amount) AS pymnt_amnt
+               FROM payments
+               GROUP BY payment_method
+               ORDER BY frequencies DESC"))
 
-ggplot(top_payment, aes(x= payment_method, y = frequencies)) +
+p.frequency <- ggplot(top_payment, aes(x= reorder(payment_method, desc(frequencies)), 
+                        y = frequencies)) +
   geom_bar(stat = "identity") +
-  labs(x = "Payment Method", y = "Frequencies", title = "Frequently Used Payment Method") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  labs(x = "Payment Method", y = "Frequency", 
+       subtitle = "Frequently Used Payment Method") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
+  scale_y_continuous(labels = comma)
 
+p.payment_amnt <- ggplot(top_payment, 
+                         aes(x= reorder(payment_method, desc(frequencies)), 
+                                       y = pymnt_amnt)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Payment Method", y = "Payment Amount (£)", 
+       subtitle = "Payment Value") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
+  scale_y_continuous(labels = comma)
+
+gridExtra::grid.arrange(p.frequency, p.payment_amnt, ncol = 2,
+                        top = ggpubr::text_grob("Payment Methods", 
+                                                size = 15, face = "bold"))
 
 ## Most Frequent Queries
 (queries_frequencies <- dbGetQuery(db_connection,"SELECT query_title, COUNT(*) as frequencies
@@ -186,15 +211,27 @@ ggplot(top_payment, aes(x= payment_method, y = frequencies)) +
                                    GROUP BY query_title
                                    ORDER BY frequencies DESC"))
 
-ggplot(queries_frequencies, aes(x= query_title, y = frequencies)) +
+ggplot(queries_frequencies, aes(x= reorder(query_title, desc(frequencies)), 
+                                y = frequencies)) +
   geom_bar(stat = "identity") +
   labs(x = "Queries", y = "Frequencies", title = "Most Frequent Customer Issues") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
 ## Response Time Analyis for Customer Queries
-(response_time <- dbGetQuery(db_connection,"SELECT query_id, query_closure_date-query_submission_date as response_time
-                             FROM customer_queries
-                             ORDER BY response_time DESC"))
+(response_time <- 
+    dbGetQuery(db_connection,
+               "SELECT query_id, 
+               query_closure_date,
+               query_submission_date
+               FROM customer_queries
+               WHERE query_closure_date <> 'NA'"))
+
+response_time <- response_time %>%
+  mutate(closed_date = format(as.Date(query_closure_date), "%d"),
+         submission_date = format(as.Date(query_submission_date), "%d"))
+  
+  # mutate(turnaround_time = 
+  #          difftime(query_closure_date, query_submission_date, units = "days"))
 
 ggplot(response_time, aes(x= query_id, y = response_time)) +
   geom_bar(stat = "identity") +

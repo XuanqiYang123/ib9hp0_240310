@@ -2,18 +2,13 @@
 library(dplyr)
 library(tidyr)
 library(readr)
-library(ggplot2)
 #packages for synthetic data generation
 library(conjurer) 
 library(randomNames)
-library(Pareto)
-library(uuid)
 library(writexl)
 library(charlatan) #for credit card number
-library(RSQLite)
 library(stringi) #random strings
 library(lubridate)
-
 
 ## Db Connection
 
@@ -357,8 +352,6 @@ customer_queries_data <- data.frame(
   query_closure_date = sample(c("NA"), n_queries, replace = TRUE),
   query_status = sample(c("On Progress", "Submitted"), n_queries, replace = TRUE)
 )
-
-customer_queries_data$query_submission_date <- format(customer_queries_data$query_submission_date, "%d-%m-%Y")
 
 #Save to .csv file
 write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries_round2.csv", row.names = FALSE)

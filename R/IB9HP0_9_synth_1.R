@@ -2,17 +2,13 @@
 library(dplyr)
 library(tidyr)
 library(readr)
-library(ggplot2)
 #packages for synthetic data generation
+library(conjurer) 
 library(randomNames)
-library(Pareto)
-library(uuid)
 library(writexl)
 library(charlatan) #for credit card number
-library(RSQLite)
 library(stringi) #random strings
-library(lubridate)
-library(conjurer) 
+library(lubridate) 
 
 ## Db Connection
 
@@ -348,17 +344,18 @@ write.csv(memberships_data, "data_uploads/R_synth_memberships_round1.csv")
 ### 'customer_queries' table
 set.seed(123)
 n_queries <- 20
+quer_sub_date <- seq(from = as.Date("2023/01/01"), 
+                            to = as.Date("2023/01/31"), 1)
+quer_closed_date <- sample(seq(from = as.Date("2023/02/01"), 
+                            to = as.Date("2023/03/31"), 1))
 customer_queries_data <- data.frame(
   query_id = sprintf("Q%d", 1:n_queries),
   cust_id = sample(customers_data$cust_id, n_queries, replace = TRUE),
   query_title = sample(c("Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", "Wrong Delivery"), n_queries, replace = TRUE),
-  query_submission_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-1-31'), by="day"), n_queries, replace = TRUE),
-  query_closure_date = sample(seq(as.Date('2023-02-01'), as.Date('2023-03-31'), by="day"), n_queries, replace = TRUE),
+  query_submission_date = sample(quer_sub_date, n_queries, replace = TRUE),
+  query_closure_date = sample(quer_closed_date, n_queries, replace = TRUE),
   query_status = sample(c("Closed"), n_queries, replace = TRUE)
 )
-
-customer_queries_data$query_submission_date <- format(customer_queries_data$query_submission_date, "%d-%m-%Y")
-customer_queries_data$query_closure_date <- format(customer_queries_data$query_closure_date, "%d-%m-%Y")
 
 #Save to .csv file
 write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries_round1.csv", row.names = FALSE)
