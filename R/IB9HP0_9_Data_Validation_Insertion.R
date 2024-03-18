@@ -356,29 +356,39 @@ for(i in 1:nrow(products_table)){
 }
 
 ## Inserting Reviews table
-for(i in 1:nrow(reviews_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO reviews(review_id,prod_rating,review_date,prod_id) VALUES(",
+for(i in 1:nrow(reviews_table)) {
+  if (dbExecute(db_connection, paste(
+    "INSERT INTO reviews(review_id, prod_rating, review_date, prod_id) SELECT",
     "'", reviews_table$review_id[i], "',",
     "'", reviews_table$prod_rating[i], "',",
     "'", reviews_table$review_date[i], "',",
-    "'", reviews_table$prod_id[i], "');",sep = "") 
-  )
+    "'", reviews_table$prod_id[i], "'",
+    "WHERE NOT EXISTS (SELECT 1 FROM reviews WHERE review_id = '", reviews_table$review_id[i], "')"
+  )) > 0) {
+    print("Data inserted successfully")
+  } else {
+    print("Review ID already exists in the database")
+  }
 }
 
 ## Inserting Memberships table
 for(i in 1:nrow(memberships_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO memberships(membership_type_id, membership_type) VALUES(",
+  if (dbExecute(db_connection, paste(
+    "INSERT INTO memberships(membership_type_id, membership_type) SELECT",
     "'", memberships_table$membership_type_id[i], "',",
-    "'", memberships_table$membership_type[i], "');",sep = "") 
-  )
+    "'", memberships_table$membership_type[i], "'",
+    "WHERE NOT EXISTS (SELECT 1 FROM memberships WHERE membership_type_id = '", memberships_table$membership_type_id[i], "')"
+  )) > 0) {
+    print("Data inserted successfully")
+  } else {
+    print("Membership type id already exists in the database")
+  }
 }
 
 ## Inserting Customers table
 for(i in 1:nrow(customers_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO customers(cust_id,first_name,last_name,cust_email,password,cust_birth_date,address_type,block_num,postcode,cust_telephone,membership_type_id) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO customers(cust_id,first_name,last_name,cust_email,password,cust_birth_date,address_type,block_num,postcode,cust_telephone,membership_type_id) SELECT",
     "'", customers_table$cust_id[i], "',",
     "'", customers_table$first_name[i], "',",
     "'", customers_table$last_name[i], "',",
@@ -389,36 +399,52 @@ for(i in 1:nrow(customers_table)){
     "'", customers_table$block_num[i], "',",
     "'", customers_table$postcode[i], "',",
     "'", customers_table$cust_telephone[i], "',",
-    "'", customers_table$membership_type_id[i], "');",sep = "") 
-  )
+    "'", customers_table$membership_type_id[i], "'",
+    "WHERE NOT EXISTS (SELECT 1 FROM customers WHERE cust_id = '", customers_table$cust_id[i],"')" 
+  )) >0) {
+    print("Data inserted successfully")
+  } else {
+    print("Customer ID already exists in the database")
+  }
 }
 
 ## Inserting Orders table
 for(i in 1:nrow(orders_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO orders(order_id,cust_id) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO orders(order_id,cust_id) SELECT",
     "'", orders_table$order_id[i], "',",
-    "'", orders_table$cust_id[i],"');",sep = "") 
-  )
+    "'", orders_table$cust_id[i],"'",
+    "WHERE NOT EXISTS (SELECT 1 FROM orders WHERE order_id = '", orders_table$order_id[i],"')"
+  )) >0) {
+    print("Data inserted successfully")
+  } else {
+    print("Order ID already exists in the database")
+  }
 }
 
 ## Inserting Payment table
 for(i in 1:nrow(payments_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO payments(payment_id, payment_method, payment_amount, payment_status, payment_date, order_id) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO payments(payment_id, payment_method, payment_amount, payment_status, payment_date, order_id)", "SELECT",
     "'", payments_table$payment_id[i], "',",
     "'", payments_table$payment_method[i], "',",
     payments_table$payment_amount[i], ",",
     "'", payments_table$payment_status[i], "',",
     "'", payments_table$payment_date[i], "',",
-    "'", payments_table$order_id[i], "');",sep = "") 
-  )
+    "'", payments_table$order_id[i], "'",
+    "WHERE NOT EXISTS (SELECT 1 FROM payments WHERE payment_id = '", payments_table$payment_id[i],"');"
+  )) >0) {
+    print("Data inserted successfully")
+  } else {
+    print("Payment ID already exists in the databse")
+  }
 }
+
 
 ## Inserting Shipment table
 for(i in 1:nrow(shipments_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO shipments(shipment_id, delivery_status, delivery_fee, delivery_recipient, shipper_name, est_delivery_date, delivery_departed_date, delivery_received_date, prod_id, order_id) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO shipments(shipment_id, delivery_status, delivery_fee, delivery_recipient, shipper_name, est_delivery_date, delivery_departed_date, delivery_received_date, prod_id, order_id)", "SELECT",
     "'", shipments_table$shipment_id[i], "',",
     "'", shipments_table$delivery_status[i], "',",
     shipments_table$delivery_fee[i], ",",
@@ -428,8 +454,13 @@ for(i in 1:nrow(shipments_table)){
     "'", shipments_table$delivery_departed_date[i], "',",
     "'", shipments_table$delivery_received_date[i], "',",
     "'", shipments_table$prod_id[i], "',",
-    "'", shipments_table$order_id[i], "');",sep = "") 
-  )
+    "'", shipments_table$order_id[i], "'",
+    "WHERE NOT EXISTS (SELECT 1 FROM shipments WHERE shipment_id = '", shipments_table$shipment_id[i],"');"
+  )) >0) {
+    print("Data inserted successfully")
+  } else {
+    print("Shipment ID already exists in the database")
+  }
 }
 
 ## Inserting Order details table
@@ -447,38 +478,53 @@ for(i in 1:nrow(order_details_table)){
 
 ## Inserting Suppliers table
 for(i in 1:nrow(suppliers_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO suppliers(supplier_id,supplier_name,supplier_postcode,supplier_contact) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO suppliers(supplier_id,supplier_name,supplier_postcode,supplier_contact)", "SELECT",
     "'", suppliers_table$supplier_id[i], "',",
     "'", suppliers_table$supplier_name[i], "',",
     "'", suppliers_table$supplier_postcode[i], "',",
-    "'", suppliers_table$supplier_contact[i], "');",sep = "") 
-  )
+    "'", suppliers_table$supplier_contact[i], "'",
+    "WHERE NOT EXISTS (SELECT 1 FROM suppliers WHERE supplier_id = '", suppliers_table$supplier_id[i],"');"
+  )) >0) {
+    print("Data inserted successfully")
+  } else {
+    print("Supplier ID already exists in the database")
+  }
 }
 
 ## Inserting Supplies table
 for(i in 1:nrow(supplies_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO supplies(supply_id, inventory_quantity, sold_quantity, supplier_id, prod_id) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO supplies(supply_id, inventory_quantity, sold_quantity, supplier_id, prod_id)", "SELECT",
     "'", supplies_table$supply_id[i], "',",
     supplies_table$inventory_quantity[i], ",",
     supplies_table$sold_quantity[i], ",",
     "'", supplies_table$supplier_id[i], "',",
-    "'", supplies_table$prod_id[i], "');",sep = "") 
-  )
+    "'", supplies_table$prod_id[i], "'",
+    "WHERE NOT EXISTS (SELECT 1 FROM supplies WHERE supply_id = '", supplies_table$supply_id[i],"');"
+  )) >0) {
+    print("Data inserted successfully")
+  } else {
+    print("Supply ID already exists in the database")
+  }
 }
 
 ## Inserting Customer queries table
 for(i in 1:nrow(customer_queries_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO customer_queries(query_id, query_title, query_submission_date, query_closure_date, query_status, cust_id) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO customer_queries(query_id, query_title, query_submission_date, query_closure_date, query_status, cust_id)", "SELECT",
     "'", customer_queries_table$query_id[i], "',",
     "'", customer_queries_table$query_title[i], "',",
     "'", customer_queries_table$query_submission_date[i], "',",
     "'", customer_queries_table$query_closure_date[i], "',",
     "'", customer_queries_table$query_status[i], "',",
-    "'", customer_queries_table$cust_id[i], "');",sep = "") 
-  )
+    "'", customer_queries_table$cust_id[i], "'",
+    "WHERE NOT EXISTS (SELECT 1 FROM customer_queries WHERE query_id = '", customer_queries_table$query_id[i],"');"
+  )) > 0) {
+    print("Data inserted successfully")
+  } else {
+    print ("Query ID already exists in the database")
+  }
 }
 
 ## Inserting Categories table
@@ -489,6 +535,8 @@ for(i in 1:nrow(categories_table)){
     "'", categories_table$category_name[i], "');",sep = "") 
   )
 }
+
+dbExecute(db_connection, "DROP TABLE customer_queries")
 
 ## Inserting Product Categories table
 for(i in 1:nrow(product_categories_table)){
@@ -520,6 +568,3 @@ for(i in 1:nrow(advertisements_table)){
     "'", advertisements_table$advertiser_id[i], "');",sep = "") 
   )
 }
-
-
-
