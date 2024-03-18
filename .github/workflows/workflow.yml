@@ -42,7 +42,7 @@ jobs:
 
           
       - name: Install dependencies
-        run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl","gridExtra","scales"))'
+        run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl","gridExtra","scales","png"))'
 
       - name: Save R dependencies cache
         uses: actions/cache@v2
