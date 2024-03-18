@@ -5,8 +5,6 @@ on:
     - cron: '0 */3 * * *' # Run every 3 hours
   push:
     branches: [ main ]
-    paths-ignore:
-      - 'data_update/**'
       
 jobs:
   build:
@@ -67,10 +65,6 @@ jobs:
       - name: Execute R script data_validation_insertion
         run: |
           Rscript R/IB9HP0_9_Data_Validation_Insertion.R
-
-      - name: Execute R script new_data_update
-        run: |
-          Rscript R/IB9HP0_9_New_Data_Update.R
 
       - name: Execute R script data_analysis
         run: |
