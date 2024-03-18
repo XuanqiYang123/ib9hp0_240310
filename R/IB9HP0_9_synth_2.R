@@ -392,14 +392,14 @@ write.csv(categories_data, "data_uploads/R_synth_categories_round2.csv")
 set.seed(456)
 n_advertisers <- 5
 advertisers_data <- data.frame(
-<<<<<<< HEAD
+
   advertiser_id = sprintf("ADV%d", 1:n_advertisers),
   advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", 
                       "Ads Master", "Ads Expert"),
-=======
+
   "advertiser_id" = paste("ADV",seq(6, 6+n_advertisers-1, 1), sep = ""),
   advertiser_name = c("Ads Beauty", "Ads Power", "Ads by WBS", "Ads by MSBA", "Ads Master"),
->>>>>>> 9cd365ab5c811775fc22669aaf3703b9aeca368d
+
   advertiser_email = sprintf("advertiser%d@gmail.com", 1:n_advertisers)
 )
 #Save to .csv file
