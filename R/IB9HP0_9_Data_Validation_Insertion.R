@@ -346,10 +346,18 @@ if (any(!is.na(products_table[,c("prod_id", "prod_url", "prod_unit_price")]))) {
 }
 
 ### Checking date format for the review_date
-if (all(!inherits(try(as.Date(reviews_table$review_date, format = "%d-%m-%Y")),"try-error"))) {
-  print("Dates are already in the correct format")
+check_and_correct_date_format <- function(date_column_data) {
+  if (all(!inherits(try(as.Date(date_column_data, format = "%d-%m-%Y")), "try-error"))) {
+    return(date_column_data) 
+  } else {
+    return(format(mdy(date_column_data), "%d-%m-%Y"))
+  }
+}
+reviews_table$review_date <- check_and_correct_date_format(reviews_table$review_date)
+if (all(!inherits(try(as.Date(reviews_table$review_date, format = "%d-%m-%Y")), "try-error"))) {
+  print("Review Dates are now in the correct format")
 } else {
-  print("Dates are not in the correct format")
+  print("There was an issue with converting the Review Dates")
 }
 
 ### Checking the URL format of the prod_url
