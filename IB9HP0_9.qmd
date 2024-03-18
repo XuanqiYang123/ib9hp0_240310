@@ -75,8 +75,8 @@ The design of database system corresponds to the below assumptions:
 ## Conceptual Design: Entities and Relationships
 
 1.  Customer---Product Each customer can order many products, and each product can be ordered by many customers. Thus, cardinality is M: N.
-2.  Customer---Shipment Each customer can have many shipments, and each shipment can just be associated with one customer. Thus, cardinality is M: 1.
-3.  Customer---Purchase Each customer can own many purchases, and each purchase can be associated with one customer. Thus, cardinality is M: 1.
+2.  Customer---Shipment Each customer can have many shipments, and each shipment can just be associated with one customer. Thus, cardinality is N:1.
+3.  Customer---Payment Each customer can make many payments, and each payment can be associated with one customer. Thus, cardinality is N:1.
 4.  Supplier---Product Each supplier can supply many products, and each product can be from many suppliers. Thus, cardinality is M: N.
 5.  Category ---Product Each category can have many products, and each product belongs to only 1 category. Thus, cardinality is 1: N.
 6.  Advertisement---product Each advertisement can advertise only 1 product, and each product can be associated with one advertisement. Thus, cardinality is 1:1.
@@ -90,7 +90,7 @@ Figure 1 shows the relationship set for the entities
 
 **Figure 1. Relationship Sets**
 
-The relationship of all entities and its attributes is illustrated in the Figure 2 of the Entity Relationship Diagram (ERD)
+The relationship of all entities and its attributes is illustrated in the Figure 2 of the ERD.
 
 ![](images/group9_ER-Final%20ERD.png)
 
@@ -108,7 +108,7 @@ Logical design is used to translate the conceptual ERD model for the application
 
 The physical design refers to the implementation of the logical schema on the physical storage devices of a Database Management System (DBMS). For this project, SQL is used for managing and manipulating database within a DBMS.
 
-In this step, the data type of each attributes will be defined. The decision regarding the data types are made based on various factors such as the nature of the data and the volume of the data. Choosing appropriate data types ensures data integrity, efficient storage utilization, and optimized query performance.
+In this step, the data type of each attributes will be defined. The decisions regarding the data types are made based on various factors such as the nature of the data and the volume of the data. Choosing appropriate data types ensures data integrity, efficient storage utilization, and optimized query performance.
 
 ```{r}
 db_file <- "IB9HP0_9.db"
@@ -318,9 +318,9 @@ dbExecute(db_connection,
 
 # Data Generation and Management
 
-## Synthethic Data Generation
+## Synthetic Data Generation
 
-The data used in the project is generated using R using several packages including randomNames, dplyr, tidyr, chartlatan, stringi, lubridate, and conjurer. Additionally, AI is used to generate names, categories, and descriptions. For the address, the postcode referred to the data provided by Office for National Statistics (ONS). The data is generated at one normal form (1NF) to ensure the consistency throughout the dataset.
+The data used in the project is generated using several packages in R, including randomNames, dplyr, tidyr, charlatan, stringi, lubridate, and conjurer. Additionally, AI is used to generate names, categories, and descriptions. For the address, due to data privacy issue, the postcode is referred to the data provided by Office for National Statistics (ONS). The data is generated in one normal form (1NF) to ensure the consistency throughout the dataset. Additionally, the data is generated in two rounds, including first-time insertion and new data update for GitHub actions.
 
 ```{r}
 ## Synthetic Data Generation #1
@@ -1859,25 +1859,23 @@ for(i in 1:nrow(advertisements_table)) {
 
 ## **Introduction**
 
-In this section, the project is implemented effectively through multiple streamlined workflows and seamless collaboration using GitHub. The setup of the GitHub Repository includes multiple organized folders namely R, data_update, data_uploads ,Data Analysis Results to store the files for each stage of the project. Apart from the folders the repository includes a README file which provides a brief description of the various attributes of the repository. The next section focuses on the automating aspect of the repository to ensure the integration of the workflows by working on specific triggers and actions to perform appropriate tasks.
+In this section, the project is implemented effectively through a streamlined workflow and seamless collaboration using GitHub. The setup of the GitHub Repository includes multiple organized folders namely R, data_uploads, data_analysis_results, and docs to store the files for each stage of the project. Apart from the folders the repository includes a README file which provides a brief description of the various attributes of the repository. The next section focuses on the automating aspect of the repository to ensure the integration of the workflows by working on specific triggers and actions to perform appropriate tasks.
 
 ## **GitHub Repository Structure**
 
-Our GitHub repository (IB9HP0_Group_9) has a clear and logical directory structure to support efficient project management and collaboration. The directory is structured as follows:
+The GitHub repository ([ib9hp0_group_9](https://github.com/duong4595/ib9hp0_group_9)) has a clear and logical directory structure to support efficient project management and collaboration. The directory is structured as follows:
 
-workflows folder: stores automated workflow profiles (e.g., CI/CD processes) for automating tasks such as data validation, updating databases, etc.
+-   'workflows' folder: stores automated workflow profiles (e.g., CI/CD processes) for automating tasks such as data validation, and database updates.
 
-data_uploads folder: Used to store raw data files for uploads. Files in this directory follow a clear naming convention, such as R_synth_customers_round1.csv and
+-   'data_uploads' folder: stores raw data files for database insertion. Files in this directory follow a clear naming convention, such as R_synth_customers_round1.csv and R_synth_customers_round2.csv, in order to quickly identify the source of the data. The insertion of new data also follows this rule, ensuring consistent data management.
 
-R_synth_customers_round2.csv, in order to quickly identify the source of the data. The insertion of new data also follows this rule, ensuring consistent data management.
+-   'data_analysis_results' folder: stores the results of the data analysis.
 
-analysis_results folder: used to store the results of the data analysis.
+-   'docs' folder : holds project's documents, such as the analysis report Quarto Markdown file (IB9HP0_9.qmd ) and the project RStudio project file (ib9hp0_group_9.Rproj).
 
-docs folder : holds project documents such as the analysis report Markdown file (IB9HP0_9.Rmd ) and the project RStudio project file (ib9hp0_group_9.Rproj).
+-   'R' folder: contains all R scripts covering data generation, table creation, data validation and insertion, and data analysis functions.
 
-R folder: contains all R scripts covering data generation, table creation, data validation and insertion, and data analysis functions.
-
-root: Includes .gitignore, README.md (the project description file), and the database file (IB9HP0_9.db).
+-   root: includes .gitignore, README.md (the project description file), and the database file (IB9HP0_9.db).
 
 This structure ensures the seamless execution of multiple processes within the workflow of the repository.
 
@@ -1885,7 +1883,7 @@ This structure ensures the seamless execution of multiple processes within the w
 
 ### **Trigger conditions**
 
-The GitHub repository consists of a Continuous integration Workflow. The Continuous Integration Workflow has been structured to automatically perform validation, insertion, updation and analysis parts of the project.
+The GitHub repository consists of a Continuous Integration Workflow. The Continuous Integration Workflow has been structured to automatically perform validation, insertion, update and analysis parts of the project.
 
 ![](images/trigger_conditions.png){width="323"}
 
@@ -1932,7 +1930,9 @@ Push changes: use github-push-action to push commits back to the main branch.
 Overall, a GitHub repository includes all the stages of the project from data validation, insertion, and updates. The repository can read new data files and ensure that the data is clean and suitable for the database through validation and then successfully insert and update the data frames. After successfully updating the database, the data is then run through various analysis and their respective results are stored and presented.
 
 # Data Analysis and Reporting
+
 ## Monthly Sales Trend Analysis by Value and Volume, from 2022 to 2023
+
 ```{r}
 (sales_performance <- 
     dbGetQuery(db_connection, 
@@ -1998,7 +1998,8 @@ gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, p.mnth.price, ncol = 3, widths =
 
 Although the company's monthly sales decreased from around £12, 500 in January to around £7,500 in December during 2022, its monthly sales gradually increased from January to around £10,000 during 2013. Meanwhile, the company's overall trend of monthly sales is similar to that of monthly sales in 2022 and 2023.
 
-## Top 10 Products and Their Rating  
+## Top 10 Products and Their Rating
+
 ```{r}
 #### Get the data
 (top_products_rating <- 
@@ -2041,9 +2042,11 @@ gridExtra::grid.arrange(p.top_prod_sales, p.top_prod_rating, ncol = 2,
                         top = ggpubr::text_grob("Top 10 Products and Their Rating", 
                                                 size = 15, face = "bold"))
 ```
+
 While the company's top 10 products have all totaled more than 400 sales, their corresponding ratings aren't the best among all products. Meanwhile, only two of these products have achieved a rating of 4 and three have a rating of only 1 (refer to lightweight backpacks, packing cubes and plush throw blankets), which warrants further improvement by the company.
 
-## Spending by Membership Type  
+## Spending by Membership Type
+
 ```{r}
 ### Highest Spent based on Customer Segment
 (membership_segmentation <- 
@@ -2103,6 +2106,7 @@ gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
 From the macro level, the total spent for all membership types is above 75,000 pounds between 2022 and 2023. However, in the micro view, the degree of decline in total spent for student type and premium type increases in descending order from 2022 to 2023, and only the trial type saw an increase.
 
 ## Customer Queries Analysis
+
 ```{r}
 ### Most Frequent Queries - get data from db
 (queries_frequencies <- 
@@ -2158,9 +2162,10 @@ gridExtra::grid.arrange(p.query_freq, p.query_time, ncol = 2,
                                                 size = 15, face = "bold"))
 ```
 
-Though customers’ queries include few delivery issue, the turnaround time that is the longest, which may have a significant negative effect on membership subscription. 
+Though customers’ queries include few delivery issue, the turnaround time that is the longest, which may have a significant negative effect on membership subscription.
 
 ## Payment Methods
+
 ```{r}
 ### Get data from the db
 (top_payment <- 
@@ -2198,22 +2203,23 @@ gridExtra::grid.arrange(p.frequency, p.payment_amnt, ncol = 2,
 Obviously, Visa is the top 1 payment method in terms of frequency and payment amount. It's clear that although Mastercard is used by customers a little more often than Gpay, Gpay accounts for more of the payment amount. Gpay is considered to be the top 2 payment method as payment amount is a higher priority for the company, followed by Mastercard, Paypal, Bank Transfer, Apple Pay.
 
 ## Insight and Recommendation
- 
+
 ### Insights:
+
 It is worth noting that the increasing ratio of sales volume is higher than sales value’s from July to October in 2023. It may be driven by the company's strategy of lowering prices more significantly during that period, where the average price of the product decreased from around 37.5 pounds in July to around 32 pounds in 2023, indicating price adjustment may simulate the monthly sales value.
- 
-The top 10 products cannot match the top rating degree, which can reflect the poor management of product life cycle.  
- 
-Customers who try to subscribe to trial membership don't go further than subscribing to premium or student services, indicating the membership service cannot meet the real demand of the targeted customers like being wonderless, which will affect the value convey of business model for the e-commerce company. 
- 
-Focusing on fastening the process of customer support  re. Delivery concerns should be the priority, along with addressing payment issue given high number of concerns raised. Payment issue is also concerned because of the most customers queries compared with others, thus, it will affect the customer satisfaction directly.
+
+The top 10 products cannot match the top rating degree, which can reflect the poor management of product life cycle.
+
+Customers who try to subscribe to trial membership don't go further than subscribing to premium or student services, indicating the membership service cannot meet the real demand of the targeted customers like being wonderless, which will affect the value convey of business model for the e-commerce company.
+
+Focusing on fastening the process of customer support re. Delivery concerns should be the priority, along with addressing payment issue given high number of concerns raised. Payment issue is also concerned because of the most customers queries compared with others, thus, it will affect the customer satisfaction directly.
 
 ### Recommendation:
-1.	Reduce the price appropriately to get more orders When the market demand is weak.
-2.	Maintenance the product and service life cycle management like requiring suppliers to provide or create better products, improving the shipment quality even for membership.
-3.	Improve the design for the official website to fit the user's payment habits like putting Visa, Gpay and Mastercard at the beginning.
-4.	Give some promotes or discount on products in the order if they choose to use Mastercard payment method.
 
+1.  Reduce the price appropriately to get more orders When the market demand is weak.
+2.  Maintenance the product and service life cycle management like requiring suppliers to provide or create better products, improving the shipment quality even for membership.
+3.  Improve the design for the official website to fit the user's payment habits like putting Visa, Gpay and Mastercard at the beginning.
+4.  Give some promotes or discount on products in the order if they choose to use Mastercard payment method.
 
 # Limitation and Future Implications
 
