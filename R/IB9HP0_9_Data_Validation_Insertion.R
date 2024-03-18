@@ -603,35 +603,36 @@ for(i in 1:nrow(order_details_table)){
 
 ## Inserting Suppliers table
 for(i in 1:nrow(suppliers_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO suppliers(supplier_id,supplier_name,supplier_postcode,supplier_contact)", "SELECT",
-    "'", suppliers_table$supplier_id[i], "',",
-    "'", suppliers_table$supplier_name[i], "',",
-    "'", suppliers_table$supplier_postcode[i], "',",
-    "'", suppliers_table$supplier_contact[i], "'",
-    "WHERE NOT EXISTS (SELECT 1 FROM suppliers WHERE supplier_id = '", suppliers_table$supplier_id[i],"');"
-  )) >0) {
-    print("Data inserted successfully")
-  } else {
-    print("Supplier ID already exists in the database")
-  }
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO suppliers(supplier_id, supplier_name, supplier_postcode, supplier_contact) VALUES('",
+      suppliers_table$supplier_id[i], "','",
+      suppliers_table$supplier_name[i], "','",
+      suppliers_table$supplier_postcode[i], "','",
+      suppliers_table$supplier_contact[i], "');", sep = "")
+    )
+    write_log(sprintf("Supplier %s inserted successfully.", suppliers_table$supplier_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert supplier %s: %s", suppliers_table$supplier_id[i], e$message), log_file_path)
+  })
 }
+
 
 ## Inserting Supplies table
 for(i in 1:nrow(supplies_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO supplies(supply_id, inventory_quantity, sold_quantity, supplier_id, prod_id)", "SELECT",
-    "'", supplies_table$supply_id[i], "',",
-    supplies_table$inventory_quantity[i], ",",
-    supplies_table$sold_quantity[i], ",",
-    "'", supplies_table$supplier_id[i], "',",
-    "'", supplies_table$prod_id[i], "'",
-    "WHERE NOT EXISTS (SELECT 1 FROM supplies WHERE supply_id = '", supplies_table$supply_id[i],"');"
-  )) >0) {
-    print("Data inserted successfully")
-  } else {
-    print("Supply ID already exists in the database")
-  }
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO supplies(supply_id, inventory_quantity, sold_quantity, supplier_id, prod_id) VALUES('",
+      supplies_table$supply_id[i], "',",
+      supplies_table$inventory_quantity[i], ",",
+      supplies_table$sold_quantity[i], ",'",
+      supplies_table$supplier_id[i], "','",
+      supplies_table$prod_id[i], "');", sep = "")
+    )
+    write_log(sprintf("Supply %s inserted successfully.", supplies_table$supply_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert supply %s: %s", supplies_table$supply_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Customer queries table
@@ -654,22 +655,30 @@ for(i in 1:nrow(customer_queries_table)){
 
 ## Inserting Categories table
 for(i in 1:nrow(categories_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO categories(category_id, category_name) VALUES(",
-    "'", categories_table$category_id[i], "',",
-    "'", categories_table$category_name[i], "');",sep = "") 
-  )
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO categories(category_id, category_name) VALUES('",
+      categories_table$category_id[i], "','",
+      categories_table$category_name[i], "');", sep = "")
+    )
+    write_log(sprintf("Category %s inserted successfully.", categories_table$category_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert category %s: %s", categories_table$category_id[i], e$message), log_file_path)
+  })
 }
-
-dbExecute(db_connection, "DROP TABLE customer_queries")
 
 ## Inserting Product Categories table
 for(i in 1:nrow(product_categories_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO product_categories(category_id, prod_id) VALUES(",
-    "'", product_categories_table$category_id[i], "',",
-    "'", product_categories_table$prod_id[i], "');",sep = "") 
-  )
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO product_categories(category_id, prod_id) VALUES('",
+      product_categories_table$category_id[i], "','",
+      product_categories_table$prod_id[i], "');", sep = "")
+    )
+    write_log(sprintf("Product category link for product %s and category %s inserted successfully.", product_categories_table$prod_id[i], product_categories_table$category_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert product category link for product %s and category %s: %s", product_categories_table$prod_id[i], product_categories_table$category_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Advertisers table
