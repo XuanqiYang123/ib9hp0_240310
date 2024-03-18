@@ -33,6 +33,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
           sudo apt-get install -y libharfbuzz-dev libfribidi-dev
+
+      - name: Restore R dependencies cache
+        uses: actions/cache@v2
+        with:
+              path: ${{ env.R_LIBS_USER }}
+              key: ${{ runner.os }}-R-${{ hashFiles('**/lockfile') }}
+              restore-keys: |
+                ${{ runner.os }}-R-
+
           
       - name: Install dependencies
         run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl"))'
