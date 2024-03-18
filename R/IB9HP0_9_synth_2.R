@@ -392,7 +392,7 @@ write.csv(categories_data, "data_uploads/R_synth_categories_round2.csv")
 set.seed(456)
 n_advertisers <- 5
 advertisers_data <- data.frame(
-<<<<<<< HEAD
+
   advertiser_id = sprintf("ADV%d", 1:n_advertisers),
   advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", 
                       "Ads Master", "Ads Expert"),
