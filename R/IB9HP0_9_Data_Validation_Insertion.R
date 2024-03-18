@@ -1,4 +1,4 @@
-## Load Packages
+# Load Packages
 library(dplyr)
 library(ggplot2)
 library(tidyverse)
@@ -84,6 +84,254 @@ advertisers_table <- advertisers_file
 ##Normalising Advertisement Table
 advertisements_table <- advertisements_file
 
+# Data Validation
+
+## Advertisement table
+### Checking the date format for ads_start_date and ads_end_date
+if (all(!inherits(try(as.Date(advertisements_table$ads_start_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+if (all(!inherits(try(as.Date(advertisements_table$ads_end_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+## Ensuring advertisement end date is after the advertisement start date
+for (i in 1:length(as.Date(advertisements_table$ads_start_date, format = "%d-%m-%Y"))) {
+  if (as.Date(advertisements_table$ads_end_date, format = "%d-%m-%Y")[i] > as.Date(advertisements_table$ads_start_date, format = "%d-%m-%Y")[i]) {
+    print("Ends date happened after the starts date")
+  } else {
+    print(paste("Error!","Query",i,": ends date happened before the starts date"))
+  }
+}
+
+### Checking duplicate values for ads_id and prod_id
+if(length(advertisements_table$ads_id[duplicated(advertisements_table$ads_id)]) > 0) {
+  print("Duplicate ads_ids found")
+} else {
+  print("No duplicate ads_ids found")
+}
+
+if(length(advertisements_table$prod_id[duplicated(advertisements_table$prod_id)]) > 0) {
+  print("Duplicate prod_ids found")
+} else {
+  print("No duplicate prod_ids found")
+}
+
+## Advertisers file
+### Checking duplicate values for advertiser_id, advertiser_email, and advertisers name
+
+if(length(advertisers_table$advertiser_id[duplicated(advertisers_table$advertiser_id)]) > 0) {
+  print("Duplicate advertiser_ids found")
+} else {
+  print("No duplicate advertiser_ids found")
+}
+
+if(length(advertisers_table$advertiser_email[duplicated(advertisers_table$advertiser_email)]) > 0) {
+  print("Duplicate advertisers' emails found")
+} else {
+  print("No duplicate advertisers' emails found")
+}
+
+if(length(advertisers_table$advertiser_name[duplicated(advertisers_table$advertiser_name)]) > 0) {
+  print("Duplicate advertisers' names found")
+} else {
+  print("No duplicate advertisers' names found")
+}
+
+## Checking the advertiser_email format
+if(length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),advertisers_table$advertiser_email, value = TRUE)) == length(advertisers_table$advertiser_email)) {
+  print("All email format are correct")
+} else {
+  print(paste("There are:", length(advertisers_table$advertiser_email) - length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),advertisers_table$advertiser_email, value = TRUE)),"wrong emails found"))
+}
+
+## Customer_queries file
+### Checking duplicate values for query_id
+
+if(length(customer_queries_table$query_id[duplicated(customer_queries_table$query_id)]) > 0) {
+  print("Duplicate queries_ids found")
+} else {
+  print("No duplicate queries_ids found")
+}
+
+### Checking the date format for query_submission_date and query_closure_date
+if (all(!inherits(try(as.Date(customer_queries_table$query_submission_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+if (all(!inherits(try(as.Date(customer_queries_table$query_closure_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+## Ensuring queries closure date is after the submission date
+for (i in 1:length(as.Date(customer_queries_table$query_submission_date, format = "%d-%m-%Y"))) {
+  if (as.Date(customer_queries_table$query_closure_date, format = "%d-%m-%Y")[i] > as.Date(customer_queries_table$query_submission_date, format = "%d-%m-%Y")[i]) {
+    print("Closure date happened after the submission date")
+  } else {
+    print(paste("Error!","Query",i,": closure date happened before the submission date"))
+  }
+}
+
+
+## Memberships file
+### Checking NA values inside membership_id and membership_type
+if (any(!is.na(memberships_table))) {
+  print("There are no NA values in the dataset")
+} else {
+  print("Error! There are NA values in the dataset")
+}
+
+## Orders file
+### Checking NA values inside order_id, cust_id, order_quantity, order_price, prod_id
+if (any(!is.na(order_details_table[,c("order_id", "order_quantity", "order_price", "prod_id")]))) {
+  print("There are no NA values in the dataset")
+} else {
+  print("Error! There are NA values in the dataset")
+}
+
+### Checking date format for the order_date
+if (all(!inherits(try(as.Date(order_details_table$order_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+## Payment_file
+### Checking NA values inside payment_id, payment_method, payment_status, and order_id 
+if (any(!is.na(payments_table[,c("payment_id", "payment_method", "payment_status", "order_id")]))) {
+  print("There are no NA values in the dataset")
+} else {
+  print("Error! There are NA values in the dataset")
+}
+
+### Checking date format for the payment_date
+if (all(!inherits(try(as.Date(payments_table$payment_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+## Products_file
+### Checking duplicate values in prod_id and review_id
+if(length(products_table$prod_id[duplicated(products_table$prod_id)]) == 0) {
+  print("No duplicate prod_ids found")
+} else {
+  print("Duplicate ad_ids found")
+}
+
+if(length(reviews_table$review_id[duplicated(reviews_table$review_id)]) == 0) {
+  print("No duplicate review_ids found")
+} else {
+  print("Duplicate review_ids found")
+}
+
+### Checking NA values inside prod_id, prod_url, prod_unit_price
+if (any(!is.na(products_table[,c("prod_id", "prod_url", "prod_unit_price")]))) {
+  print("There are no NA values in the dataset")
+} else {
+  print("Error! There are NA values in the dataset")
+}
+
+### Checking date format for the review_date
+if (all(!inherits(try(as.Date(reviews_table$review_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+### Checking the URL format of the prod_url
+if(length(grep(("^(http|https)://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(\\S*)$"),products_table$prod_url, value = TRUE)) == length(products_table$prod_url)) {
+  print("All product url format are correct")
+} else {
+  print(paste("There are:", length(products_table$prod_url) - length(grep(("^(http|https)://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(\\S*)$"),products_table$prod_url, value = TRUE)),"wrong product urls found"))
+}
+
+## Shipments file 
+### Checking duplicate values in shipment_id
+if(length(shipments_table$shipment_id[duplicated(shipments_table$shipment_id)]) == 0) {
+  print("No duplicate shipment_ids found")
+} else {
+  print("Duplicate shipment_ids found")
+}
+
+### Checking NA values inside shipment_id, prod_id, order_id
+if (any(!is.na(shipments_table[,c("prod_id", "order_id", "shipment_id")]))) {
+  print("There are no NA values in the dataset")
+} else {
+  print("Error! There are NA values in the dataset")
+}
+
+### Checking date format for the delivery_departed_date, delivery_received_date, est_delivery_date
+if (all(!inherits(try(as.Date(shipments_table$delivery_departed_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+if (all(!inherits(try(as.Date(shipments_table$delivery_received_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+if (all(!inherits(try(as.Date(shipments_table$est_delivery_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+### Checking whether the recipient names contains ' and ,
+if (any(grepl("[',]",shipments_table$delivery_recipient))) {
+  print("Error! Some names contain invalid characters")
+} else {
+  print("All names are valid")
+}
+
+## Customer Table
+### Checking duplicate values in customer_id
+if(length(customers_table$cust_id[duplicated(customers_table$cust_id)]) == 0) {
+  print("No duplicate customer_ids found")
+} else {
+  print("Duplicate customer_ids found")
+}
+
+### Checking whether the customer's first name and last name contains ' and ,
+if (any(grepl("[',]",customers_table$first_name))) {
+  print("Error! Some names contain invalid characters")
+} else {
+  print("All names are valid")
+}
+
+if (any(grepl("[',]",customers_table$last_name))) {
+  print("Error! Some names contain invalid characters")
+} else {
+  print("All names are valid")
+}
+
+### Checking the customer_email format
+if(length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),customers_table$cust_email, value = TRUE)) == length(customers_table$cust_email)) {
+  print("All customer email format are correct")
+} else {
+  print(paste("There are:", length(customers_table$cust_email) - length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),customers_table$cust_email, value = TRUE)),"wrong emails found"))
+}
+
+### Checking the customer birth_date format
+if (all(!inherits(try(as.Date(customers_table$cust_birth_date, format = "%d-%m-%Y")),"try-error"))) {
+  print("Dates are already in the correct format")
+} else {
+  print("Dates are not in the correct format")
+}
+
+
 # Create connection to SQL database
 db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
@@ -91,15 +339,20 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 ## Inserting Products table
 for(i in 1:nrow(products_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO products(prod_id,prod_name,prod_desc,voucher,prod_url,prod_unit_price) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO products(prod_id,prod_name,prod_desc,voucher,prod_url,prod_unit_price)", "SELECT",
     "'", products_table$prod_id[i], "',",
     "'", products_table$prod_name[i], "',",
     "'", products_table$prod_desc[i], "',",
     "'", products_table$voucher[i], "',",
     "'", products_table$prod_url[i], "',",
-    products_table$prod_unit_price[i], ");",sep = "") 
-  )
+    products_table$prod_unit_price[i],
+    "WHERE NOT EXISTS (SELECT 1 FROM products WHERE prod_id = '",products_table$prod_id[i], "')"
+  )) > 0) {
+    print("Data inserted successfully")
+  } else {
+    print("All products id already exists in the database")
+  }
 }
 
 ## Inserting Reviews table
@@ -268,112 +521,5 @@ for(i in 1:nrow(advertisements_table)){
   )
 }
 
-# Advanced Data Analysis
-## Monthly Sales Trend Analysis by Value
-(sales_value_performance <- dbGetQuery(db_connection, "SELECT strftime('%m-%Y', order_date)  as month, SUM(order_value) as total_sales
-                                      FROM order_details
-                                      GROUP BY month
-                                      ORDER BY month"))
 
-ggplot(sales_value_performance, aes(x = as.Date(paste("01",sales_value_performance$month,sep = "-"), format = "%d-%m-%Y"), y = total_sales)) +
-  geom_line(group = 1) +
-  labs(y = "Sales Value", x = "Month", title = "Monthly Trend by Sales Value") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-## Monthly Sales Trend Analysis by Quantity
-(sales_quantity_performance <- dbGetQuery(db_connection, "SELECT strftime('%m-%Y', order_date)  as month, SUM(order_quantity) as total_sales
-                                      FROM order_details
-                                      GROUP BY month
-                                      ORDER BY month"))
-
-ggplot(sales_value_performance, aes(x = as.Date(paste("01",sales_quantity_performance$month,sep = "-"), format = "%d-%m-%Y"), y = total_sales)) +
-  geom_line(group = 1) +
-  labs(y = "Sales Quantity", x = "Month", title = "Monthly Trend by Sales Quantity") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-## Product Ratings Analysis
-(product_rating <- dbGetQuery(db_connection, "SELECT p.prod_name, AVG(r.prod_rating) as avg_rating
-                             FROM products p
-                             JOIN reviews r ON p.prod_id = r.prod_id
-                             GROUP BY p.prod_name
-                             ORDER BY avg_rating DESC"))
-
-ggplot(product_rating, aes (y = prod_name, x = avg_rating)) +
-  geom_bar(stat = "identity") +
-  labs(y = "Products", x = "Average Rating", title = "Product Rating Analysis") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-## Highest Spent based on Customer Segment
-(membership_segmentation <- dbGetQuery(db_connection, "SELECT c. membership_type_id, m. membership_type,  SUM(o.order_value) as total_spent
-                                      FROM customers c
-                                      JOIN memberships m ON c. membership_type_id = m. membership_type_id
-                                      JOIN orders d ON c. cust_id = d. cust_id
-                                      JOIN order_details o ON d. order_id = o. order_id
-                                      GROUP BY c.membership_type_id
-                                      ORDER BY total_spent DESC"))
-
-ggplot(membership_segmentation, aes(x = membership_type, y = total_spent)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Memberships Type", y = "Total Spent", title = "Top Spender based on Membership Tyoe") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-## Products Popularity
-(top_products <- dbGetQuery(db_connection, "SELECT a.prod_name AS products, SUM(b.order_quantity) AS total_sales
-                            FROM products a
-                            JOIN order_details b ON a.prod_id = b.prod_id
-                            GROUP BY a.prod_id
-                            ORDER BY total_sales DESC
-                            LIMIT 5"))
-
-ggplot(top_products, aes(x= products, y = total_sales)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Products", y = "Total Sales", title = "Top 5 Products of All Time") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-## Suppliers Popularity
-(top_suppliers <- dbGetQuery(db_connection, "SELECT a.supplier_name AS suppliers, SUM(b.sold_quantity) AS total_sales
-                            FROM suppliers a
-                            JOIN supplies b ON a.supplier_id = b.supplier_id
-                            GROUP BY a.supplier_id
-                            ORDER BY total_sales DESC
-                            LIMIT 5"))
-
-ggplot(top_suppliers, aes(x= suppliers, y = total_sales)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Suppliers", y = "Total Sales", title = "Top 5 Suppliers of All Time") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-## Most Popular Payment Method
-(top_payment <- dbGetQuery(db_connection,"SELECT payment_method, COUNT(*) as frequencies
-                           FROM payments
-                           GROUP BY payment_method
-                           ORDER BY frequencies DESC
-                           LIMIT 5"))
-
-ggplot(top_payment, aes(x= payment_method, y = frequencies)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Payment Method", y = "Frequencies", title = "Frequently Used Payment Method") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-
-## Most Frequent Queries
-(queries_frequencies <- dbGetQuery(db_connection,"SELECT query_title, COUNT(*) as frequencies
-                                   FROM customer_queries
-                                   GROUP BY query_title
-                                   ORDER BY frequencies DESC"))
-
-ggplot(queries_frequencies, aes(x= query_title, y = frequencies)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Queries", y = "Frequencies", title = "Most Frequent Customer Issues") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-## Response Time Analyis for Customer Queries
-(response_time <- dbGetQuery(db_connection,"SELECT query_id, query_closure_date-query_submission_date as response_time
-                             FROM customer_queries
-                             ORDER BY response_time DESC"))
-
-ggplot(response_time, aes(x= query_id, y = response_time)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Queries ID", y = "Response Time", title = "Response Time Trend on Customer Queries") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 

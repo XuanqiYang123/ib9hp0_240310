@@ -1,10 +1,10 @@
 ## Load Packages
-library(conjurer) 
 library(dplyr)
 library(tidyr)
 library(readr)
 library(ggplot2)
 #packages for synthetic data generation
+install.packages("conjurer")
 library(randomNames)
 library(Pareto)
 library(uuid)
@@ -13,7 +13,7 @@ library(charlatan) #for credit card number
 library(RSQLite)
 library(stringi) #random strings
 library(lubridate)
-
+library(conjurer) 
 
 ## Db Connection
 

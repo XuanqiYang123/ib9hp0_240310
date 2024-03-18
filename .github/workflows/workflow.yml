@@ -1,0 +1,76 @@
+name: Workflow for database management
+
+on:
+  schedule:
+    - cron: '0 */3 * * *' # Run every 3 hours
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'data_update/**'
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Setup R environment
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.3.1'
+          
+      - name: Cache R packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
+          restore-keys: |
+            ${{ runner.os }}-r-
+            
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
+          sudo apt-get install -y libharfbuzz-dev libfribidi-dev
+          
+      - name: Install packages
+        run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl"))'
+
+      - name: Execute R script synth_1
+        run: |
+          Rscript R/IB9HP0_9_synth_1.R
+          
+      - name: Execute R script synth_2
+        run: |
+          Rscript R/IB9HP0_9_synth_2.R
+          
+      - name: Execute R script table_creation
+        run: |
+          Rscript R/IB9HP0_9_Table_Creation.R
+
+      - name: Execute R script data_validation_insertion
+        run: |
+          Rscript R/IB9HP0_9_Data_Validation_Insertion.R
+
+      - name: Execute R script new_data_update
+        run: |
+          Rscript R/IB9HP0_9_New_Data_Update.R
+
+      - name: Execute R script data_analysis
+        run: |
+          Rscript R/IB9HP0_9_Data_Analysis.R
+
+      - name: Add files
+        run: |
+          git config --global user.email "duong.trinh@warwick.ac.uk"
+          git config --global user.name "duong4595"
+          git add --all 
+      - name: Commit files
+        run: |
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update codes"
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.WORKFLOW }}
+          branch: main
