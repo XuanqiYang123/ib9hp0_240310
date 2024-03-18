@@ -174,10 +174,12 @@ gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
 
 ## Analysis 4: Customer QUeries
 ### Most Frequent Queries
-(queries_frequencies <- dbGetQuery(db_connection,"SELECT query_title, COUNT(*) as frequencies
-                                   FROM customer_queries
-                                   GROUP BY query_title
-                                   ORDER BY frequencies DESC"))
+(queries_frequencies <- 
+    dbGetQuery(db_connection,
+               "SELECT query_title, COUNT(*) as frequencies
+               FROM customer_queries
+               GROUP BY query_title
+               ORDER BY frequencies DESC"))
 
 ggplot(queries_frequencies, 
        aes(x= reorder(query_title, desc(frequencies)), 
