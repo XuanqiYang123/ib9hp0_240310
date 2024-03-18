@@ -200,11 +200,10 @@ p.query_freq <- ggplot(queries_frequencies,
                query_title,
                query_closure_date,
                query_submission_date
-               FROM customer_queries
-               WHERE query_closure_date <> 'NA'"))
+               FROM customer_queries"))
 
 ### Transform data - get turnaround time
-response_time <- response_time %>%
+response_time <- filter(response_time, query_closure_date != "NA") %>%
   mutate(turnaround_time = round(difftime(query_closure_date, query_submission_date,
                                     units = "weeks"),0) ) %>%
   group_by(query_title) %>%
@@ -212,10 +211,15 @@ response_time <- response_time %>%
   merge(queries_frequencies, by = "query_title", remove = F)
 
 ### Plot query by response time
+h_line <- mean(response_time$avg_turnaround_time)
 p.query_time <- ggplot(response_time, 
        aes(x= reorder(query_title, desc(frequencies)), 
            y = avg_turnaround_time)) +
-  geom_bar(stat = "identity") +
+  geom_bar(stat = "identity") + 
+  geom_hline(yintercept = h_line, 
+             color = "magenta", linetype = "dashed", size = 1.1) +
+  geom_text(aes(1, h_line, label = "Avg of all types"),
+            vjust = -1, color = "magenta") +
   labs(x = "Query Type", y = "Avg Turnaround Time (weeks)", 
        subtitle = "Turnaround Time") +
   theme_light()
