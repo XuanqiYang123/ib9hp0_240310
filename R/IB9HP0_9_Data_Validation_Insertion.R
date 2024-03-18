@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(tidyverse)
 library(RSQLite)
+library(lubridate)
 
 # Read Data file
 ## Read advertisements file
@@ -242,16 +243,27 @@ if(length(customer_queries_table$query_id[duplicated(customer_queries_table$quer
 }
 
 ### Checking the date format for query_submission_date and query_closure_date
-if (all(!inherits(try(as.Date(customer_queries_table$query_submission_date, format = "%d-%m-%Y")),"try-error"))) {
-  print("Dates are already in the correct format")
+correct_date_format <- function(date_column) {
+  converted_dates <- try(as.Date(date_column, format = "%d-%m-%Y"), silent = TRUE)
+  if (inherits(converted_dates, "try-error")) {
+    return(format(mdy(date_column), "%d-%m-%Y"))
+  } else {
+    return(date_column)
+  }
+}
+customer_queries_table$query_submission_date <- correct_date_format(customer_queries_table$query_submission_date)
+customer_queries_table$query_closure_date <- correct_date_format(customer_queries_table$query_closure_date)
+
+if (all(!inherits(try(as.Date(customer_queries_table$query_submission_date, format = "%d-%m-%Y")), "try-error"))) {
+  print("Query Submission Dates are now in the correct format")
 } else {
-  print("Dates are not in the correct format")
+  print("There was an issue with converting the Query Submission Dates")
 }
 
-if (all(!inherits(try(as.Date(customer_queries_table$query_closure_date, format = "%d-%m-%Y")),"try-error"))) {
-  print("Dates are already in the correct format")
+if (all(!inherits(try(as.Date(customer_queries_table$query_closure_date, format = "%d-%m-%Y")), "try-error"))) {
+  print("Query Closure Dates are now in the correct format")
 } else {
-  print("Dates are not in the correct format")
+  print("There was an issue with converting the Query Closure Dates")
 }
 
 ## Ensuring queries closure date is after the submission date
@@ -281,12 +293,22 @@ if (any(!is.na(order_details_table[,c("order_id", "order_quantity", "order_price
 }
 
 ### Checking date format for the order_date
-if (all(!inherits(try(as.Date(order_details_table$order_date, format = "%d-%m-%Y")),"try-error"))) {
-  print("Dates are already in the correct format")
-} else {
-  print("Dates are not in the correct format")
+correct_date_format <- function(date_column) {
+  converted_dates <- try(as.Date(date_column, format = "%d-%m-%Y"), silent = TRUE)
+  if (inherits(converted_dates, "try-error")) {
+    return(format(mdy(date_column), "%d-%m-%Y"))
+  } else {
+    return(date_column)
+  }
 }
+order_details_table$order_date <- correct_date_format(order_details_table$order_date)
 
+# Print a message based on the result
+if (all(!inherits(try(as.Date(order_details_table$order_date, format = "%d-%m-%Y")), "try-error"))) {
+  print("Dates are now in the correct format")
+} else {
+  print("There was an issue with converting the dates")
+}
 ## Payment_file
 ### Checking NA values inside payment_id, payment_method, payment_status, and order_id 
 if (any(!is.na(payments_table[,c("payment_id", "payment_method", "payment_status", "order_id")]))) {
@@ -353,22 +375,31 @@ if (any(!is.na(shipments_table[,c("prod_id", "order_id", "shipment_id")]))) {
 }
 
 ### Checking date format for the delivery_departed_date, delivery_received_date, est_delivery_date
-if (all(!inherits(try(as.Date(shipments_table$delivery_departed_date, format = "%d-%m-%Y")),"try-error"))) {
-  print("Dates are already in the correct format")
-} else {
-  print("Dates are not in the correct format")
+check_and_correct_date_format <- function(date_column_data) {
+  if (all(!inherits(try(as.Date(date_column_data, format = "%d-%m-%Y")), "try-error"))) {
+    return(date_column_data)  # Return the original data if format is correct
+  } else {
+    # Correcting the format assuming the original format is mm-dd-yyyy, adjust as necessary
+    return(format(mdy(date_column_data), "%d-%m-%Y"))
+  }
 }
 
-if (all(!inherits(try(as.Date(shipments_table$delivery_received_date, format = "%d-%m-%Y")),"try-error"))) {
-  print("Dates are already in the correct format")
-} else {
-  print("Dates are not in the correct format")
-}
+shipments_table$delivery_departed_date <- check_and_correct_date_format(shipments_table$delivery_departed_date)
+shipments_table$delivery_received_date <- check_and_correct_date_format(shipments_table$delivery_received_date)
+shipments_table$est_delivery_date <- check_and_correct_date_format(shipments_table$est_delivery_date)
 
-if (all(!inherits(try(as.Date(shipments_table$est_delivery_date, format = "%d-%m-%Y")),"try-error"))) {
-  print("Dates are already in the correct format")
-} else {
-  print("Dates are not in the correct format")
+columns_to_check <- list(
+  "Delivery Departed Date" = shipments_table$delivery_departed_date,
+  "Delivery Received Date" = shipments_table$delivery_received_date,
+  "Estimated Delivery Date" = shipments_table$est_delivery_date
+)
+
+for (column_name in names(columns_to_check)) {
+  if (all(!inherits(try(as.Date(columns_to_check[[column_name]], format = "%d-%m-%Y")), "try-error"))) {
+    print(paste(column_name, "are now in the correct format"))
+  } else {
+    print(paste("There was an issue with converting the", column_name))
+  }
 }
 
 ### Checking whether the recipient names contains ' and ,
@@ -547,15 +578,21 @@ for(i in 1:nrow(shipments_table)){
 
 ## Inserting Order details table
 for(i in 1:nrow(order_details_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO order_details(order_quantity,order_date,order_price,order_value,prod_id,order_id) VALUES(",
+  if(dbExecute(db_connection, paste(
+    "INSERT INTO order_details(order_quantity,order_date,order_price,order_value,prod_id,order_id)", "SELECT",
     order_details_table$order_quantity[i], ",",
     "'", order_details_table$order_date[i], "',",
     order_details_table$order_price[i], ",",
     order_details_table$order_value[i], ",",
     "'", order_details_table$prod_id[i], "',",
-    "'", order_details_table$order_id[i], "');",sep = "") 
-  )
+    "'", order_details_table$order_id[i], "'", 
+    " WHERE NOT EXISTS (SELECT 1 FROM order_details WHERE order_id = '", order_details_table$order_id[i], "' AND prod_id = '", order_details_table$prod_id[i], "');",
+    sep = " "
+  )) >0) {
+    print("Data inserted successfully")
+  } else {
+    print("Prod_ID and Order_ID already exists in the database") 
+  }
 }
 
 ## Inserting Suppliers table
