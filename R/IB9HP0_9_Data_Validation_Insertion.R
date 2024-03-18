@@ -12,7 +12,7 @@ for (ads in list.files(path = "data_uploads/", pattern = "advertisement", full.n
   advertisements_ind <- read.csv(ads)
   advertisement_list[[length(advertisement_list) + 1]] <- advertisements_ind
 }
-advertisements_file <- do.call(rbind, advertisement_list)
+advertisements_file <- bind_rows(advertisement_list)
 
 ## Read advertisers file
 advertisers_list <- list()
@@ -20,7 +20,7 @@ for (adv in list.files(path = "data_uploads/", pattern = "advertiser", full.name
   advertisers_ind <- read.csv(adv)
   advertisers_list[[length(advertisers_list) + 1]] <- advertisers_ind
 }
-advertisers_file <- do.call(rbind, advertisers_list)
+advertisers_file <- bind_rows(advertisers_list)
 
 ## Read categories file
 categories_list <- list()
@@ -28,7 +28,7 @@ for (cat in list.files(path = "data_uploads/", pattern = "categories", full.name
   categories_ind <- read.csv(cat)
   categories_list[[length(categories_list) + 1]] <- categories_ind
 }
-categories_file <- do.call(rbind, categories_list)
+categories_file <- bind_rows(categories_list)
 
 ## Read customer_queries file
 customer_queries_list <- list()
@@ -36,7 +36,7 @@ for (cat in list.files(path = "data_uploads/", pattern = "customer_queries", ful
   customer_queries_ind <- read.csv(cat)
   customer_queries_list[[length(customer_queries_list) + 1]] <- customer_queries_ind
 }
-customer_queries_file <- do.call(rbind, customer_queries_list)
+customer_queries_file <- bind_rows(customer_queries_list)
 
 ## Read customers file
 customers_list <- list()
@@ -44,7 +44,7 @@ for (cust in list.files(path = "data_uploads/", pattern = "customers", full.name
   customers_ind <- read.csv(cust)
   customers_list[[length(customers_list) + 1]] <- customers_ind
 }
-customers_file <- do.call(rbind, customers_list)
+customers_file <- bind_rows(customers_list)
 
 ## Read memberships file
 memberships_list <- list()
@@ -52,7 +52,7 @@ for (memb in list.files(path = "data_uploads/", pattern = "membership", full.nam
   memberships_ind <- read.csv(memb)
   memberships_list[[length(memberships_list) + 1]] <- memberships_ind
 }
-memberships_file <- do.call(rbind, memberships_list)
+memberships_file <- bind_rows(memberships_list)
 
 ## Read orders file
 orders_list <- list()
@@ -60,7 +60,7 @@ for (orders in list.files(path = "data_uploads/", pattern = "order", full.names 
   orders_ind <- read.csv(orders)
   orders_list[[length(orders_list) + 1]] <- orders_ind
 }
-orders_file <- do.call(rbind, orders_list)
+orders_file <- bind_rows(orders_list)
 
 ## Read payments file
 payments_list <- list()
@@ -68,7 +68,7 @@ for (payments in list.files(path = "data_uploads/", pattern = "payment", full.na
   payments_ind <- read.csv(payments)
   payments_list[[length(payments_list) + 1]] <- payments_ind
 }
-payments_file <- do.call(rbind, payments_list)
+payments_file <- bind_rows(payments_list)
 
 ## Read products file
 products_list <- list()
@@ -76,7 +76,7 @@ for (products in list.files(path = "data_uploads/", pattern = "product", full.na
   products_ind <- read.csv(products)
   products_list[[length(products_list) + 1]] <- products_ind
 }
-products_file <- do.call(rbind, products_list)
+products_file <- bind_rows(products_list)
 
 ## Read shipments file
 shipments_list <- list()
@@ -84,7 +84,7 @@ for (shipments in list.files(path = "data_uploads/", pattern = "shipment", full.
   shipments_ind <- read.csv(shipments)
   shipments_list[[length(shipments_list) + 1]] <- shipments_ind
 }
-shipments_file <- do.call(rbind, shipments_list)
+shipments_file <- bind_rows(shipments_list)
 
 ## Read suppliers file
 suppliers_list <- list()
@@ -92,7 +92,7 @@ for (suppliers in list.files(path = "data_uploads/", pattern = "suppliers", full
   suppliers_ind <- read.csv(suppliers)
   suppliers_list[[length(suppliers_list) + 1]] <- suppliers_ind
 }
-suppliers_file <- do.call(rbind, suppliers_list)
+suppliers_file <- bind_rows(suppliers_list)
 
 ## Read supplies file
 supplies_list <- list()
@@ -100,7 +100,7 @@ for (supplies in list.files(path = "data_uploads/", pattern = "supply", full.nam
   supplies_ind <- read.csv(supplies)
   supplies_list[[length(supplies_list) + 1]] <- supplies_ind
 }
-supplies_file <- do.call(rbind, supplies_list)
+supplies_file <- bind_rows(supplies_list)
 
 # Normalising the Table into 3NF
 
