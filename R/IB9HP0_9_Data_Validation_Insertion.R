@@ -4,19 +4,102 @@ library(ggplot2)
 library(tidyverse)
 library(RSQLite)
 
-# Read Datafile
-advertisements_file <- read_csv("data_uploads/R_synth_advertisements.csv") 
-advertisers_file <- read_csv("data_uploads/R_synth_advertisers.csv") 
-categories_file <- read_csv("data_uploads/R_synth_categories.csv") 
-customer_queries_file <- read_csv("data_uploads/R_synth_customer_queries.csv") 
-customers_file <- read_csv("data_uploads/R_synth_customers.csv") 
-memberships_file <- read_csv("data_uploads/R_synth_memberships.csv") 
-orders_file <- read_csv("data_uploads/R_synth_orders.csv") 
-payment_file <- read_csv("data_uploads/R_synth_payment.csv") 
-products_file <- read_csv("data_uploads/R_synth_products.csv") 
-shipments_file <- read_csv("data_uploads/R_synth_shipment.csv") 
-suppliers_file <- read_csv("data_uploads/R_synth_suppliers.csv") 
-supplies_file <- read_csv("data_uploads/R_synth_supply.csv") 
+# Read Data file
+## Read advertisements file
+advertisement_list <- list()
+for (ads in list.files(path = "data_uploads/", pattern = "advertisement", full.names = TRUE)) {
+  advertisements_ind <- read.csv(ads)
+  advertisement_list[[length(advertisement_list) + 1]] <- advertisements_ind
+}
+advertisements_file <- do.call(rbind, advertisement_list)
+
+## Read advertisers file
+advertisers_list <- list()
+for (adv in list.files(path = "data_uploads/", pattern = "advertiser", full.names = TRUE)) {
+  advertisers_ind <- read.csv(adv)
+  advertisers_list[[length(advertisers_list) + 1]] <- advertisers_ind
+}
+advertisers_file <- do.call(rbind, advertisers_list)
+
+## Read categories file
+categories_list <- list()
+for (cat in list.files(path = "data_uploads/", pattern = "categories", full.names = TRUE)) {
+  categories_ind <- read.csv(cat)
+  categories_list[[length(categories_list) + 1]] <- categories_ind
+}
+categories_file <- do.call(rbind, categories_list)
+
+## Read customer_queries file
+customer_queries_list <- list()
+for (cat in list.files(path = "data_uploads/", pattern = "customer_queries", full.names = TRUE)) {
+  customer_queries_ind <- read.csv(cat)
+  customer_queries_list[[length(customer_queries_list) + 1]] <- customer_queries_ind
+}
+customer_queries_file <- do.call(rbind, customer_queries_list)
+
+## Read customers file
+customers_list <- list()
+for (cust in list.files(path = "data_uploads/", pattern = "customers", full.names = TRUE)) {
+  customers_ind <- read.csv(cust)
+  customers_list[[length(customers_list) + 1]] <- customers_ind
+}
+customers_file <- do.call(rbind, customers_list)
+
+## Read memberships file
+memberships_list <- list()
+for (memb in list.files(path = "data_uploads/", pattern = "membership", full.names = TRUE)) {
+  memberships_ind <- read.csv(memb)
+  memberships_list[[length(memberships_list) + 1]] <- memberships_ind
+}
+memberships_file <- do.call(rbind, memberships_list)
+
+## Read orders file
+orders_list <- list()
+for (orders in list.files(path = "data_uploads/", pattern = "order", full.names = TRUE)) {
+  orders_ind <- read.csv(orders)
+  orders_list[[length(orders_list) + 1]] <- orders_ind
+}
+orders_file <- do.call(rbind, orders_list)
+
+## Read payments file
+payments_list <- list()
+for (payments in list.files(path = "data_uploads/", pattern = "payment", full.names = TRUE)) {
+  payments_ind <- read.csv(payments)
+  payments_list[[length(payments_list) + 1]] <- payments_ind
+}
+payments_file <- do.call(rbind, payments_list)
+
+## Read products file
+products_list <- list()
+for (products in list.files(path = "data_uploads/", pattern = "product", full.names = TRUE)) {
+  products_ind <- read.csv(products)
+  products_list[[length(products_list) + 1]] <- products_ind
+}
+products_file <- do.call(rbind, products_list)
+
+## Read shipments file
+shipments_list <- list()
+for (shipments in list.files(path = "data_uploads/", pattern = "shipment", full.names = TRUE)) {
+  shipments_ind <- read.csv(shipments)
+  shipments_list[[length(shipments_list) + 1]] <- shipments_ind
+}
+shipments_file <- do.call(rbind, shipments_list)
+
+## Read suppliers file
+suppliers_list <- list()
+for (suppliers in list.files(path = "data_uploads/", pattern = "suppliers", full.names = TRUE)) {
+  suppliers_ind <- read.csv(suppliers)
+  suppliers_list[[length(suppliers_list) + 1]] <- suppliers_ind
+}
+suppliers_file <- do.call(rbind, suppliers_list)
+
+## Read suppliers file
+supplies_list <- list()
+for (supplies in list.files(path = "data_uploads/", pattern = "supply", full.names = TRUE)) {
+  supplies_ind <- read.csv(supplies)
+  supplies_list[[length(supplies_list) + 1]] <- supplies_ind
+}
+supplies_file <- do.call(rbind, supplies_list)
 
 # Normalising the Table into 3NF
 
@@ -37,7 +120,7 @@ memberships_table <- memberships_table[!duplicated(memberships_table$membership_
 customers_table <- customers_file %>%
   select(cust_id, first_name, last_name, cust_email,password, cust_birth_date, block_num, postcode, address_type,cust_telephone)
 customers_table <- merge(customers_table,memberships_file, by = "cust_id")
-customers_table$...1 <- NULL
+customers_table$X <- NULL
 customers_table$membership_type <- NULL
 
 ##Normalising Orders Table
@@ -50,13 +133,12 @@ order_details_table <- orders_file %>%
   select(order_id,prod_id, order_quantity, order_date, order_value, order_price) 
 
 ##Normalising Payments Table
-payments_table <- payment_file %>%
+payments_table <- payments_file %>%
   select(payment_id,order_id,payment_amount,payment_method,payment_status,payment_date)
 
 ##Normalising Shipments Table
 shipments_table <- shipments_file %>%
   select(shipment_id, order_id, prod_id, delivery_departed_date, delivery_received_date,est_delivery_date,shipper_name, delivery_recipient, delivery_fee,delivery_status)
-
 
 ##Normalising Suppliers Table
 suppliers_table <- suppliers_file %>%
