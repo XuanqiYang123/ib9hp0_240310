@@ -551,13 +551,20 @@ for(i in 1:nrow(orders_table)){
 ## Inserting Payment table
 for(i in 1:nrow(payments_table)){
   tryCatch({
-    # Insert statement...
+    dbExecute(db_connection, paste(
+      "INSERT INTO payments(payment_id, payment_method, payment_amount, payment_status, payment_date, order_id) VALUES(",
+      "'", payments_table$payment_id[i], "',",
+      "'", payments_table$payment_method[i], "',",
+      payments_table$payment_amount[i], ",",
+      "'", payments_table$payment_status[i], "',",
+      "'", payments_table$payment_date[i], "',",
+      "'", payments_table$order_id[i], "');",sep = "") 
+    )
     write_log(sprintf("Payment %s inserted successfully.", payments_table$payment_id[i]), log_file_path)
   }, error = function(e) {
     write_log(sprintf("Failed to insert payment %s: %s", payments_table$payment_id[i], e$message), log_file_path)
   })
 }
-
 
 ## Inserting Shipment table
 for(i in 1:nrow(shipments_table)){
@@ -585,6 +592,16 @@ for(i in 1:nrow(shipments_table)){
 ## Inserting Order details table
 for(i in 1:nrow(order_details_table)){
   tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO order_details(order_quantity,order_date,order_price,order_value,prod_id,order_id) VALUES(",
+      order_details_table$order_quantity[i], ",",
+      "'", order_details_table$order_date[i], "',",
+      order_details_table$order_price[i], ",",
+      order_details_table$order_value[i], ",",
+      "'", order_details_table$prod_id[i], "',",
+      "'", order_details_table$order_id[i], "');",sep = "") 
+    )
+    
     write_log(sprintf("Order detail %s inserted successfully.", order_details_table$order_id[i]), log_file_path)
   }, error = function(e) {
     write_log(sprintf("Failed to insert order detail %s: %s", order_details_table$order_id[i], e$message), log_file_path)

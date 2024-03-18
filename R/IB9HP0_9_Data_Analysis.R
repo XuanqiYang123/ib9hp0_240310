@@ -144,21 +144,26 @@ ggplot(membership_segmentation, aes(x = membership_type, y = total_spent)) +
     dbGetQuery(db_connection, 
                "SELECT a.supplier_name AS suppliers,
                p.prod_name AS product,
+              
                SUM(b.sold_quantity) AS volume_sales
                FROM suppliers a
                JOIN supplies b ON a.supplier_id = b.supplier_id
                JOIN products p ON b.prod_id = p.prod_id
-               GROUP BY p.prod_name, a.supplier_id 
+               
+               GROUP BY a.supplier_id 
                ORDER BY volume_sales DESC
-               "))
+               LIMIT 10"))
+# d.order_date AS date,
+# JOIN order_details d ON b.prod_id = d.prod_id
 ### Trasform the data
-top_suppliers <- top_suppliers %>%
+suppliers_shr <- top_suppliers %>%
   mutate(vol_share = volume_sales/sum(volume_sales)) %>%
-  group_by(suppliers) %>%
+  group_by(suppliers, product) %>%
+  summarise(vol_share = sum(vol_share))
   
 
-ggplot(top_suppliers, aes(x= suppliers, y = total_sales)) +
-  geom_bar(stat = "identity") +
+ggplot(suppliers_shr, aes(fill= product, y = 100*vol_share, x = suppliers)) +
+  geom_col() + coord_flip() +
   labs(x = "Suppliers", y = "Total Sales", title = "Top 5 Suppliers of All Time") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
