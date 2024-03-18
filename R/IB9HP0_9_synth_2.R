@@ -269,7 +269,7 @@ suppliers_data <-
   #Pull seller name from gemini file
   distinct(select(gemini_prods, seller_name)) %>%
   rename("supplier_name" = "seller_name") %>%
-  mutate("supplier_id" = seq(1, n_suppliers,1),
+  mutate("supplier_id" = seq(21, 21+n_suppliers-1,1),
          "prefix" = "s") %>%
   unite(supplier_id, c(prefix, supplier_id), sep = "", remove = T) %>%
   mutate(

@@ -4,7 +4,6 @@ library(tidyr)
 library(readr)
 library(ggplot2)
 #packages for synthetic data generation
-install.packages('conjurer')
 library(randomNames)
 library(Pareto)
 library(uuid)
@@ -24,7 +23,7 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 ### 'customers' table
 #Define parameters for customers
-set.seed(212)
+set.seed(312)
 n_customers <- 100
 birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
                         to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),

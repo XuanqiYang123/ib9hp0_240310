@@ -17,9 +17,10 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 #### Get the data
 (sales_performance <- 
     dbGetQuery(db_connection, 
-               "SELECT order_date as date, 
-               SUM(order_value) as value_sales,
-               SUM(order_quantity) as volume_sales
+               "SELECT order_date AS date, 
+               SUM(order_value) AS value_sales,
+               SUM(order_quantity) AS volume_sales,
+               SUM(order_value)/SUM(order_quantity) AS avg_price
                FROM order_details
                GROUP BY date
                ORDER BY date"))
@@ -30,15 +31,15 @@ sales_performance <- sales_performance %>%
          year = format(as.Date(date), "%Y")) %>%
   group_by(month, year) %>%
   summarise(value_sales = sum(value_sales),
-            volume_sales = sum(volume_sales))
+            volume_sales = sum(volume_sales)) %>%
+  mutate(avg_price = value_sales/volume_sales)
 
 #### Plot monthly value sales trend
 
 p.mnth.val <- ggplot(filter(sales_performance, 
                              year %in% c("2022", "2023")), 
        aes(x = month, group = year, color = year,
-           y = value_sales)) +
-  geom_line(show.legend = F) + 
+           y = value_sales)) +geom_smooth(se = F, show.legend = F) +
   labs(y = "Sales Value (GBP)", x = "Month", 
        subtitle = "Sales Value", color = "Year") +
   theme_light() +
@@ -51,15 +52,27 @@ p.mnth.vol <- ggplot(filter(sales_performance,
                              year %in% c("2022", "2023")), 
                       aes(x = month, group = year, color = year,
                           y = volume_sales)) +
-    geom_line() + 
+    geom_smooth(se = F, show.legend = F) + 
     labs(y = "Sales Volume (Units)", x = "Month", 
          subtitle = "Sales Volume", color = "Year") +
     theme_light() +
     theme(plot.title = element_text(hjust = 0.5)) +
     scale_y_continuous(labels = comma,
                        limits = c(0, 500))
+#### Plot monthly avg price trend
+p.mnth.price <- ggplot(filter(sales_performance, 
+                            year %in% c("2022", "2023")), 
+                     aes(x = month, group = year, color = year,
+                         y = avg_price)) +
+  geom_smooth(se = F) + 
+  labs(y = "Average Price (GBP/Unit)", x = "Month", 
+       subtitle = "Average Price", color = "Year") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = comma,
+                     limits = c(0, 100))
 #### Combine value and volume sales graphs
-gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, ncol = 2, widths = c(0.9, 1.1),
+gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, p.mnth.price, ncol = 3, widths = c(0.9, 0.9, 1.1),
                         top = ggpubr::text_grob("Monthly Sales Trend", 
                                                 size = 15, face = "bold"))
 
