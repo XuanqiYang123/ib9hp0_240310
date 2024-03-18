@@ -3,6 +3,7 @@ library(dplyr)
 library(tidyr)
 library(readr)
 #packages for synthetic data generation
+install.packages("conjurer")
 library(conjurer) 
 library(randomNames)
 library(writexl)
