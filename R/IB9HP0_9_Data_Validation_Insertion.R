@@ -94,7 +94,7 @@ for (suppliers in list.files(path = "data_uploads/", pattern = "suppliers", full
 }
 suppliers_file <- do.call(rbind, suppliers_list)
 
-## Read suppliers file
+## Read supplies file
 supplies_list <- list()
 for (supplies in list.files(path = "data_uploads/", pattern = "supply", full.names = TRUE)) {
   supplies_ind <- read.csv(supplies)
@@ -265,16 +265,6 @@ if (all(!inherits(try(as.Date(customer_queries_table$query_closure_date, format 
 } else {
   print("There was an issue with converting the Query Closure Dates")
 }
-
-## Ensuring queries closure date is after the submission date
-for (i in 1:length(as.Date(customer_queries_table$query_submission_date, format = "%d-%m-%Y"))) {
-  if (as.Date(customer_queries_table$query_closure_date, format = "%d-%m-%Y")[i] > as.Date(customer_queries_table$query_submission_date, format = "%d-%m-%Y")[i]) {
-    print("Closure date happened after the submission date")
-  } else {
-    print(paste("Error!","Query",i,": closure date happened before the submission date"))
-  }
-}
-
 
 ## Memberships file
 ### Checking NA values inside membership_id and membership_type
