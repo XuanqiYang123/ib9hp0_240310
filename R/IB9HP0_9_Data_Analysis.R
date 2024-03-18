@@ -172,8 +172,42 @@ gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
                         top = ggpubr::text_grob("Spending by Membership Type", 
                                                 size = 15, face = "bold"))
 
-## Analysis 4: Suppliers Popularity
-## Most Popular Payment Method
+## Analysis 4: Customer QUeries
+### Most Frequent Queries
+(queries_frequencies <- dbGetQuery(db_connection,"SELECT query_title, COUNT(*) as frequencies
+                                   FROM customer_queries
+                                   GROUP BY query_title
+                                   ORDER BY frequencies DESC"))
+
+ggplot(queries_frequencies, 
+       aes(x= reorder(query_title, desc(frequencies)), 
+                                y = frequencies)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Queries", y = "Frequencies", title = "Most Frequent Customer Issues") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+## Response Time Analyis for Customer Queries
+(response_time <- 
+    dbGetQuery(db_connection,
+               "SELECT query_id, 
+               query_closure_date,
+               query_submission_date
+               FROM customer_queries
+               WHERE query_closure_date <> 'NA'"))
+
+response_time <- response_time %>%
+  mutate(closed_date = format(as.Date(query_closure_date), "%d"),
+         submission_date = format(as.Date(query_submission_date), "%d"))
+
+# mutate(turnaround_time = 
+#          difftime(query_closure_date, query_submission_date, units = "days"))
+
+ggplot(response_time, aes(x= query_id, y = response_time)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Queries ID", y = "Response Time", title = "Response Time Trend on Customer Queries") +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+## Analysis 5: Payment Method
 (top_payment <- 
     dbGetQuery(db_connection,
                "SELECT payment_method, COUNT(*) AS frequencies,
@@ -204,39 +238,6 @@ p.payment_amnt <- ggplot(top_payment,
 gridExtra::grid.arrange(p.frequency, p.payment_amnt, ncol = 2,
                         top = ggpubr::text_grob("Payment Methods", 
                                                 size = 15, face = "bold"))
-
-## Most Frequent Queries
-(queries_frequencies <- dbGetQuery(db_connection,"SELECT query_title, COUNT(*) as frequencies
-                                   FROM customer_queries
-                                   GROUP BY query_title
-                                   ORDER BY frequencies DESC"))
-
-ggplot(queries_frequencies, aes(x= reorder(query_title, desc(frequencies)), 
-                                y = frequencies)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Queries", y = "Frequencies", title = "Most Frequent Customer Issues") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
-## Response Time Analyis for Customer Queries
-(response_time <- 
-    dbGetQuery(db_connection,
-               "SELECT query_id, 
-               query_closure_date,
-               query_submission_date
-               FROM customer_queries
-               WHERE query_closure_date <> 'NA'"))
-
-response_time <- response_time %>%
-  mutate(closed_date = format(as.Date(query_closure_date), "%d"),
-         submission_date = format(as.Date(query_submission_date), "%d"))
-  
-  # mutate(turnaround_time = 
-  #          difftime(query_closure_date, query_submission_date, units = "days"))
-
-ggplot(response_time, aes(x= query_id, y = response_time)) +
-  geom_bar(stat = "identity") +
-  labs(x = "Queries ID", y = "Response Time", title = "Response Time Trend on Customer Queries") +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
 # Disconnect connection to SQL database
 dbDisconnect(db_connection)

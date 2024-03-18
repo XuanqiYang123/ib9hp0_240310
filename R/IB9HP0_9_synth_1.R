@@ -3,11 +3,7 @@ library(dplyr)
 library(tidyr)
 library(readr)
 #packages for synthetic data generation
-<<<<<<< HEAD
 library(conjurer) 
-=======
-install.packages("conjurer")
->>>>>>> e2aa2bac07308977ac4e3866e392623ac1c4c1e1
 library(randomNames)
 library(writexl)
 library(charlatan) #for credit card number
