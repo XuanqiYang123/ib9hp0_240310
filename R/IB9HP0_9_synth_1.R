@@ -4,6 +4,7 @@ library(tidyr)
 library(readr)
 library(ggplot2)
 #packages for synthetic data generation
+install.packages("conjurer")
 library(randomNames)
 library(Pareto)
 library(uuid)
