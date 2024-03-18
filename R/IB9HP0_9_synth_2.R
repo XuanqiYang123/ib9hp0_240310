@@ -25,7 +25,7 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 ### 'customers' table
 #Define parameters for customers
 set.seed(456)
-n_customers <- 50
+n_customers <- 100
 birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
                         to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),
                     n_customers)
@@ -37,7 +37,7 @@ address_type <- c("Home", "Office")
 #Create data
 customers_data <- 
   #Create n unique customer IDs with random names
-  data.frame("cust_id" = paste("cust", seq(51,51+n_customers-1,1), sep = ""),
+  data.frame("cust_id" = paste("cust", seq(101,101+n_customers-1,1), sep = ""),
              "cust_name" = randomNames::randomNames(n_customers)) %>% 
   separate(cust_name, into = c("last_name", "first_name"), sep = ", ") %>%
   #Create email column, by merging last & first name with email domain @gmail.com
@@ -131,6 +131,9 @@ write.csv(products_data, "data_uploads/R_synth_products_round2.csv")
 #Define parameters
 origin_date <- "1970-01-01"
 n_orders <- 100
+order_date <- #round 2 is for orders in 2024
+  sample(seq(from = as.Date("2024/03/01"), 
+             to = as.Date(lubridate::today()), by = "day"), 12)
 pymt_method <- 
   c("Bank Transfer", "Visa", "Mastercard", "PayPal", "GPay", "Apple Pay")
 pymt_status <- c("Done", "Verifying")
@@ -147,11 +150,11 @@ orders_col_order <-
 set.seed(321)
 orders_data <- 
   #Create n unique order IDs
-  data.frame("order_id" = paste("o",seq(101, 101+n_orders-1, 1), sep = "")) %>%
+  data.frame("order_id" = paste("o",seq(501, 501+n_orders-1, 1), sep = "")) %>%
   mutate(order_id = gsub("cust", "o", order_id),
          payment_id = gsub("o", "pm", order_id),
          cust_id = sample(customers_data$cust_id, n_orders, replace = T),
-         order_date = sample(date, n_orders, replace = T),
+         order_date = sample(order_date, n_orders, replace = T),
          payment_method = sample(pymt_method, n_orders, replace = T),
          payment_status = sample(pymt_status, n_orders, replace = T),
          delivery_recipient = randomNames::randomNames(n_orders,
