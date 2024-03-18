@@ -523,25 +523,25 @@ for(i in 1:nrow(memberships_table)){
 
 ## Inserting Customers table
 for(i in 1:nrow(customers_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO customers(cust_id,first_name,last_name,cust_email,password,cust_birth_date,address_type,block_num,postcode,cust_telephone,membership_type_id) SELECT",
-    "'", customers_table$cust_id[i], "',",
-    "'", customers_table$first_name[i], "',",
-    "'", customers_table$last_name[i], "',",
-    "'", customers_table$cust_email[i], "',",
-    "'", customers_table$password[i], "',",
-    "'", customers_table$cust_birth_date[i], "',",
-    "'", customers_table$address_type[i], "',",
-    "'", customers_table$block_num[i], "',",
-    "'", customers_table$postcode[i], "',",
-    "'", customers_table$cust_telephone[i], "',",
-    "'", customers_table$membership_type_id[i], "'",
-    "WHERE NOT EXISTS (SELECT 1 FROM customers WHERE cust_id = '", customers_table$cust_id[i],"')" 
-  )) >0) {
-    print("Data inserted successfully")
-  } else {
-    print("Customer ID already exists in the database")
-  }
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO customers(cust_id, first_name, last_name, cust_email, password, cust_birth_date, address_type, block_num, postcode, cust_telephone, membership_type_id) VALUES(",
+      "'", customers_table$cust_id[i], "',",
+      "'", customers_table$first_name[i], "',",
+      "'", customers_table$last_name[i], "',",
+      "'", customers_table$cust_email[i], "',",
+      "'", customers_table$password[i], "',",
+      "'", customers_table$cust_birth_date[i], "',",
+      "'", customers_table$address_type[i], "',",
+      "'", customers_table$block_num[i], "',",
+      "'", customers_table$postcode[i], "',",
+      "'", customers_table$cust_telephone[i], "',",
+      "'", customers_table$membership_type_id[i], "');", sep = "")
+    )
+    write_log(sprintf("Customer %s inserted successfully.", customers_table$cust_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert customer %s: %s", customers_table$cust_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Orders table
