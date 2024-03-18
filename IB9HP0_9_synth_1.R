@@ -15,7 +15,6 @@ library(stringi) #random strings
 library(lubridate)
 
 
-
 ## Db Connection
 
 # Create connection to SQL database
