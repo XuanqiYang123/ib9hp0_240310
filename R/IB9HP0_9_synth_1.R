@@ -10,11 +10,6 @@ library(charlatan) #for credit card number
 library(stringi) #random strings
 library(lubridate) 
 
-## Db Connection
-
-# Create connection to SQL database
-db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
-
 ## Synthetic Data Generation #1
 
 ### 'customers' table
@@ -412,4 +407,5 @@ advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d
 
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round1.csv", row.names = FALSE)
+
 

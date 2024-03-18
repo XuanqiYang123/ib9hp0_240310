@@ -10,11 +10,6 @@ library(charlatan) #for credit card number
 library(stringi) #random strings
 library(lubridate)
 
-## Db Connection
-
-# Create connection to SQL database
-db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
-
 ## Synthetic Data Generation #1
 
 ### 'customers' table
