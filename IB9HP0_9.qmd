@@ -1,7 +1,10 @@
 ---
 title: "IB9HPO_9"
-author: 5588654, 5577965, 5579058, 5587354, 5519743, 5588060
-format: pdf
+author: "5588654, 5577965, 5579058, 5587354, 5519743, 5588060"
+format: pdf:
+  toc: true
+  number-sections: true
+  color-links: true
 editor: visual
 geometry: margin = 2.54cm
 ---
@@ -82,11 +85,13 @@ The design of database system corresponds to the below assumptions:
 
 Figure 1 shows the relationship set for the entities
 
-![](relationship_set.png){width="460"}
+![](images/group9_ER-Relationship_Set.png)
 
 **Figure 1. Relationship Sets**
 
 The relationship of all entities and its attributes is illustrated in the Figure 2 of the Entity Relationship Diagram (ERD)
+
+![](images/group9_ER-Final ERD.png)
 
 **Figure 2. Entity Relationship Diagram (ERD)**
 
@@ -314,7 +319,7 @@ dbExecute(db_connection,
 
 ## Synthethic Data Generation
 
-The data used in the project is generated using R using several packages including randomNames, dplyr, tidyr, chartlatan, stringi, lubridate, and conjurer. Additionally, AI is used to generate names, categories, and descriptions. For the address, the postcode referred to the data provided by Office for National Statistics (ONS)
+The data used in the project is generated using R using several packages including randomNames, dplyr, tidyr, chartlatan, stringi, lubridate, and conjurer. Additionally, AI is used to generate names, categories, and descriptions. For the address, the postcode referred to the data provided by Office for National Statistics (ONS). The data is generated at one normal form (1NF) to ensure the consistency throughout the dataset.
 
 ```{r}
 ## Synthetic Data Generation #1
@@ -1122,7 +1127,7 @@ Finally, all the data will be generated into csv file which are separated accord
 
 After generating the data, the csv file is imported. Instead of explicitly specifying the name of the data, a for loop is utilized to import the data dynamically based on the table name pattern. This approach enables the use of read.csv within the loop, facilitating the seamless addition of new data files to the existing data frame. Consequently, no manual edit is needed for new data read.
 
-Prior to inserting data into the database, it will undergo a two step validation process.
+Subsequently, the data will be normalised into third normal form (3NF). Then, prior to inserting data into the database, it will undergo a two step validation process.
 
 The first step involves assessing the quality of the data. This includes verifying aspects such as the date format of the input data. If the data does not conform to the expected format, it is reformatted according to the standardized date format in the database.
 
@@ -1848,3 +1853,88 @@ for(i in 1:nrow(advertisements_table)) {
 }
 
 ```
+
+# Data Pipeline Generation
+
+## **Introduction**
+
+In this section, the project is implemented effectively through multiple streamlined workflows and seamless collaboration using GitHub. The setup of the GitHub Repository includes multiple organized folders namely R, data_update, data_uploads ,Data Analysis Results to store the files for each stage of the project. Apart from the folders the repository includes a README file which provides a brief description of the various attributes of the repository. The next section focuses on the automating aspect of the repository to ensure the integration of the workflows by working on specific triggers and actions to perform appropriate tasks.
+
+## **GitHub Repository Structure**
+
+Our GitHub repository (IB9HP0_Group_9) has a clear and logical directory structure to support efficient project management and collaboration. The directory is structured as follows:
+
+workflows folder: stores automated workflow profiles (e.g., CI/CD processes) for automating tasks such as data validation, updating databases, etc.
+
+data_uploads folder: Used to store raw data files for uploads. Files in this directory follow a clear naming convention, such as R_synth_customers_round1.csv and
+
+R_synth_customers_round2.csv, in order to quickly identify the source of the data. The insertion of new data also follows this rule, ensuring consistent data management.
+
+analysis_results folder: used to store the results of the data analysis.
+
+docs folder : holds project documents such as the analysis report Markdown file (IB9HP0_9.Rmd ) and the project RStudio project file (ib9hp0_group_9.Rproj).
+
+R folder: contains all R scripts covering data generation, table creation, data validation and insertion, and data analysis functions.
+
+root: Includes .gitignore, README.md (the project description file), and the database file (IB9HP0_9.db).
+
+This structure ensures the seamless execution of multiple processes within the workflow of the repository.
+
+## **GitHub Actions**
+
+### **Trigger conditions**
+
+The GitHub repository consists of a Continuous integration Workflow. The Continuous Integration Workflow has been structured to automatically perform validation, insertion, updation and analysis parts of the project.
+
+![](images/trigger_conditions.png){width="323"}
+
+**Figure 4 Workflow of the E-Commerce Repository**
+
+The Workflow consists of various functions mainly to setup the environment, install all required packages, and cache them. Similarly, all relevant dependencies after checking and restoring previously installed packages are installed. Following this, the various R scripts responsible for table creation, data validation, and data analysis are triggered.
+
+Push to main branch: Every time a new data file or a change is committed to the repository, the workflow is triggered to run from its initial stages ensuring that all new data are run through the various above-mentioned stages of the project.
+
+Timed run: the workflow is scheduled to run every 8 hours. This has been done to sync multiple new data points which might arise in the morning and evenings at the end of every shift.
+
+### Automation Tasks
+
+Check out code: Check out the latest code from the GitHub repository.
+
+Setting up the R environment: Configure the runtime environment to use a specific version of R (in this case, version 4.3.1).
+
+Cache R packages: Cache installed R packages for faster builds.
+
+Install system dependencies: install system dependency packages necessary for R scripts to run, such as libcurl4-openssl-dev, libxml2-dev.
+
+Install R dependencies: install necessary R packages, such as RSQLite, ggplot2, dplyr, etc. These packages are essential for data processing and analysis.
+
+Execute R scripts: execute the R scripts stored in the R/ directory in order, including:
+
+IB9HP0_9_synth_1.R and IB9HP0_9_synth_2.R: used to generate or process synthetic data.
+
+IB9HP0_9_Table_Creation.R: used to create database tables.
+
+IB9HP0_9_Data_Validation_Insertion.R: for data validation and insertion into database operations.
+
+IB9HP0_9_Data_Analysis.R: to perform data analysis.
+
+Git Operations:
+
+Configure Git: sets the global Git username and email.
+
+Add files: adds all changes to the Git staging area.
+
+Commit files: commits changes to the repository, if any.
+
+Push changes: use github-push-action to push commits back to the main branch.
+
+Overall, a GitHub repository includes all the stages of the project from data validation, insertion, and updates. The repository can read new data files and ensure that the data is clean and suitable for the database through validation and then successfully insert and update the data frames. After successfully updating the database, the data is then run through various analysis and their respective results are stored and presented.
+
+# Data Analysis and Reporting
+
+# Limitation and Future Implications
+
+1.  We have not capture all the complexity of the e-commerce database because our ERD only include the key entities not other supporting entities for example purchase return
+2.  It is not integrated throughout
+
+# Conclusion
