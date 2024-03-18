@@ -546,16 +546,16 @@ for(i in 1:nrow(customers_table)){
 
 ## Inserting Orders table
 for(i in 1:nrow(orders_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO orders(order_id,cust_id) SELECT",
-    "'", orders_table$order_id[i], "',",
-    "'", orders_table$cust_id[i],"'",
-    "WHERE NOT EXISTS (SELECT 1 FROM orders WHERE order_id = '", orders_table$order_id[i],"')"
-  )) >0) {
-    print("Data inserted successfully")
-  } else {
-    print("Order ID already exists in the database")
-  }
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO orders(order_id, cust_id) VALUES('",
+      orders_table$order_id[i], "','",
+      orders_table$cust_id[i], "');", sep = "")
+    )
+    write_log(sprintf("Order %s inserted successfully.", orders_table$order_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert order %s: %s", orders_table$order_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Payment table
