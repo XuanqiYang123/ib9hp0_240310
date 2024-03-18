@@ -426,17 +426,24 @@ if(length(customers_table$cust_id[duplicated(customers_table$cust_id)]) == 0) {
 }
 
 ### Checking whether the customer's first name and last name contains ' and ,
-if (any(grepl("[',]",customers_table$first_name))) {
-  print("Error! Some names contain invalid characters")
-} else {
-  print("All names are valid")
+clean_name <- function(name) {
+  gsub("['\",]", "-", name)
 }
 
-if (any(grepl("[',]",customers_table$last_name))) {
-  print("Error! Some names contain invalid characters")
+if (any(grepl("[',]", customers_table$first_name))) {
+  print("Error! Some first names contain invalid characters")
+  customers_table$first_name <- sapply(customers_table$first_name, clean_name)
 } else {
-  print("All names are valid")
+  print("All first names are valid")
 }
+
+if (any(grepl("[',]", customers_table$last_name))) {
+  print("Error! Some last names contain invalid characters")
+  customers_table$last_name <- sapply(customers_table$last_name, clean_name)
+} else {
+  print("All last names are valid")
+}
+
 
 ### Checking the customer_email format
 if(length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),customers_table$cust_email, value = TRUE)) == length(customers_table$cust_email)) {
@@ -457,53 +464,61 @@ if (all(!inherits(try(as.Date(customers_table$cust_birth_date, format = "%d-%m-%
 db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 # Inserting Dataframe into the sql database
+write_log <- function(message, path) {
+  timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
+  message <- paste(timestamp, message, sep=" - ")
+  write(message, file = path, append = TRUE, sep = "\n")
+}
+
+# Path for the error log file
+log_file_path <- "error_log.txt"
 
 ## Inserting Products table
 for(i in 1:nrow(products_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO products(prod_id,prod_name,prod_desc,voucher,prod_url,prod_unit_price)", "SELECT",
-    "'", products_table$prod_id[i], "',",
-    "'", products_table$prod_name[i], "',",
-    "'", products_table$prod_desc[i], "',",
-    "'", products_table$voucher[i], "',",
-    "'", products_table$prod_url[i], "',",
-    products_table$prod_unit_price[i],
-    "WHERE NOT EXISTS (SELECT 1 FROM products WHERE prod_id = '",products_table$prod_id[i], "')"
-  )) > 0) {
-    print("Data inserted successfully")
-  } else {
-    print("All products id already exists in the database")
-  }
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO products(prod_id, prod_name, prod_desc, voucher, prod_url, prod_unit_price) VALUES('",
+      products_table$prod_id[i], "','",
+      products_table$prod_name[i], "','",
+      products_table$prod_desc[i], "','",
+      products_table$voucher[i], "','",
+      products_table$prod_url[i], "',",
+      products_table$prod_unit_price[i], ");", sep = "")
+    )
+    write_log(sprintf("Product %s inserted successfully.", products_table$prod_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert product %s: %s", products_table$prod_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Reviews table
-for(i in 1:nrow(reviews_table)) {
-  if (dbExecute(db_connection, paste(
-    "INSERT INTO reviews(review_id, prod_rating, review_date, prod_id) SELECT",
-    "'", reviews_table$review_id[i], "',",
-    "'", reviews_table$prod_rating[i], "',",
-    "'", reviews_table$review_date[i], "',",
-    "'", reviews_table$prod_id[i], "'",
-    "WHERE NOT EXISTS (SELECT 1 FROM reviews WHERE review_id = '", reviews_table$review_id[i], "')"
-  )) > 0) {
-    print("Data inserted successfully")
-  } else {
-    print("Review ID already exists in the database")
-  }
+for(i in 1:nrow(reviews_table)){
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO reviews(review_id, prod_rating, review_date, prod_id) VALUES('",
+      reviews_table$review_id[i], "',",
+      reviews_table$prod_rating[i], ",'",
+      reviews_table$review_date[i], "','",
+      reviews_table$prod_id[i], "');", sep = "")
+    )
+    write_log(sprintf("Review %s inserted successfully.", reviews_table$review_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert review %s: %s", reviews_table$review_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Memberships table
 for(i in 1:nrow(memberships_table)){
-  if (dbExecute(db_connection, paste(
-    "INSERT INTO memberships(membership_type_id, membership_type) SELECT",
-    "'", memberships_table$membership_type_id[i], "',",
-    "'", memberships_table$membership_type[i], "'",
-    "WHERE NOT EXISTS (SELECT 1 FROM memberships WHERE membership_type_id = '", memberships_table$membership_type_id[i], "')"
-  )) > 0) {
-    print("Data inserted successfully")
-  } else {
-    print("Membership type id already exists in the database")
-  }
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO memberships(membership_type_id, membership_type) VALUES(",
+      "'", memberships_table$membership_type_id[i], "',",
+      "'", memberships_table$membership_type[i], "');", sep = "")
+    )
+    write_log(sprintf("Membership %s inserted successfully.", memberships_table$membership_type_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert membership %s: %s", memberships_table$membership_type_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Customers table
@@ -545,62 +560,45 @@ for(i in 1:nrow(orders_table)){
 
 ## Inserting Payment table
 for(i in 1:nrow(payments_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO payments(payment_id, payment_method, payment_amount, payment_status, payment_date, order_id)", "SELECT",
-    "'", payments_table$payment_id[i], "',",
-    "'", payments_table$payment_method[i], "',",
-    payments_table$payment_amount[i], ",",
-    "'", payments_table$payment_status[i], "',",
-    "'", payments_table$payment_date[i], "',",
-    "'", payments_table$order_id[i], "'",
-    "WHERE NOT EXISTS (SELECT 1 FROM payments WHERE payment_id = '", payments_table$payment_id[i],"');"
-  )) >0) {
-    print("Data inserted successfully")
-  } else {
-    print("Payment ID already exists in the databse")
-  }
+  tryCatch({
+    # Insert statement...
+    write_log(sprintf("Payment %s inserted successfully.", payments_table$payment_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert payment %s: %s", payments_table$payment_id[i], e$message), log_file_path)
+  })
 }
 
 
 ## Inserting Shipment table
 for(i in 1:nrow(shipments_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO shipments(shipment_id, delivery_status, delivery_fee, delivery_recipient, shipper_name, est_delivery_date, delivery_departed_date, delivery_received_date, prod_id, order_id)", "SELECT",
-    "'", shipments_table$shipment_id[i], "',",
-    "'", shipments_table$delivery_status[i], "',",
-    shipments_table$delivery_fee[i], ",",
-    "'", shipments_table$delivery_recipient[i], "',",
-    "'", shipments_table$shipper_name[i], "',",
-    "'", shipments_table$est_delivery_date[i], "',",
-    "'", shipments_table$delivery_departed_date[i], "',",
-    "'", shipments_table$delivery_received_date[i], "',",
-    "'", shipments_table$prod_id[i], "',",
-    "'", shipments_table$order_id[i], "'",
-    "WHERE NOT EXISTS (SELECT 1 FROM shipments WHERE shipment_id = '", shipments_table$shipment_id[i],"');"
-  )) >0) {
-    print("Data inserted successfully")
-  } else {
-    print("Shipment ID already exists in the database")
-  }
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO shipments(shipment_id, delivery_status, delivery_fee, delivery_recipient, shipper_name, est_delivery_date, delivery_departed_date, delivery_received_date
+, prod_id, order_id) VALUES(",
+      "'", shipments_table$shipment_id[i], "',",
+      "'", shipments_table$delivery_status[i], "',",
+      shipments_table$delivery_fee[i], ",",
+      "'", shipments_table$delivery_recipient[i], "',",
+      "'", shipments_table$shipper_name[i], "',",
+      "'", format(as.Date(shipments_table$est_delivery_date[i], format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
+      "'", format(as.Date(shipments_table$delivery_departed_date[i], format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
+      "'", format(as.Date(shipments_table$delivery_received_date[i], format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
+      "'", shipments_table$prod_id[i], "',",
+      "'", shipments_table$order_id[i], "');", sep = "")
+    )
+    write_log(sprintf("Shipment %s inserted successfully.", shipments_table$shipment_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert shipment %s: %s", shipments_table$shipment_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Order details table
 for(i in 1:nrow(order_details_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO order_details(order_quantity,order_date,order_price,order_value,prod_id,order_id)", "SELECT",
-    order_details_table$order_quantity[i], ",",
-    "'", order_details_table$order_date[i], "',",
-    order_details_table$order_price[i], ",",
-    order_details_table$order_value[i], ",",
-    "'", order_details_table$prod_id[i], "',",
-    "'", order_details_table$order_id[i], "'", 
-    " WHERE NOT EXISTS (SELECT 1 FROM order_details WHERE order_id = '", order_details_table$order_id[i], "' AND prod_id = '", order_details_table$prod_id[i], "');",
-    sep = " "
-  )) >0) {
-    print("Data inserted successfully")
-  } else {
-    print("Prod_ID and Order_ID already exists in the database") 
-  }
+  tryCatch({
+    write_log(sprintf("Order detail %s inserted successfully.", order_details_table$order_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert order detail %s: %s", order_details_table$order_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Suppliers table
@@ -638,20 +636,20 @@ for(i in 1:nrow(supplies_table)){
 
 ## Inserting Customer queries table
 for(i in 1:nrow(customer_queries_table)){
-  if(dbExecute(db_connection, paste(
-    "INSERT INTO customer_queries(query_id, query_title, query_submission_date, query_closure_date, query_status, cust_id)", "SELECT",
-    "'", customer_queries_table$query_id[i], "',",
-    "'", customer_queries_table$query_title[i], "',",
-    "'", customer_queries_table$query_submission_date[i], "',",
-    "'", customer_queries_table$query_closure_date[i], "',",
-    "'", customer_queries_table$query_status[i], "',",
-    "'", customer_queries_table$cust_id[i], "'",
-    "WHERE NOT EXISTS (SELECT 1 FROM customer_queries WHERE query_id = '", customer_queries_table$query_id[i],"');"
-  )) > 0) {
-    print("Data inserted successfully")
-  } else {
-    print ("Query ID already exists in the database")
-  }
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO customer_queries(query_id, query_title, query_submission_date, query_closure_date, query_status, cust_id) VALUES(",
+      "'", customer_queries_table$query_id[i], "',",
+      "'", customer_queries_table$query_title[i], "',",
+      "'", customer_queries_table$query_submission_date[i], "',",
+      "'", customer_queries_table$query_closure_date[i], "',",
+      "'", customer_queries_table$query_status[i], "',",
+      "'", customer_queries_table$cust_id[i], "');", sep = "")
+    )
+    write_log(sprintf("Customer query %s inserted successfully.", customer_queries_table$query_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert customer query %s: %s", customer_queries_table$query_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Categories table
@@ -675,23 +673,34 @@ for(i in 1:nrow(product_categories_table)){
 }
 
 ## Inserting Advertisers table
-for(i in 1:nrow(advertisers_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO advertisers(advertiser_id, advertiser_name, advertiser_email) VALUES(",
-    "'", advertisers_table$advertiser_id[i], "',",
-    "'", advertisers_table$advertiser_name[i], "',",
-    "'", advertisers_table$advertiser_email[i], "');",sep = "") 
-  )
+for(i in 1:nrow(advertisers_table)) {
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO advertisers(advertiser_id, advertiser_name, advertiser_email) VALUES(",
+      "'", advertisers_table$advertiser_id[i], "',",
+      "'", advertisers_table$advertiser_name[i], "',",
+      "'", advertisers_table$advertiser_email[i], "');",sep = "")
+    )
+    write_log(sprintf("Advertiser %s inserted successfully.", advertisers_table$advertiser_id[i]), log_file_path)
+  }, error = function(e) {
+    write_log(sprintf("Failed to insert advertiser %s: %s", advertisers_table$advertiser_id[i], e$message), log_file_path)
+  })
 }
 
 ## Inserting Advertisements table
-for(i in 1:nrow(advertisements_table)){
-  dbExecute(db_connection, paste(
-    "INSERT INTO advertisements(ads_id, ads_start_date, ads_end_date, prod_id, advertiser_id) VALUES(",
-    "'", advertisements_table$ads_id[i], "',",
-    "'", advertisements_table$ads_start_date[i], "',",
-    "'", advertisements_table$ads_end_date[i], "',",
-    "'", advertisements_table$prod_id[i], "',",
-    "'", advertisements_table$advertiser_id[i], "');",sep = "") 
-  )
+for(i in 1:nrow(advertisements_table)) {
+  tryCatch({
+    dbExecute(db_connection, paste(
+      "INSERT INTO advertisements(ads_id, ads_start_date, ads_end_date, prod_id, advertiser_id) VALUES(",
+      "'", advertisements_table$ads_id[i], "',",
+      "'", advertisements_table$ads_start_date[i], "',",
+      "'", advertisements_table$ads_end_date[i], "',",
+      "'", advertisements_table$prod_id[i], "',",
+      "'", advertisements_table$advertiser_id[i], "');", sep = "")
+    )
+    write_log(sprintf("Advertisement %s inserted successfully.", advertisements_table$ads_id[i]), log_file_path)
+  }, error = function(e) {
+    error_message <- sprintf("Failed to insert advertisement %s: %s", advertisements_table$ads_id[i], e$message)
+    write_log(error_message, log_file_path)
+  })
 }
