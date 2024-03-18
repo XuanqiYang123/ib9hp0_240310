@@ -46,14 +46,18 @@ jobs:
         run: |
           Rscript R/IB9HP0_9_Table_Creation.R
 
-      - name: Execute R script data_validation
+      - name: Execute R script data_validation_insertion
         run: |
           Rscript R/IB9HP0_9_Data_Validation_Insertion.R
+
+      - name: Execute R script new_data_update
+        run: |
+          Rscript R/IB9HP0_9_New_Data_Update.R
 
       - name: Execute R script data_analysis
         run: |
           Rscript R/IB9HP0_9_Data_Analysis.R
-          
+
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"
