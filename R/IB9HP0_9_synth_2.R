@@ -74,12 +74,12 @@ write.csv(customers_data, "data_uploads/R_synth_customers_round2.csv")
 ### 'products' table
 #Getting brand and product names from Gemini
 gemini_prods <- 
-  readxl::read_excel("data_uploads/gemini_prod_cate_supplier.xlsx", 
+  readxl::read_excel("data_uploads/gemini_prod_cate_supplier_2.xlsx", 
                      .name_repair = "universal") %>%
   setNames(c("seller_name", "category", "prod_name", "prod_desc"))
 #Define parameters for products
 set.seed(456)
-n_prods <- 20
+n_prods <- 19
 voucher_type <- c("10%", "20%", "50%")
 ratings <- c(1,2,3,4,5)
 date <- #assuming company was established on Mar 06th 2004
@@ -90,13 +90,14 @@ products_data <-
   #generate product id
   conjurer::buildProd(n_prods, minPrice = 1, maxPrice = 100) %>% 
   #add product name and description from gemini's file
-  mutate("prod_name" = sample(gemini_prods$prod_name, 20)) %>%
+  mutate("prod_name" = sample(gemini_prods$prod_name, nrow(gemini_prods))) %>%
   left_join(select(gemini_prods, -c(seller_name, category)), 
             by = join_by(prod_name)) %>%
   #rename columns to fit schema
   rename(prod_id = SKU, prod_unit_price = Price) %>%
   #rename `sku` with `prod`
-  mutate("prod_id" = gsub("sku", "prod", prod_id)) %>%
+  mutate("prod_id" = gsub("sku", "", prod_id)) %>%
+  mutate("prod_id" = paste("prod", as.numeric(prod_id)+20, sep = "")) %>%
   #add product url
   mutate("web_prefix" = "https://group9.co.uk/",
          "prod_url1" = gsub(" ", "-", prod_name)) %>%
@@ -108,8 +109,7 @@ products_data <-
     #Review date
     "review_date" = sample(format(date, "%d-%m-%Y"), n_prods, replace = T),
     #Assign review ID
-    "review_id" = 
-      conjurer::buildCust(sum(!is.na(prod_rating))),
+    "review_id" = paste("rev", seq(21, 21+n_prods-1, 1), sep = ""),
     "review_id" = gsub("cust", "rev", review_id)) %>%
   #drop temp url
   select(-prod_url1)
@@ -393,7 +393,8 @@ set.seed(456)
 n_advertisers <- 5
 advertisers_data <- data.frame(
   advertiser_id = sprintf("ADV%d", 1:n_advertisers),
-  advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", "Ads Master", "Ads Expert"),
+  advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", 
+                      "Ads Master", "Ads Expert"),
   advertiser_email = sprintf("advertiser%d@gmail.com", 1:n_advertisers)
 )
 #Save to .csv file
