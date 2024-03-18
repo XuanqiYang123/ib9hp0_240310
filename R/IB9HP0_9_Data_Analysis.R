@@ -5,6 +5,7 @@ library(tidyverse)
 library(RSQLite)
 library(gridExtra)
 library(scales) # for label_wrap()
+library(lubridate)
 
 # Create connection to SQL database
 db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
@@ -14,98 +15,96 @@ db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 ## Analysis 1: Monthly Sales trend in Value and Volume
 ### Monthly Sales Trend Analysis by Value
 #### Get the data
-(sales_value_performance <- 
+(sales_performance <- 
     dbGetQuery(db_connection, 
-               "SELECT strftime('%m-%Y', order_date) as month, 
-               SUM(order_value) as total_sales
+               "SELECT order_date as date, 
+               SUM(order_value) as value_sales,
+               SUM(order_quantity) as volume_sales
                FROM order_details
-               GROUP BY month
-               ORDER BY month"))
+               GROUP BY date
+               ORDER BY date"))
+
+#### Transform data to get month and year
+sales_performance <- sales_performance %>%
+  mutate(month = format(as.Date(date), "%m"),
+         year = format(as.Date(date), "%Y")) %>%
+  group_by(month, year) %>%
+  summarise(value_sales = sum(value_sales),
+            volume_sales = sum(volume_sales))
 
 #### Plot monthly value sales trend
-p.mnth.val <- ggplot(sales_value_performance, 
-       aes(x = as.Date(paste("01",sales_value_performance$month,sep = "-"), 
-                        format = "%d-%m-%Y"), 
-           y = total_sales)) +
-  geom_line(group = 1) +
-  labs(y = "Sales Value (GBP)", x = "Month", 
-       subtitle = "Sales Value") +
-  theme_light() +
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-  scale_x_date(date_labels = "%b-%y", date_breaks = "1 year") +
-  scale_y_continuous(labels = comma)
 
-### Monthly Sales Trend Analysis by Quantity
-#### Get the data
-(sales_quantity_performance <- 
-    dbGetQuery(db_connection, 
-               "SELECT strftime('%m-%Y', order_date)  as month, 
-               SUM(order_quantity) as total_sales
-               FROM order_details
-               GROUP BY month
-               ORDER BY month"))
+p.mnth.val <- ggplot(filter(sales_performance, 
+                             year %in% c("2022", "2023")), 
+       aes(x = month, group = year, color = year,
+           y = value_sales)) +
+  geom_line(show.legend = F) + 
+  labs(y = "Sales Value (GBP)", x = "Month", 
+       subtitle = "Sales Value", color = "Year") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_y_continuous(labels = comma, 
+                     limits = c(0, 20000))
 
 #### Plot monthly volume sales trend
-p.mnth.vol <- ggplot(sales_quantity_performance, 
-                     aes(x = as.Date(paste("01",sales_value_performance$month,sep = "-"), 
-                                     format = "%d-%m-%Y"), 
-                         y = total_sales)) +
-  geom_line(group = 1) +
-  labs(y = "Sales Volume (Units)", x = "Month", 
-       subtitle = "Sales Volume") +
-  theme_light() +
-  theme(plot.title = element_text(hjust = 0.5),
-        axis.text.x = element_text(angle = 90, vjust = 0.5)) +
-  scale_x_date(date_labels = "%b-%y", date_breaks = "1 year") +
-  scale_y_continuous(labels = comma)
-
+p.mnth.vol <- ggplot(filter(sales_performance, 
+                             year %in% c("2022", "2023")), 
+                      aes(x = month, group = year, color = year,
+                          y = volume_sales)) +
+    geom_line() + 
+    labs(y = "Sales Volume (Units)", x = "Month", 
+         subtitle = "Sales Volume", color = "Year") +
+    theme_light() +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    scale_y_continuous(labels = comma,
+                       limits = c(0, 500))
 #### Combine value and volume sales graphs
-gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, ncol = 2,
-                        top = ggpubr::text_grob("Monthly Sales Trend", size = 15, face = "bold"))
+gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, ncol = 2, widths = c(0.9, 1.1),
+                        top = ggpubr::text_grob("Monthly Sales Trend", 
+                                                size = 15, face = "bold"))
 
 ## Analysis 2: Product Ratings and Their Sales
-# ### Product Ratings Analysis
-# (product_rating <- 
-#     dbGetQuery(db_connection,
-#                "SELECT p.prod_name, AVG(r.prod_rating) as avg_rating
-#                FROM products p
-#                JOIN reviews r ON p.prod_id = r.prod_id
-#                GROUP BY p.prod_name
-#                ORDER BY avg_rating DESC"))
-# 
-# ### Plot rating plot
-# ggplot(product_rating, 
-#        aes (y = avg_rating, x = reorder(prod_name, avg_rating))) +
-#   geom_bar(stat = "identity") + coord_flip() +
-#   labs(y = "Products", x = "Average Rating", 
-#        subtitle = "Product Rating") +
-#   theme_light() +
-#   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
-
 ### Products Popularity
 #### Get the data
 (top_products_rating <- 
     dbGetQuery(db_connection, 
                "SELECT a.prod_name AS products, 
-               SUM(b.order_quantity) AS total_sales,
+               SUM(b.order_quantity) AS volume_sales,
                AVG(r.prod_rating) as avg_rating
                FROM products a
                JOIN order_details b ON a.prod_id = b.prod_id
                JOIN reviews r ON a.prod_id = r.prod_id
                GROUP BY a.prod_id
-               ORDER BY total_sales DESC
-               LIMIT 5"))
+               ORDER BY volume_sales DESC
+               LIMIT 10"))
 
-#### Plot product graph
-ggplot(top_products_rating, 
-       aes(x= reorder(products, total_sales))) +
-  geom_bar(aes(y = total_sales), stat = "identity") + coord_flip() + 
-  geom_point(aes(y = avg_rating), color = "magenta") + 
-  labs(x = "Products", y = "Total Sales", color = "Product Rating",
-       subtitle = "Top 5 Products and Their Rating") +
+#### Plot product sales graph
+p.top_prod_sales <- ggplot(top_products_rating, 
+       aes(x= reorder(products, volume_sales))) +
+  geom_bar(aes(y = volume_sales), stat = "identity") + coord_flip() +
+  labs(x = "Products", y = "Volume Sales",
+       subtitle = "Volume Sales") +
   theme_light() +
-  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        axis.title.x = element_blank())
+#### Plot product ratings graph
+p.top_prod_rating <- ggplot(top_products_rating, 
+       aes(x= reorder(products, volume_sales))) +
+  geom_bar(aes(y = avg_rating), stat = "identity",
+           fill = "gray") + coord_flip() +
+  labs(y = "Product Rating",
+       subtitle = "Rating") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        axis.title = element_blank()) +
+  scale_y_continuous(limits = c(0,5))
+#### Combine value and volume sales graphs
+gridExtra::grid.arrange(p.top_prod_sales, p.top_prod_rating, ncol = 2, 
+                        widths = c(1.1, 0.5),
+                        top = ggpubr::text_grob("Top 10 Products and Their Rating", 
+                                                size = 15, face = "bold"))
 
 ## Analysis 3: Membership segment
 ### Highest Spent based on Customer Segment
@@ -173,3 +172,5 @@ ggplot(response_time, aes(x= query_id, y = response_time)) +
   labs(x = "Queries ID", y = "Response Time", title = "Response Time Trend on Customer Queries") +
   theme(plot.title = element_text(hjust = 0.5, face = "bold"))
 
+# Disconnect connection to SQL database
+dbDisconnect(db_connection)
