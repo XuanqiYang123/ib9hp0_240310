@@ -1934,6 +1934,7 @@ Overall, a GitHub repository includes all the stages of the project from data va
 
 # Limitation and Future Implications
 
-1.  We have not capture all the complexity of the e-commerce database.
+1.  We have not capture all the complexity of the e-commerce database because our ERD only include the key entities not other supporting entities for example purchase return
+2.  It is not integrated throughout
 
 # Conclusion
