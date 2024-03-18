@@ -37,6 +37,12 @@ jobs:
       - name: Install dependencies
         run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl"))'
 
+      - name: Save R dependencies cache
+        uses: actions/cache@v2
+        with:
+              path: ${{ env.R_LIBS_USER }}
+              key: ${{ runner.os }}-R-${{ hashFiles('**/lockfile') }}
+
       - name: Execute R script synth_1
         run: |
           Rscript R/IB9HP0_9_synth_1.R
