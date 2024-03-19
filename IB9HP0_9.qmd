@@ -114,15 +114,15 @@ The design of database system corresponds to the below assumptions:
 
 ## Conceptual Design: Entities and Relationships
 
-1.  Customer---Product Each customer can order many products, and each product can be ordered by many customers. Thus, cardinality is M:N.
+1.  Customer---Product Each customer can order many products, and each product can be ordered by many customers. Thus, cardinality is M: N.
 2.  Customer---Shipment Each customer can have many shipments, and each shipment can just be associated with one customer. Thus, cardinality is N:1.
 3.  Customer---Payment Each customer can make many payments, and each payment can be associated with one customer. Thus, cardinality is N:1.
-4.  Supplier---Product Each supplier can supply many products, and each product can be from many suppliers. Thus, cardinality is M:N.
-5.  Category ---Product Each category can have many products, and each product belongs to only 1 category. Thus, cardinality is 1:N.
+4.  Supplier---Product Each supplier can supply many products, and each product can be from many suppliers. Thus, cardinality is M: N.
+5.  Category ---Product Each category can have many products, and each product belongs to only 1 category. Thus, cardinality is 1: N.
 6.  Advertisement---product Each advertisement can advertise only 1 product, and each product can be associated with one advertisement. Thus, cardinality is 1:1.
-7.  Advertiser---Advertisement Each advertiser can create many advertisements, and each advertisement can be created by one advertiser. Thus, cardinality is 1:N.
-8.  Customer---Customer_Query Each customer can request many queries, and each query can be linked with one customer. Thus, cardinality is 1:N.
-9.  Membership ---Customer Each membership can include many customers, and each customer can subscribe to one membership. Thus, cardinality is 1:N.
+7.  Advertiser---Advertisement Each advertiser can create many advertisements, and each advertisement can be created by one advertiser. Thus, cardinality is 1: N.
+8.  Customer---Customer_Query Each customer can request many queries, and each query can be linked with one customer. Thus, cardinality is 1: N.
+9.  Membership ---Customer Each membership can include many customers, and each customer can subscribe to one membership. Thus, cardinality is 1: N.
 
 Figure 1 shows the relationship set for the entities
 
@@ -1253,8 +1253,7 @@ customer_queries_list <- list()
 for (cat in list.files(
   path = "data_uploads/", pattern = "customer_queries", full.names = TRUE)) {
   customer_queries_ind <- read.csv(cat)
-  customer_queries_list[[length(customer_queries_list) + 1]] <- 
-    customer_queries_ind
+  customer_queries_list[[length(customer_queries_list) + 1]] <- customer_queries_ind
 }
 customer_queries_file <- bind_rows(customer_queries_list)
 
@@ -1480,7 +1479,7 @@ if(length(advertisers_table$advertiser_name[duplicated(
 if(
   length(grep((
     "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),
-    advertisers_table$advertiser_email, 
+               advertisers_table$advertiser_email, 
     value = TRUE)) == 
    length(advertisers_table$advertiser_email)) {
   print("All email format are correct")
@@ -2112,43 +2111,135 @@ The GitHub repository consists of a Continuous Integration Workflow. The Continu
 
 The Workflow consists of various functions mainly to setup the environment, install all required packages, and cache them. Similarly, all relevant dependencies after checking and restoring previously installed packages are installed. Following this, the various R scripts responsible for table creation, data validation, and data analysis are triggered.
 
-Push to main branch: Every time a new data file or a change is committed to the repository, the workflow is triggered to run from its initial stages ensuring that all new data are run through the various above-mentioned stages of the project.
+-   Push to main branch: Every time a new data file or a change is committed to the repository, the workflow is triggered to run from its initial stages ensuring that all new data are run through the various above-mentioned stages of the project.
 
-Timed run: the workflow is scheduled to run every 8 hours. This has been done to sync multiple new data points which might arise in the morning and evenings at the end of every shift.
+-   Timed run: the workflow is scheduled to run every 8 hours. This has been done to sync multiple new data points which might arise in the morning and evenings at the end of every shift.
 
 ### Automation Tasks
 
-Check out code: Check out the latest code from the GitHub repository.
+The automation tasks for the workflow are as follows:
 
-Setting up the R environment: Configure the runtime environment to use a specific version of R (in this case, version 4.3.1).
+-   Check out code: Check out the latest pushed code from the GitHub repository.
 
-Cache R packages: Cache installed R packages for faster builds.
+-   Setting up the R environment: Configure the run time environment to use a specific version of R (in this case, version 4.3.1).
 
-Install system dependencies: install system dependency packages necessary for R scripts to run, such as libcurl4-openssl-dev, libxml2-dev.
+-   Cache R packages: Cache installed R packages for faster builds.
 
-Install R dependencies: install necessary R packages, such as RSQLite, ggplot2, dplyr, etc. These packages are essential for data processing and analysis.
+-   Install system dependencies: install system dependency packages necessary for R packages to run, such as libcurl4-openssl-dev, libxml2-dev.
 
-Execute R scripts: execute the R scripts stored in the R/ directory in order, including:
+-   Install R dependencies: install necessary R packages, such as RSQLite, ggplot2, dplyr, etc. These packages are essential for data processing and analysis.
 
-IB9HP0_9_synth_1.R and IB9HP0_9_synth_2.R: used to generate or process synthetic data.
+-   Execute R scripts: execute the R scripts stored in the R/ directory in order, including:
 
-IB9HP0_9_Table_Creation.R: used to create database tables.
+    -   IB9HP0_9_synth_1.R and IB9HP0_9_synth_2.R: used to generate or process synthetic data.
 
-IB9HP0_9_Data_Validation_Insertion.R: for data validation and insertion into database operations.
+    -   IB9HP0_9_Table_Creation.R: used to create database tables.
 
-IB9HP0_9_Data_Analysis.R: to perform data analysis.
+    -   IB9HP0_9_Data_Validation_Insertion.R: for data validation and insertion into database operations.
 
-Git Operations:
+    -   IB9HP0_9_Data_Analysis.R: to perform data analysis.
 
-Configure Git: sets the global Git username and email.
+-   Git Operations includes:
 
-Add files: adds all changes to the Git staging area.
+    -   Configure Git: sets the global Git username and email.
 
-Commit files: commits changes to the repository, if any.
+    -   Add files: adds all changes to the Git staging area.
 
-Push changes: use github-push-action to push commits back to the main branch.
+    -   Commit files: commits changes to the repository, if any.
 
-Overall, a GitHub repository includes all the stages of the project from data validation, insertion, and updates. The repository can read new data files and ensure that the data is clean and suitable for the database through validation and then successfully insert and update the data frames. After successfully updating the database, the data is then run through various analysis and their respective results are stored and presented.
+    -   Push changes: use github-push-action to push commits back to the main branch.
+
+## GitHub Workflows Code
+
+---
+name: Workflow for database management
+
+on:
+  schedule:
+    - cron: '0 */8 * * *' # Run every 8 hours
+  push:
+    branches: [ main ]
+      
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: Setup R environment
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.3.1'
+          
+      - name: Cache R packages
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-${{ hashFiles('**/lockfile') }}
+          restore-keys: |
+            ${{ runner.os }}-r-
+            
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
+          sudo apt-get install -y libharfbuzz-dev libfribidi-dev
+
+      - name: Restore R dependencies cache
+        uses: actions/cache@v2
+        with:
+              path: ${{ env.R_LIBS_USER }}
+              key: ${{ runner.os }}-R-${{ hashFiles('**/lockfile') }}
+              restore-keys: |
+                ${{ runner.os }}-R-
+
+          
+      - name: Install dependencies
+        run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl","gridExtra","scales","ggpubr"))'
+
+      - name: Save R dependencies cache
+        uses: actions/cache@v2
+        with:
+              path: ${{ env.R_LIBS_USER }}
+              key: ${{ runner.os }}-R-${{ hashFiles('**/lockfile') }}
+
+      - name: Execute R script synth_1
+        run: |
+          Rscript R/IB9HP0_9_synth_1.R
+          
+      - name: Execute R script synth_2
+        run: |
+          Rscript R/IB9HP0_9_synth_2.R
+          
+      - name: Execute R script table_creation
+        run: |
+          Rscript R/IB9HP0_9_Table_Creation.R
+
+      - name: Execute R script data_validation_insertion
+        run: |
+          Rscript R/IB9HP0_9_Data_Validation_Insertion.R
+
+      - name: Execute R script data_analysis
+        run: |
+          Rscript R/IB9HP0_9_Data_Analysis.R
+
+      - name: Add files
+        run: |
+          git config --global user.email "duong.trinh@warwick.ac.uk"
+          git config --global user.name "duong4595"
+          git add --all 
+      - name: Commit files
+        run: |
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update codes"
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.WORKFLOW }}
+          branch: main
+---
+
+Overall, a GitHub repository includes all the stages of the project from data validation, insertion, and updates. The repository can read new data files and ensure that the data is clean and suitable for the database through validation and then successfully insert and update the database. After successfully updating the database, the data is then run through various analysis and their respective results are stored and presented.
 
 # Data Analysis and Reporting
 
@@ -2222,7 +2313,7 @@ p.mnth.price <- ggplot(filter(sales_performance,
 
 **Figure 5. Monthly Sales Trend Analysis**
 
-Figure 5 shows although the company's monthly sales decreased from around £12, 500 in January to around £7,500 in December during 2022, its monthly sales gradually increased from January to around £10,000 during 2013. Meanwhile, the company's overall trend of monthly sales is similar to that of monthly sales in 2022 and 2023.
+Figure 5 shows although the company's monthly sales value decreased from around £14,000 in January to around £8,000 in December during 2022, its monthly sales gradually recovered from January to around £10,000 in December during 2023. Meanwhile, the company's overall trend of monthly sales volume is similar to that of monthly sales value in 2022 and 2023.
 
 ## Top 10 Products and Their Rating
 
@@ -2274,7 +2365,7 @@ p.top_prod_rating <- ggplot(top_products_rating,
 
 **Figure 6. Top 10 Products and Rating Analysis**
 
-As illustrated in Figure 6, while the company's top 10 products have all totaled more than 400 sales, their corresponding ratings aren't the best among all products. Meanwhile, only two of these products have achieved a rating of 4 and three have a rating of only 1 (refer to lightweight backpacks, packing cubes and plush throw blankets), which warrants further improvement by the company.
+As illustrated in Figure 6, while the company's top 10 products have all totaled more than 300 unit sales, their corresponding ratings are not the best among all products. Meanwhile, only three of these products have achieved a rating of 4 and above, and four have a rating of below 2 (refer to lightweight backpacks, plush throw blankets, authentic spices, and wireless headphones), which warrants further improvement by the company.
 
 ## Spending by Membership Type
 
@@ -2338,7 +2429,7 @@ p.membership_mnth <- ggplot(membership_by_mnth_date,
 
 **Figure 7. Total Spend by Membership Analysis**
 
-As illustrated in figure 7, from the macro level, the total spent for all membership types is above 75,000 pounds between 2022 and 2023. However, in the micro view, the degree of decline in total spent for student type and premium type increases in descending order from 2022 to 2023, and only the trial type saw an increase.
+As illustrated in Figure 7, from the macro level, the total spent for all membership types is above 75,000 pounds between 2022 and 2023. However, in the micro view, the degree of decline in total spent for student type and premium type increases in descending order from 2022 to 2023, and only the trial type saw an increase.
 
 ## Customer Queries Analysis
 
@@ -2402,7 +2493,7 @@ p.query_time <- ggplot(response_time,
 
 **Figure 8. Customer Queries Analysis**
 
-Figure 8 shows though customers’ queries include few delivery issue, the turnaround time that is the longest, which may have a significant negative effect on membership subscription.
+Figure 8 shows though customers’ queries include few delivery issue, the turnaround time that is the longest, which may have a significant negative effect on membership subscription. Furthermore, the company should focus on reducing the overall turnaround time to improve customer satisfaction as the current average time is at seven weeks.
 
 ## Payment Methods Analysis
 
@@ -2445,37 +2536,38 @@ p.payment_amnt <- ggplot(top_payment,
 
 **Figure 9. Payment Method Analysis**
 
-Based on Figure 9, obviously, Visa is the top 1 payment method in terms of frequency and payment amount. It's clear that although Mastercard is used by customers a little more often than Gpay, Gpay accounts for more of the payment amount. Gpay is considered to be the top 2 payment method as payment amount is a higher priority for the company, followed by Mastercard, Paypal, Bank Transfer, Apple Pay.
+Based on Figure 9, obviously, Visa is the top 1 payment method in terms of frequency and payment amount. It's clear that although Mastercard is used by customers a little more often than GPay, GPay accounts for more of the payment amount. GPay is considered to be the top 2 payment method as payment amount is a higher priority for the company, followed by Mastercard, PayPal, Bank Transfer, and Apple Pay.
 
 ## Insight and Recommendation
 
 ### Insights:
 
-It is worth noting that the increasing ratio of sales volume is higher than sales value’s from July to October in 2023. It may be driven by the company's strategy of lowering prices more significantly during that period, where the average price of the product decreased from around 37.5 pounds in July to around 32 pounds in 2023, indicating price adjustment may simulate the monthly sales value.
+-   It is worth noting that the increasing ratio of sales volume is higher than sales value’s from July to October in 2023. It may be driven by the company's strategy of lowering prices more significantly during that period, where the average price of the product decreased from around 37.5 pounds in July to around 32 pounds in 2023, indicating price adjustment may stimulate the monthly sales value.
 
-The top 10 products cannot match the top rating degree, which can reflect the poor management of product life cycle.
+-   The top 10 products cannot match the top rating degree, which can reflect the poor management of product life cycle.
 
-Customers who try to subscribe to trial membership don't go further than subscribing to premium or student services, indicating the membership service cannot meet the real demand of the targeted customers like being wonderless, which will affect the value convey of business model for the e-commerce company.
+-   Customers who subscribed to trial membership did not go further than subscribing to premium or student subscriptions, indicating the membership service cannot meet the real demand of the targeted customers, which will affect the value conveyed of the business model for the e-commerce company.
 
-Focusing on fastening the process of customer support re. Delivery concerns should be the priority, along with addressing payment issue given high number of concerns raised. Payment issue is also concerned because of the most customers queries compared with others, thus, it will affect the customer satisfaction directly.
+-   Focusing on fastening the process of customer support on delivery concerns should be a priority. Additionally, addressing payment issue is also necessary, given high number of concerns raised since it might directly affect customer satisfaction.
 
-### Recommendation:
+### Recommendations:
 
-1.  Reduce the price appropriately to get more orders When the market demand is weak.
-2.  Maintenance the product and service life cycle management like requiring suppliers to provide or create better products, improving the shipment quality even for membership.
-3.  Improve the design for the official website to fit the user's payment habits like putting Visa, Gpay and Mastercard at the beginning.
-4.  Give some promotes or discount on products in the order if they choose to use Mastercard payment method.
+-   Review pricing strategy to boost sales during low demand season.
 
-# Limitation and Future Implications
+-   Collaborate with suppliers to improve the product life cycle, customer supoort and delivery services, including enhancing product and shipment quality, and triggering more membership subscriptions.
 
-To be able to improved the performance of the e-commerce database, several limitations should be addressed. The current model focused primarly on capturing the key entities within the e-commerce database, yet it does not encompass the full spectrum of its complexity. Notably, supporting entities such as purchase returns have not been included in current model. Therefore, the next improvement should incorporate all the entities within the e-commerce hence the database will be centralised.
+-   Improve the design for the official website to fit the user's payment habits such as displaying Visa, Gpay and Mastercard as the top option.
+
+-   Collaborate with Mastercard to offer promotions or discounts on orders paid using Mastercard.
+
+# Limitations and Future Implications
+
+To improve the performance of the e-commerce database, several limitations should be addressed. The current model focuses primarily on capturing the key entities within the e-commerce database, yet it does not encompass the full spectrum of its complexity. Notably, supporting entities such as purchase returns and distribution centres have not been included in current model. Therefore, the next improvement should incorporate all the entities within the e-commerce to enable unified database system.
 
 Additionally, it is important to integrate the database into the other e-commerce system. The database need to integrate seamlessly with other business systems such as inventory management, CRM, and logistics. Integration issues can lead to data silos and operational inefficiencies.
 
 # Conclusion
 
-This project has demonstrated a comprehensive approach to database design and management for an e-commerce platform. Initiating with a detailed database design, this project carefully considered various entities and their relationships, adhering strictly to the third normal form to ensure data integrity and optimize query performance. Additionally, the use of synthetic data generation provided a simulation of e-commerce activities, along with quality assurance and validation process processes to guarante the accuracy and reliability of this data.
+This project has demonstrated a comprehensive approach to database design and management for an e-commerce platform. Initiating with a three stage database design including conceptual, logical and physical design followed by synthetic data generation providing a simulation of e-commerce activities. Subsequently, the data went through quality assurance and validation process to guarantee its accuracy and reliability.
 
-A significant advancement was made in automating the data pipeline through GitHub Actions. This automation not only streamlined processes but also enhanced the system's responsiveness to changing data needs.
-
-The data analysis component of the project offered deep insights into customer behavior, product performance, and sales trends, providing valuable inputs for strategic business decision-making. By integrating sophisticated database design, advanced automation techniques, and thorough data analysis, this project shows the effectiveness of combining technical precision with practical business insight.
+Moreover, GitHub Actions was put into place allowing not only the automation of streamlined processes but also enhancing the system's responsiveness for data updates. Finally, by integrating sophisticated database design, advanced automation techniques, and thorough data analysis, this project shows the effectiveness of combining technical precision with practical business insight.
