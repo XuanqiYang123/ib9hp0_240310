@@ -16,4 +16,5 @@ The system is configured with the following features:
 - 'etl.yml': GitHub Actions workflow for orchestrating the automation process.
 ## Automated Workflow
 1. Push/Pull Request: The workflow is triggered whenever changes are pushed to the main branch or a pull request is made.
-2. 
+2. Installing, Saving and Restoring of various dependencies(Packages).
+3. Runs Multiple basic analysis on any new data updated on the repository.
