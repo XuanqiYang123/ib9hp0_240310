@@ -114,15 +114,15 @@ The design of database system corresponds to the below assumptions:
 
 ## Conceptual Design: Entities and Relationships
 
-1.  Customer---Product Each customer can order many products, and each product can be ordered by many customers. Thus, cardinality is M: N.
+1.  Customer---Product Each customer can order many products, and each product can be ordered by many customers. Thus, cardinality is M:N.
 2.  Customer---Shipment Each customer can have many shipments, and each shipment can just be associated with one customer. Thus, cardinality is N:1.
 3.  Customer---Payment Each customer can make many payments, and each payment can be associated with one customer. Thus, cardinality is N:1.
-4.  Supplier---Product Each supplier can supply many products, and each product can be from many suppliers. Thus, cardinality is M: N.
-5.  Category ---Product Each category can have many products, and each product belongs to only 1 category. Thus, cardinality is 1: N.
+4.  Supplier---Product Each supplier can supply many products, and each product can be from many suppliers. Thus, cardinality is M:N.
+5.  Category ---Product Each category can have many products, and each product belongs to only 1 category. Thus, cardinality is 1:N.
 6.  Advertisement---product Each advertisement can advertise only 1 product, and each product can be associated with one advertisement. Thus, cardinality is 1:1.
-7.  Advertiser---Advertisement Each advertiser can create many advertisements, and each advertisement can be created by one advertiser. Thus, cardinality is 1: N.
-8.  Customer---Customer_Query Each customer can request many queries, and each query can be linked with one customer. Thus, cardinality is 1: N.
-9.  Membership ---Customer Each membership can include many customers, and each customer can subscribe to one membership. Thus, cardinality is 1: N.
+7.  Advertiser---Advertisement Each advertiser can create many advertisements, and each advertisement can be created by one advertiser. Thus, cardinality is 1:N.
+8.  Customer---Customer_Query Each customer can request many queries, and each query can be linked with one customer. Thus, cardinality is 1:N.
+9.  Membership ---Customer Each membership can include many customers, and each customer can subscribe to one membership. Thus, cardinality is 1:N.
 
 Figure 1 shows the relationship set for the entities
 
@@ -140,7 +140,7 @@ The relationship of all entities and its attributes is illustrated in the Figure
 
 Logical design is used to translate the conceptual ERD model for the application into normalised data requirements. The logical design of the e-commerce database is shown in Figure 3. The primary key is indicated using one underline while foreign key is indicated using double underline
 
-![](images/Screenshot 2024-03-19 at 00.18.11.png)
+![](images/Screenshot%202024-03-19%20at%2000.18.11.png)
 
 **Figure 3. Logical Schema**
 
@@ -1253,7 +1253,8 @@ customer_queries_list <- list()
 for (cat in list.files(
   path = "data_uploads/", pattern = "customer_queries", full.names = TRUE)) {
   customer_queries_ind <- read.csv(cat)
-  customer_queries_list[[length(customer_queries_list) + 1]] <- customer_queries_ind
+  customer_queries_list[[length(customer_queries_list) + 1]] <- 
+    customer_queries_ind
 }
 customer_queries_file <- bind_rows(customer_queries_list)
 
@@ -1479,7 +1480,7 @@ if(length(advertisers_table$advertiser_name[duplicated(
 if(
   length(grep((
     "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),
-               advertisers_table$advertiser_email, 
+    advertisers_table$advertiser_email, 
     value = TRUE)) == 
    length(advertisers_table$advertiser_email)) {
   print("All email format are correct")
@@ -2105,7 +2106,7 @@ This structure ensures the seamless execution of multiple processes within the w
 
 The GitHub repository consists of a Continuous Integration Workflow. The Continuous Integration Workflow has been structured to automatically perform validation, insertion, update and analysis parts of the project.
 
-![](images/Screenshot 2024-03-19 at 00.49.13.png)
+![](images/Screenshot%202024-03-19%20at%2000.49.13.png)
 
 **Figure 4 Workflow of the E-Commerce Repository**
 
