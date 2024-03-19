@@ -12,8 +12,11 @@ The system is configured with the following features:
 - 'IB9HP0_9_synth_1.R': Script for generating synthetic customer data.
 - 'IB9HP0_9_synth_2.R': Script for generating synthetic product data.
 - 'IB9HP0_9_Table_Creation.R': Script for creating initial database schema.
-- 'IB9HP0_9_Data_Insertion_Analysis.R': Script for inserting data into the database and executing initial analysis.
-- 'etl.yml': GitHub Actions workflow for orchestrating the automation process.
+- 'IB9HP0_9_Data_Validation_Insertion.R': Script for inserting data into the database and executing initial analysis.
+- 'IB9HP0_9_Analysis.R': Script for data analysis.
+- 'workflow.yml': GitHub Actions workflow for orchestrating the automation process.
 ## Automated Workflow
 1. Push/Pull Request: The workflow is triggered whenever changes are pushed to the main branch or a pull request is made.
-2. 
+2. Installing, Saving and Restoring of various dependencies(Packages).
+3. Validate the new data and store the records to 'error_log.txt'.
+4. Runs Multiple basic analysis on any new data updated on the repository.

@@ -72,9 +72,11 @@ p.mnth.price <- ggplot(filter(sales_performance,
   scale_y_continuous(labels = comma,
                      limits = c(0, 100))
 #### Combine value and volume sales graphs
-gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, p.mnth.price, ncol = 3, widths = c(0.9, 0.9, 1.1),
+plot1 <- gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, p.mnth.price, ncol = 3, widths = c(0.9, 0.9, 1.1),
                         top = ggpubr::text_grob("Monthly Sales Trend", 
                                                 size = 15, face = "bold"))
+ggsave("Data Analysis Results/Monthly Sales trend in Value and Volume.png", plot = plot1, width = 10, height = 6, dpi = 300)
+
 
 ## Analysis 2: Product Ratings and Their Sales
 ### Products Popularity
@@ -114,10 +116,12 @@ p.top_prod_rating <- ggplot(top_products_rating,
         axis.title = element_blank()) +
   scale_y_continuous(limits = c(0,5))
 #### Combine value and volume sales graphs
-gridExtra::grid.arrange(p.top_prod_sales, p.top_prod_rating, ncol = 2, 
+plot2 <- gridExtra::grid.arrange(p.top_prod_sales, p.top_prod_rating, ncol = 2, 
                         widths = c(1.1, 0.5),
                         top = ggpubr::text_grob("Top 10 Products and Their Rating", 
                                                 size = 15, face = "bold"))
+ggsave("Data Analysis Results/Product Ratings and Their Sales.png", plot = plot2, width = 10, height = 6, dpi = 300)
+
 
 ## Analysis 3: Membership segment
 ### Highest Spent based on Customer Segment
@@ -169,10 +173,12 @@ p.membership_mnth <- ggplot(membership_by_mnth_date,
   scale_y_continuous(labels = comma,
                      limits = c(0, 90000))
 ### Combine two membership charts 
-gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
+plot3 <- gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
                         widths = c(0.5, 1.1),
                         top = ggpubr::text_grob("Spending by Membership Type", 
                                                 size = 15, face = "bold"))
+ggsave("Data Analysis Results/Membership segment.png", plot = plot3, width = 10, height = 6, dpi = 300)
+
 
 ## Analysis 4: Customer QUeries
 ### Most Frequent Queries - get data from db
@@ -224,9 +230,11 @@ p.query_time <- ggplot(response_time,
        subtitle = "Turnaround Time") +
   theme_light()
 ### Combine frequency and turnaround time
-gridExtra::grid.arrange(p.query_freq, p.query_time, ncol = 2,
+plot4 <- gridExtra::grid.arrange(p.query_freq, p.query_time, ncol = 2,
                         top = ggpubr::text_grob("Customer Queries", 
                                                 size = 15, face = "bold"))
+ggsave("Data Analysis Results/Customer Queries.png", plot = plot4, width = 10, height = 6, dpi = 300)
+
 
 ## Analysis 5: Payment Method
 ### Get data from the db
@@ -257,9 +265,12 @@ p.payment_amnt <- ggplot(top_payment,
   theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
   scale_y_continuous(labels = comma)
 ### Combine payment method by frequency and value
-gridExtra::grid.arrange(p.frequency, p.payment_amnt, ncol = 2,
+plot5 <- gridExtra::grid.arrange(p.frequency, p.payment_amnt, ncol = 2,
                         top = ggpubr::text_grob("Payment Methods", 
                                                 size = 15, face = "bold"))
+ggsave("Data Analysis Results/Payment Method.png", plot = plot5, width = 10, height = 6, dpi = 300)
+
+
 
 # Disconnect connection to SQL database
 dbDisconnect(db_connection)
