@@ -2,9 +2,10 @@ name: Workflow for database management
 
 on:
   schedule:
-    - cron: '0 */3 * * *' # Run every 3 hours
+    - cron: '0 */8 * * *' # Run every 8 hours
   push:
     branches: [ main ]
+      
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -30,9 +31,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev
           sudo apt-get install -y libharfbuzz-dev libfribidi-dev
+
+      - name: Restore R dependencies cache
+        uses: actions/cache@v2
+        with:
+              path: ${{ env.R_LIBS_USER }}
+              key: ${{ runner.os }}-R-${{ hashFiles('**/lockfile') }}
+              restore-keys: |
+                ${{ runner.os }}-R-
+
           
-      - name: Install packages
-        run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl"))'
+      - name: Install dependencies
+        run: Rscript -e 'install.packages(c("RSQLite", "ggplot2", "dplyr", "tidyr", "readr", "randomNames", "Pareto", "uuid", "writexl", "charlatan", "stringi", "lubridate", "knitr", "readxl","gridExtra","scales","ggpubr"))'
+
+      - name: Save R dependencies cache
+        uses: actions/cache@v2
+        with:
+              path: ${{ env.R_LIBS_USER }}
+              key: ${{ runner.os }}-R-${{ hashFiles('**/lockfile') }}
 
       - name: Execute R script synth_1
         run: |
@@ -46,14 +62,14 @@ jobs:
         run: |
           Rscript R/IB9HP0_9_Table_Creation.R
 
-      - name: Execute R script data_validation
+      - name: Execute R script data_validation_insertion
         run: |
           Rscript R/IB9HP0_9_Data_Validation_Insertion.R
 
       - name: Execute R script data_analysis
         run: |
           Rscript R/IB9HP0_9_Data_Analysis.R
-          
+
       - name: Add files
         run: |
           git config --global user.email "duong.trinh@warwick.ac.uk"

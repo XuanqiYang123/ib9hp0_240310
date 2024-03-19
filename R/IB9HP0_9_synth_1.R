@@ -2,31 +2,21 @@
 library(dplyr)
 library(tidyr)
 library(readr)
-library(ggplot2)
 #packages for synthetic data generation
 install.packages("conjurer")
+library(conjurer) 
 library(randomNames)
-library(Pareto)
-library(uuid)
 library(writexl)
 library(charlatan) #for credit card number
-library(RSQLite)
 library(stringi) #random strings
-library(lubridate)
-library(conjurer) 
-
-
-## Db Connection
-
-# Create connection to SQL database
-db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
+library(lubridate) 
 
 ## Synthetic Data Generation #1
 
 ### 'customers' table
 #Define parameters for customers
-set.seed(212)
-n_customers <- 50
+set.seed(312)
+n_customers <- 100
 birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
                         to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),
                     n_customers)
@@ -70,7 +60,7 @@ customers_data <-
   select(1,4,3,2,5,6,8,9,10,7)
 customers_data$cust_birth_date <- format(customers_data$cust_birth_date, "%d-%m-%Y")
 #Save data to data file
-write.csv(customers_data, "data_uploads/R_synth_customers.csv")
+write.csv(customers_data, "data_uploads/R_synth_customers_round1.csv")
 
 ### 'products' table
 #Getting brand and product names from Gemini
@@ -83,7 +73,7 @@ set.seed(123)
 n_prods <- 20
 voucher_type <- c("10%", "20%", "50%")
 ratings <- c(1,2,3,4,5)
-date <- #assuming company was established on Mar 06th 2004
+date <- #assuming company was established on Mar 06th 2004, data here is 
   sample(seq(from = as.Date("2004/03/06"), 
              to = as.Date(lubridate::today()), by = "day"), 12)
 #Assign product ID, and adding product names and URL
@@ -126,12 +116,17 @@ products_data <-
   #rearrange order of columns
   select(2,4,5,8,6,7,3,9,1)
 #Save to .csv file
-write.csv(products_data, "data_uploads/R_synth_products.csv")
+write.csv(products_data, "data_uploads/R_synth_products_round1.csv")
 
 ### 'orders' table
 #Define parameters
 origin_date <- "1970-01-01"
-n_orders <- 100
+n_orders <- 500
+order_date <- 
+  #round 1 is for orders in 2022-Mar'2024, 
+  #so all orders have been paid and delivered successfully
+  sample(seq(from = as.Date("2022/01/01"), 
+             to = as.Date("2024/03/01"), 12))
 pymt_method <- 
   c("Bank Transfer", "Visa", "Mastercard", "PayPal", "GPay", "Apple Pay")
 pymt_status <- c("Done", "Verifying")
@@ -152,9 +147,9 @@ orders_data <-
   mutate(order_id = gsub("cust", "o", order_id),
          payment_id = gsub("o", "pm", order_id),
          cust_id = sample(customers_data$cust_id, n_orders, replace = T),
-         order_date = sample(date, n_orders, replace = T),
+         order_date = sample(order_date, n_orders, replace = T),
          payment_method = sample(pymt_method, n_orders, replace = T),
-         payment_status = sample(pymt_status, n_orders, replace = T),
+         payment_status = "Done",
          delivery_recipient = randomNames::randomNames(n_orders,
                                                        which.names = "first"))
 #adding payment date with logic dependent on payment status
@@ -190,9 +185,7 @@ orders_data <- orders_data %>%
     shipper_name = 
       sample(shipper_lookup$shipper_name, nrow(orders_data), replace = T),
     #add delivery status
-    delivery_status = 
-      ifelse(payment_status != "Done", "Not Started",
-             sample(delivery_status, nrow(orders_data), replace = T)) ) %>%
+    delivery_status = "Delivered" ) %>%
   #lookup delivery fee
   merge(shipper_lookup, by = "shipper_name")
 #dates of delivery
@@ -234,7 +227,7 @@ shipment_dates <- c("delivery_departed_date",
 shipment_data[shipment_dates] <- lapply(shipment_data[shipment_dates],
                                         format, "%d-%m-%Y")
 #Save data to data file
-write.csv(shipment_data, "data_uploads/R_synth_shipment.csv")
+write.csv(shipment_data, "data_uploads/R_synth_shipment_round1.csv")
 
 ### generate 'payment' from orders
 payment_colnames <- c("payment_id", "payment_method", "order_id",
@@ -249,12 +242,12 @@ payment_data <- distinct(payment_data, payment_id, .keep_all = T) %>%
 #re-format date
 payment_data$payment_date <- format(payment_data$payment_date, "%d-%m-%Y")
 #Save data to data file
-write.csv(payment_data, "data_uploads/R_synth_payment.csv")
+write.csv(payment_data, "data_uploads/R_synth_payment_round1.csv")
 
 #reorder the columns of 'orders'
 orders_data <- select(orders_data, orders_col_order)
 #Save data to data file
-write.csv(orders_data, "data_uploads/R_synth_orders.csv")
+write.csv(orders_data, "data_uploads/R_synth_orders_round1.csv")
 
 ### 'suppliers' table
 #Define parameters for suppliers table
@@ -283,7 +276,7 @@ suppliers_data <-
         c(phone_domain, supplier_contact), sep = "", remove = T) %>%
   select(2,1,4,3)
 #Save data to data file
-write.csv(suppliers_data, "data_uploads/R_synth_suppliers.csv")
+write.csv(suppliers_data, "data_uploads/R_synth_suppliers_round1.csv")
 
 ### 'supply' table
 #Define parameters for supply table
@@ -321,7 +314,7 @@ supply_data <-
 #reorder columns
 supply_data <- supply_data[, supply_col_order]
 #Save data to data file
-write.csv(supply_data, "data_uploads/R_synth_supply.csv")
+write.csv(supply_data, "data_uploads/R_synth_supply_round1.csv")
 
 ### 'memberships' table
 membership_lookup <- 
@@ -342,25 +335,26 @@ memberships_data <- memberships_data %>%
   rename(cust_id = customers_data.cust_id) %>%
   select(3,2,1)
 #Save to .csv file
-write.csv(memberships_data, "data_uploads/R_synth_memberships.csv")
+write.csv(memberships_data, "data_uploads/R_synth_memberships_round1.csv")
 
 ### 'customer_queries' table
 set.seed(123)
 n_queries <- 20
+quer_sub_date <- seq(from = as.Date("2023/01/01"), 
+                            to = as.Date("2023/01/31"), 1)
+quer_closed_date <- sample(seq(from = as.Date("2023/02/01"), 
+                            to = as.Date("2023/03/31"), 1))
 customer_queries_data <- data.frame(
   query_id = sprintf("Q%d", 1:n_queries),
   cust_id = sample(customers_data$cust_id, n_queries, replace = TRUE),
   query_title = sample(c("Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", "Wrong Delivery"), n_queries, replace = TRUE),
-  query_submission_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-1-31'), by="day"), n_queries, replace = TRUE),
-  query_closure_date = sample(seq(as.Date('2023-02-01'), as.Date('2023-03-31'), by="day"), n_queries, replace = TRUE),
+  query_submission_date = sample(quer_sub_date, n_queries, replace = TRUE),
+  query_closure_date = sample(quer_closed_date, n_queries, replace = TRUE),
   query_status = sample(c("Closed"), n_queries, replace = TRUE)
 )
 
-customer_queries_data$query_submission_date <- format(customer_queries_data$query_submission_date, "%d-%m-%Y")
-customer_queries_data$query_closure_date <- format(customer_queries_data$query_closure_date, "%d-%m-%Y")
-
 #Save to .csv file
-write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries.csv", row.names = FALSE)
+write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries_round1.csv", row.names = FALSE)
 
 ### 'categories' table
 #create lookup table for category_id and category name
@@ -385,7 +379,7 @@ categories_data <-
   #reorder the columns to match with table schema
   select(3,2,1)
 #Save to .csv file
-write.csv(categories_data, "data_uploads/R_synth_categories.csv")
+write.csv(categories_data, "data_uploads/R_synth_categories_round1.csv")
 
 ### 'advertisers' table
 set.seed(123)
@@ -396,7 +390,7 @@ advertisers_data <- data.frame(
   advertiser_email = sprintf("advertiser%d@gmail.com", 1:n_advertisers)
 )
 #Save to .csv file
-write.csv(advertisers_data, "data_uploads/R_synth_advertisers.csv", row.names = FALSE)
+write.csv(advertisers_data, "data_uploads/R_synth_advertisers_round1.csv", row.names = FALSE)
 
 ### 'advertisements' table
 set.seed(123)
@@ -413,5 +407,6 @@ advertisements_data$ads_start_date <- format(advertisements_data$ads_start_date,
 advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d-%m-%Y")
 
 #Save to .csv file
-write.csv(advertisements_data, "data_uploads/R_synth_advertisements.csv", row.names = FALSE)
+write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round1.csv", row.names = FALSE)
+
 

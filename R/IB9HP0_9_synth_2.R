@@ -2,30 +2,20 @@
 library(dplyr)
 library(tidyr)
 library(readr)
-library(ggplot2)
 #packages for synthetic data generation
 library(conjurer) 
 library(randomNames)
-library(Pareto)
-library(uuid)
 library(writexl)
 library(charlatan) #for credit card number
-library(RSQLite)
 library(stringi) #random strings
 library(lubridate)
-
-
-## Db Connection
-
-# Create connection to SQL database
-db_connection <- RSQLite::dbConnect(RSQLite::SQLite(),"IB9HP0_9.db")
 
 ## Synthetic Data Generation #1
 
 ### 'customers' table
 #Define parameters for customers
 set.seed(456)
-n_customers <- 50
+n_customers <- 100
 birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
                         to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),
                     n_customers)
@@ -37,7 +27,7 @@ address_type <- c("Home", "Office")
 #Create data
 customers_data <- 
   #Create n unique customer IDs with random names
-  data.frame("cust_id" = paste("cust", seq(51,51+n_customers-1,1), sep = ""),
+  data.frame("cust_id" = paste("cust", seq(101,101+n_customers-1,1), sep = ""),
              "cust_name" = randomNames::randomNames(n_customers)) %>% 
   separate(cust_name, into = c("last_name", "first_name"), sep = ", ") %>%
   #Create email column, by merging last & first name with email domain @gmail.com
@@ -74,12 +64,12 @@ write.csv(customers_data, "data_uploads/R_synth_customers_round2.csv")
 ### 'products' table
 #Getting brand and product names from Gemini
 gemini_prods <- 
-  readxl::read_excel("data_uploads/gemini_prod_cate_supplier.xlsx", 
+  readxl::read_excel("data_uploads/gemini_prod_cate_supplier_2.xlsx", 
                      .name_repair = "universal") %>%
   setNames(c("seller_name", "category", "prod_name", "prod_desc"))
 #Define parameters for products
 set.seed(456)
-n_prods <- 20
+n_prods <- 19
 voucher_type <- c("10%", "20%", "50%")
 ratings <- c(1,2,3,4,5)
 date <- #assuming company was established on Mar 06th 2004
@@ -90,13 +80,14 @@ products_data <-
   #generate product id
   conjurer::buildProd(n_prods, minPrice = 1, maxPrice = 100) %>% 
   #add product name and description from gemini's file
-  mutate("prod_name" = sample(gemini_prods$prod_name, 20)) %>%
+  mutate("prod_name" = sample(gemini_prods$prod_name, nrow(gemini_prods))) %>%
   left_join(select(gemini_prods, -c(seller_name, category)), 
             by = join_by(prod_name)) %>%
   #rename columns to fit schema
   rename(prod_id = SKU, prod_unit_price = Price) %>%
   #rename `sku` with `prod`
-  mutate("prod_id" = gsub("sku", "prod", prod_id)) %>%
+  mutate("prod_id" = gsub("sku", "", prod_id)) %>%
+  mutate("prod_id" = paste("prod", as.numeric(prod_id)+20, sep = "")) %>%
   #add product url
   mutate("web_prefix" = "https://group9.co.uk/",
          "prod_url1" = gsub(" ", "-", prod_name)) %>%
@@ -108,8 +99,7 @@ products_data <-
     #Review date
     "review_date" = sample(format(date, "%d-%m-%Y"), n_prods, replace = T),
     #Assign review ID
-    "review_id" = 
-      conjurer::buildCust(sum(!is.na(prod_rating))),
+    "review_id" = paste("rev", seq(21, 21+n_prods-1, 1), sep = ""),
     "review_id" = gsub("cust", "rev", review_id)) %>%
   #drop temp url
   select(-prod_url1)
@@ -131,6 +121,9 @@ write.csv(products_data, "data_uploads/R_synth_products_round2.csv")
 #Define parameters
 origin_date <- "1970-01-01"
 n_orders <- 100
+order_date <- #round 2 is for orders in 2024
+  sample(seq(from = as.Date("2024/03/01"), 
+             to = as.Date(lubridate::today()), by = "day"), 12)
 pymt_method <- 
   c("Bank Transfer", "Visa", "Mastercard", "PayPal", "GPay", "Apple Pay")
 pymt_status <- c("Done", "Verifying")
@@ -147,11 +140,11 @@ orders_col_order <-
 set.seed(321)
 orders_data <- 
   #Create n unique order IDs
-  data.frame("order_id" = paste("o",seq(101, 101+n_orders-1, 1), sep = "")) %>%
+  data.frame("order_id" = paste("o",seq(501, 501+n_orders-1, 1), sep = "")) %>%
   mutate(order_id = gsub("cust", "o", order_id),
          payment_id = gsub("o", "pm", order_id),
          cust_id = sample(customers_data$cust_id, n_orders, replace = T),
-         order_date = sample(date, n_orders, replace = T),
+         order_date = sample(order_date, n_orders, replace = T),
          payment_method = sample(pymt_method, n_orders, replace = T),
          payment_status = sample(pymt_status, n_orders, replace = T),
          delivery_recipient = randomNames::randomNames(n_orders,
@@ -266,7 +259,7 @@ suppliers_data <-
   #Pull seller name from gemini file
   distinct(select(gemini_prods, seller_name)) %>%
   rename("supplier_name" = "seller_name") %>%
-  mutate("supplier_id" = seq(1, n_suppliers,1),
+  mutate("supplier_id" = seq(21, 21+n_suppliers-1,1),
          "prefix" = "s") %>%
   unite(supplier_id, c(prefix, supplier_id), sep = "", remove = T) %>%
   mutate(
@@ -347,15 +340,13 @@ write.csv(memberships_data, "data_uploads/R_synth_memberships_round2.csv")
 set.seed(456)
 n_queries <- 20
 customer_queries_data <- data.frame(
-  query_id = sprintf("Q%d", 1:n_queries),
+  "query_id" = paste("Q",seq(21, 21+n_queries-1, 1), sep = ""),
   cust_id = sample(customers_data$cust_id, n_queries, replace = TRUE),
   query_title = sample(c("Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", "Wrong Delivery"), n_queries, replace = TRUE),
-  query_submission_date = sample(seq(as.Date('2024-03-01'), as.Date('2024-03-15'), by="day"), n_queries, replace = TRUE),
+  query_submission_date = sample(seq(as.Date('2024-03-15'), as.Date('2024-03-20'), by="day"), n_queries, replace = TRUE),
   query_closure_date = sample(c("NA"), n_queries, replace = TRUE),
   query_status = sample(c("On Progress", "Submitted"), n_queries, replace = TRUE)
 )
-
-customer_queries_data$query_submission_date <- format(customer_queries_data$query_submission_date, "%d-%m-%Y")
 
 #Save to .csv file
 write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries_round2.csv", row.names = FALSE)
@@ -389,8 +380,14 @@ write.csv(categories_data, "data_uploads/R_synth_categories_round2.csv")
 set.seed(456)
 n_advertisers <- 5
 advertisers_data <- data.frame(
+
   advertiser_id = sprintf("ADV%d", 1:n_advertisers),
-  advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", "Ads Master", "Ads Expert"),
+  advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", 
+                      "Ads Master", "Ads Expert"),
+
+  "advertiser_id" = paste("ADV",seq(6, 6+n_advertisers-1, 1), sep = ""),
+  advertiser_name = c("Ads Beauty", "Ads Power", "Ads by WBS", "Ads by MSBA", "Ads Master"),
+
   advertiser_email = sprintf("advertiser%d@gmail.com", 1:n_advertisers)
 )
 #Save to .csv file
@@ -400,7 +397,7 @@ write.csv(advertisers_data, "data_uploads/R_synth_advertisers_round2.csv", row.n
 set.seed(456)
 n_ads <- 9
 advertisements_data <- data.frame(
-  ads_id = sprintf("ADS%d", 1:n_ads),
+  "ads_id" = paste("ADS",seq(10, 10+n_ads-1, 1), sep = ""),
   prod_id = sample(products_data$prod_id, n_ads, replace = TRUE),
   advertiser_id = sample(advertisers_data$advertiser_id, n_ads, replace = TRUE),
   ads_start_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), n_ads, replace = TRUE),
@@ -412,6 +409,3 @@ advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d
 
 #Save to .csv file
 write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round2.csv", row.names = FALSE)
-
-
-#try pushing mar 16
