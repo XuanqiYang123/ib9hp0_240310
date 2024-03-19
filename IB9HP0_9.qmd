@@ -36,6 +36,46 @@ library(png)
 library(RSQLite)
 ```
 
+# Assignment Cover Sheet
+
+**Student Number**: 5588654, 5577965, 5579058, 5587354, 5519743, 5588060
+
+**Module Code**: IB9HPO
+
+**Module Title**: Data Management
+
+**Submission Deadline**: March 20th 2024
+
+**Date Submitted**: March 19th 2024
+
+**Word Counts**: 1940 words
+
+**Number of pages**: 62 pages
+
+**Questions Attempted**: 4 questions
+
+**Academic Integrity Declaration**:
+
+We're part of an academic community at Warwick. Whether studying, teaching, or researching, we're all taking part in an expert conversation which must meet standards of academic integrity. When we all meet these standards, we can take pride in our own academic achievements, as individuals and as an academic community.
+
+Academic integrity means committing to honesty in academic work, giving credit where we've used others' ideas and being proud of our own achievements.
+
+In submitting my work, I confirm that:
+
+-   I have read the guidance on academic integrity provided in the Student Handbook and understand the University regulations in relation to Academic Integrity. I am aware of the potential consequences of Academic Misconduct.
+
+-   I declare that the work is all my own, except where I have stated otherwise.
+
+-   No substantial part(s) of the work submitted here has also been submitted by me in other credit bearing assessments courses of study (other than in certain cases of a resubmission of a piece of work), and I acknowledge that if this has been done this may lead to an appropriate sanction.
+
+-   Where a generative Artificial Intelligence such as ChatGPT has been used I confirm I have abided by both the University guidance and specific requirements as set out in the Student Handbook and the Assessment brief. I have clearly acknowledged the use of any generative Artificial Intelligence in my submission, my reasoning for using it and which generative AI (or AIs) I have used. Except where indicated the work is otherwise entirely my own.
+
+-   I understand that should this piece of work raise concerns requiring investigation in relation to any of points above, it is possible that other work I have submitted for assessment will be checked, even if marks (provisional or confirmed) have been published.
+
+-   Where a proof-reader, paid or unpaid was used, I confirm that the proof-reader was made aware of and has complied with the University's proofreading policy.
+
+Upon electronic submission of your assessment you will be required to agree to the statements above
+
 This project presents the components and structure of a database system that can simulate the basic functional operation of the real-world e-commerce platform. In general, the generation of e-business systems in this project consists of four parts, starting from database design and implementation to data analysis and reporting.
 
 # Database Design and Implementation
@@ -100,7 +140,7 @@ The relationship of all entities and its attributes is illustrated in the Figure
 
 Logical design is used to translate the conceptual ERD model for the application into normalised data requirements. The logical design of the e-commerce database is shown in Figure 3. The primary key is indicated using one underline while foreign key is indicated using double underline
 
-![](images/Screenshot%202024-03-18%20at%2017.44.13.png){width="616"}
+![](images/Screenshot 2024-03-19 at 00.18.11.png)
 
 **Figure 3. Logical Schema**
 
@@ -330,7 +370,8 @@ The data used in the project is generated using several packages in R, including
 set.seed(312)
 n_customers <- 100
 birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
-                        to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),
+                        to = as.Date(today() - years(18), "%d-%m-%Y"), 
+                        by = "day"),
                     n_customers)
 cv_postcode <- 
   read.csv("data_uploads/ONSPD_AUG_2023_UK_CV.csv")[, 1] %>% 
@@ -370,7 +411,8 @@ customers_data <-
         c(phone_domain, cust_telephone), sep = "", remove = T) %>%
   #reorder the columns
   select(1,4,3,2,5,6,8,9,10,7)
-customers_data$cust_birth_date <- format(customers_data$cust_birth_date, "%d-%m-%Y")
+customers_data$cust_birth_date <- format(customers_data$cust_birth_date, 
+                                         "%d-%m-%Y")
 #Save data to data file
 write.csv(customers_data, "data_uploads/R_synth_customers_round1.csv")
 
@@ -421,7 +463,8 @@ voucher_prods <- sample_n(data.frame(products_data$prod_id),
                               0.5*nrow(products_data)) %>% setNames("prod_id")
 products_data <- products_data %>% 
   mutate(voucher = ifelse(products_data$prod_id %in% voucher_prods$prod_id, 
-                          sample(voucher_type, nrow(voucher_prods), replace = T), NA))
+                          sample(voucher_type, nrow(voucher_prods), 
+                                 replace = T), NA))
 #Finalise the table
 products_data <- 
   products_data %>%
@@ -655,17 +698,27 @@ n_queries <- 20
 customer_queries_data <- data.frame(
   query_id = sprintf("Q%d", 1:n_queries),
   cust_id = sample(customers_data$cust_id, n_queries, replace = TRUE),
-  query_title = sample(c("Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", "Wrong Delivery"), n_queries, replace = TRUE),
-  query_submission_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-1-31'), by="day"), n_queries, replace = TRUE),
-  query_closure_date = sample(seq(as.Date('2023-02-01'), as.Date('2023-03-31'), by="day"), n_queries, replace = TRUE),
+  query_title = sample(c(
+    "Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", 
+    "Wrong Delivery"), n_queries, replace = TRUE),
+  query_submission_date = sample(seq(as.Date('2023-01-01'), 
+                                     as.Date('2023-1-31'), by="day"), n_queries, 
+                                 replace = TRUE),
+  query_closure_date = sample(seq(as.Date('2023-02-01'), 
+                                  as.Date('2023-03-31'), by="day"), n_queries, 
+                              replace = TRUE),
   query_status = sample(c("Closed"), n_queries, replace = TRUE)
 )
 
-customer_queries_data$query_submission_date <- format(customer_queries_data$query_submission_date, "%d-%m-%Y")
-customer_queries_data$query_closure_date <- format(customer_queries_data$query_closure_date, "%d-%m-%Y")
+customer_queries_data$query_submission_date <- format(
+  customer_queries_data$query_submission_date, "%d-%m-%Y")
+customer_queries_data$query_closure_date <- format(
+  customer_queries_data$query_closure_date, "%d-%m-%Y")
 
 #Save to .csv file
-write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries_round1.csv", row.names = FALSE)
+write.csv(
+  customer_queries_data, "data_uploads/R_synth_customer_queries_round1.csv", 
+  row.names = FALSE)
 
 ### 'categories' table
 #create lookup table for category_id and category name
@@ -680,7 +733,8 @@ categories_data <-
   #Pull category name and product name from gemini file
   select(gemini_prods, c(category, prod_name)) %>%
   #Only keep the products included in the products table
-  right_join(select(products_data, c(prod_id, prod_name)), by = "prod_name") %>%
+  right_join(select(products_data, c(prod_id, prod_name)), 
+             by = "prod_name") %>%
   #lookup category_id
   merge(category_lookup, by = "category") %>%
   #rename to have category_name column
@@ -697,11 +751,13 @@ set.seed(123)
 n_advertisers <- 5
 advertisers_data <- data.frame(
   advertiser_id = sprintf("ADV%d", 1:n_advertisers),
-  advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", "Ads Master", "Ads Expert"),
+  advertiser_name = c("Ads Life", "Ads Idol", "Ads is Life", 
+                      "Ads Master", "Ads Expert"),
   advertiser_email = sprintf("advertiser%d@gmail.com", 1:n_advertisers)
 )
 #Save to .csv file
-write.csv(advertisers_data, "data_uploads/R_synth_advertisers_round1.csv", row.names = FALSE)
+write.csv(advertisers_data, "data_uploads/R_synth_advertisers_round1.csv", 
+          row.names = FALSE)
 
 ### 'advertisements' table
 set.seed(123)
@@ -710,22 +766,30 @@ advertisements_data <- data.frame(
   ads_id = sprintf("ADS%d", 1:n_ads),
   prod_id = sample(products_data$prod_id, n_ads, replace = TRUE),
   advertiser_id = sample(advertisers_data$advertiser_id, n_ads, replace = TRUE),
-  ads_start_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), n_ads, replace = TRUE),
-  ads_end_date = sample(seq(as.Date('2024-01-01'), as.Date('2024-12-31'), by="day"), n_ads, replace = TRUE)
+  ads_start_date = sample(seq(as.Date('2023-01-01'), 
+                              as.Date('2023-12-31'), by="day"), n_ads, 
+                          replace = TRUE),
+  ads_end_date = sample(seq(as.Date('2024-01-01'), 
+                            as.Date('2024-12-31'), by="day"), n_ads, 
+                        replace = TRUE)
 )
 
-advertisements_data$ads_start_date <- format(advertisements_data$ads_start_date, "%d-%m-%Y")
-advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d-%m-%Y")
+advertisements_data$ads_start_date <- format(
+  advertisements_data$ads_start_date, "%d-%m-%Y")
+advertisements_data$ads_end_date <- format(
+  advertisements_data$ads_end_date, "%d-%m-%Y")
 
 #Save to .csv file
-write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round1.csv", row.names = FALSE)
+write.csv(advertisements_data, 
+          "data_uploads/R_synth_advertisements_round1.csv", row.names = FALSE)
 
 ### 'customers' table
 #Define parameters for customers
 set.seed(456)
 n_customers <- 100
 birthdate <- sample(seq(from = as.Date(today() - years(80), "%d-%m-%Y"), 
-                        to = as.Date(today() - years(18), "%d-%m-%Y"), by = "day"),
+                        to = as.Date(today() - years(18), "%d-%m-%Y"), 
+                        by = "day"),
                     n_customers)
 cv_postcode <- 
   read.csv("data_uploads/ONSPD_AUG_2023_UK_CV.csv")[, 1] %>% 
@@ -738,13 +802,14 @@ customers_data <-
   data.frame("cust_id" = paste("cust", seq(101,101+n_customers-1,1), sep = ""),
              "cust_name" = randomNames::randomNames(n_customers)) %>% 
   separate(cust_name, into = c("last_name", "first_name"), sep = ", ") %>%
-  #Create email column, by merging last & first name with email domain @gmail.com
+  #Create email column, by merging last & first name with email domain 
   unite(cust_email, c(last_name, first_name), sep = ".", remove = F) %>%
   mutate(
     "cust_email" = paste(cust_email,"gmail.com", sep = "@"),
     #Generate user's password, using random string generation package
     "password" = 
-      stringi::stri_rand_strings(n=n_customers, length=8, pattern="[A-Za-z0-9]"),
+      stringi::stri_rand_strings(n=n_customers, length=8, 
+                                 pattern="[A-Za-z0-9]"),
     #Adding customer BOD
     "cust_birth_date" = sample(birthdate, n_customers, replace = T),
     #Adding the phone code in UK
@@ -765,7 +830,8 @@ customers_data <-
         c(phone_domain, cust_telephone), sep = "", remove = T) %>%
   #reorder the columns
   select(1,4,3,2,5,6,8,9,10,7)
-customers_data$cust_birth_date <- format(customers_data$cust_birth_date, "%d-%m-%Y")
+customers_data$cust_birth_date <- format(
+  customers_data$cust_birth_date, "%d-%m-%Y")
 #Save data to data file
 write.csv(customers_data, "data_uploads/R_synth_customers_round2.csv")
 
@@ -816,7 +882,8 @@ voucher_prods <- sample_n(data.frame(products_data$prod_id),
                           0.5*nrow(products_data)) %>% setNames("prod_id")
 products_data <- products_data %>% 
   mutate(voucher = ifelse(products_data$prod_id %in% voucher_prods$prod_id, 
-                          sample(voucher_type, nrow(voucher_prods), replace = T), NA))
+                          sample(voucher_type, nrow(voucher_prods), 
+                                 replace = T), NA))
 #Finalise the table
 products_data <- 
   products_data %>%
@@ -1050,16 +1117,23 @@ n_queries <- 20
 customer_queries_data <- data.frame(
   "query_id" = paste("Q",seq(21, 21+n_queries-1, 1), sep = ""),
   cust_id = sample(customers_data$cust_id, n_queries, replace = TRUE),
-  query_title = sample(c("Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", "Wrong Delivery"), n_queries, replace = TRUE),
-  query_submission_date = sample(seq(as.Date('2024-03-15'), as.Date('2024-03-20'), by="day"), n_queries, replace = TRUE),
+  query_title = sample(c(
+    "Delivery Issue", "Payment Issue", "Purchase Return", "Damaged Product", 
+    "Wrong Delivery"), n_queries, replace = TRUE),
+  query_submission_date = sample(seq(as.Date('2024-03-15'), 
+                                     as.Date('2024-03-20'), by="day"), 
+                                 n_queries, replace = TRUE),
   query_closure_date = sample(c("NA"), n_queries, replace = TRUE),
-  query_status = sample(c("On Progress", "Submitted"), n_queries, replace = TRUE)
+  query_status = sample(c("On Progress", "Submitted"), n_queries, 
+                        replace = TRUE)
 )
 
-customer_queries_data$query_submission_date <- format(customer_queries_data$query_submission_date, "%d-%m-%Y")
+customer_queries_data$query_submission_date <- format(
+  customer_queries_data$query_submission_date, "%d-%m-%Y")
 
 #Save to .csv file
-write.csv(customer_queries_data, "data_uploads/R_synth_customer_queries_round2.csv", row.names = FALSE)
+write.csv(customer_queries_data, 
+          "data_uploads/R_synth_customer_queries_round2.csv", row.names = FALSE)
 
 ### 'categories' table
 #create lookup table for category_id and category name
@@ -1096,12 +1170,14 @@ advertisers_data <- data.frame(
                       "Ads Master", "Ads Expert"),
 
   "advertiser_id" = paste("ADV",seq(6, 6+n_advertisers-1, 1), sep = ""),
-  advertiser_name = c("Ads Beauty", "Ads Power", "Ads by WBS", "Ads by MSBA", "Ads Master"),
+  advertiser_name = c(
+    "Ads Beauty", "Ads Power", "Ads by WBS", "Ads by MSBA", "Ads Master"),
 
   advertiser_email = sprintf("advertiser%d@gmail.com", 1:n_advertisers)
 )
 #Save to .csv file
-write.csv(advertisers_data, "data_uploads/R_synth_advertisers_round2.csv", row.names = FALSE)
+write.csv(advertisers_data, "data_uploads/R_synth_advertisers_round2.csv", 
+          row.names = FALSE)
 
 ### 'advertisements' table
 set.seed(456)
@@ -1110,15 +1186,22 @@ advertisements_data <- data.frame(
   "ads_id" = paste("ADS",seq(10, 10+n_ads-1, 1), sep = ""),
   prod_id = sample(products_data$prod_id, n_ads, replace = TRUE),
   advertiser_id = sample(advertisers_data$advertiser_id, n_ads, replace = TRUE),
-  ads_start_date = sample(seq(as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), n_ads, replace = TRUE),
-  ads_end_date = sample(seq(as.Date('2024-01-01'), as.Date('2024-12-31'), by="day"), n_ads, replace = TRUE)
+  ads_start_date = sample(seq(
+    as.Date('2023-01-01'), as.Date('2023-12-31'), by="day"), 
+    n_ads, replace = TRUE),
+  ads_end_date = sample(seq(
+    as.Date('2024-01-01'), as.Date('2024-12-31'), by="day"), 
+    n_ads, replace = TRUE)
 )
 
-advertisements_data$ads_start_date <- format(advertisements_data$ads_start_date, "%d-%m-%Y")
-advertisements_data$ads_end_date <- format(advertisements_data$ads_end_date, "%d-%m-%Y")
+advertisements_data$ads_start_date <- format(
+  advertisements_data$ads_start_date, "%d-%m-%Y")
+advertisements_data$ads_end_date <- format(
+  advertisements_data$ads_end_date, "%d-%m-%Y")
 
 #Save to .csv file
-write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round2.csv", row.names = FALSE)
+write.csv(advertisements_data, "data_uploads/R_synth_advertisements_round2.csv", 
+          row.names = FALSE)
 
 ```
 
@@ -1140,7 +1223,8 @@ The data insertion is integrated with the second step data validation simultaneo
 # Read Data file
 ## Read advertisements file
 advertisement_list <- list()
-for (ads in list.files(path = "data_uploads/", pattern = "advertisement", full.names = TRUE)) {
+for (ads in list.files(
+  path = "data_uploads/", pattern = "advertisement", full.names = TRUE)) {
   advertisements_ind <- read.csv(ads)
   advertisement_list[[length(advertisement_list) + 1]] <- advertisements_ind
 }
@@ -1148,7 +1232,8 @@ advertisements_file <- bind_rows(advertisement_list)
 
 ## Read advertisers file
 advertisers_list <- list()
-for (adv in list.files(path = "data_uploads/", pattern = "advertiser", full.names = TRUE)) {
+for (adv in list.files(
+  path = "data_uploads/", pattern = "advertiser", full.names = TRUE)) {
   advertisers_ind <- read.csv(adv)
   advertisers_list[[length(advertisers_list) + 1]] <- advertisers_ind
 }
@@ -1156,7 +1241,8 @@ advertisers_file <- bind_rows(advertisers_list)
 
 ## Read categories file
 categories_list <- list()
-for (cat in list.files(path = "data_uploads/", pattern = "categories", full.names = TRUE)) {
+for (cat in list.files(
+  path = "data_uploads/", pattern = "categories", full.names = TRUE)) {
   categories_ind <- read.csv(cat)
   categories_list[[length(categories_list) + 1]] <- categories_ind
 }
@@ -1164,7 +1250,8 @@ categories_file <- bind_rows(categories_list)
 
 ## Read customer_queries file
 customer_queries_list <- list()
-for (cat in list.files(path = "data_uploads/", pattern = "customer_queries", full.names = TRUE)) {
+for (cat in list.files(
+  path = "data_uploads/", pattern = "customer_queries", full.names = TRUE)) {
   customer_queries_ind <- read.csv(cat)
   customer_queries_list[[length(customer_queries_list) + 1]] <- customer_queries_ind
 }
@@ -1172,7 +1259,8 @@ customer_queries_file <- bind_rows(customer_queries_list)
 
 ## Read customers file
 customers_list <- list()
-for (cust in list.files(path = "data_uploads/", pattern = "customers", full.names = TRUE)) {
+for (cust in list.files(
+  path = "data_uploads/", pattern = "customers", full.names = TRUE)) {
   customers_ind <- read.csv(cust)
   customers_list[[length(customers_list) + 1]] <- customers_ind
 }
@@ -1180,7 +1268,8 @@ customers_file <- bind_rows(customers_list)
 
 ## Read memberships file
 memberships_list <- list()
-for (memb in list.files(path = "data_uploads/", pattern = "membership", full.names = TRUE)) {
+for (memb in list.files(
+  path = "data_uploads/", pattern = "membership", full.names = TRUE)) {
   memberships_ind <- read.csv(memb)
   memberships_list[[length(memberships_list) + 1]] <- memberships_ind
 }
@@ -1188,7 +1277,8 @@ memberships_file <- bind_rows(memberships_list)
 
 ## Read orders file
 orders_list <- list()
-for (orders in list.files(path = "data_uploads/", pattern = "order", full.names = TRUE)) {
+for (orders in list.files(
+  path = "data_uploads/", pattern = "order", full.names = TRUE)) {
   orders_ind <- read.csv(orders)
   orders_list[[length(orders_list) + 1]] <- orders_ind
 }
@@ -1196,7 +1286,8 @@ orders_file <- bind_rows(orders_list)
 
 ## Read payments file
 payments_list <- list()
-for (payments in list.files(path = "data_uploads/", pattern = "payment", full.names = TRUE)) {
+for (payments in list.files(
+  path = "data_uploads/", pattern = "payment", full.names = TRUE)) {
   payments_ind <- read.csv(payments)
   payments_list[[length(payments_list) + 1]] <- payments_ind
 }
@@ -1204,7 +1295,8 @@ payments_file <- bind_rows(payments_list)
 
 ## Read products file
 products_list <- list()
-for (products in list.files(path = "data_uploads/", pattern = "product", full.names = TRUE)) {
+for (products in list.files(
+  path = "data_uploads/", pattern = "product", full.names = TRUE)) {
   products_ind <- read.csv(products)
   products_list[[length(products_list) + 1]] <- products_ind
 }
@@ -1212,7 +1304,8 @@ products_file <- bind_rows(products_list)
 
 ## Read shipments file
 shipments_list <- list()
-for (shipments in list.files(path = "data_uploads/", pattern = "shipment", full.names = TRUE)) {
+for (shipments in list.files(
+  path = "data_uploads/", pattern = "shipment", full.names = TRUE)) {
   shipments_ind <- read.csv(shipments)
   shipments_list[[length(shipments_list) + 1]] <- shipments_ind
 }
@@ -1220,7 +1313,8 @@ shipments_file <- bind_rows(shipments_list)
 
 ## Read suppliers file
 suppliers_list <- list()
-for (suppliers in list.files(path = "data_uploads/", pattern = "suppliers", full.names = TRUE)) {
+for (suppliers in list.files(
+  path = "data_uploads/", pattern = "suppliers", full.names = TRUE)) {
   suppliers_ind <- read.csv(suppliers)
   suppliers_list[[length(suppliers_list) + 1]] <- suppliers_ind
 }
@@ -1228,7 +1322,8 @@ suppliers_file <- bind_rows(suppliers_list)
 
 ## Read supplies file
 supplies_list <- list()
-for (supplies in list.files(path = "data_uploads/", pattern = "supply", full.names = TRUE)) {
+for (supplies in list.files(
+  path = "data_uploads/", pattern = "supply", full.names = TRUE)) {
   supplies_ind <- read.csv(supplies)
   supplies_list[[length(supplies_list) + 1]] <- supplies_ind
 }
@@ -1247,11 +1342,14 @@ reviews_table <- products_file %>%
 ##Normalising Memberships Table
 memberships_table <- memberships_file %>%
   select(membership_type_id,membership_type)
-memberships_table <- memberships_table[!duplicated(memberships_table$membership_type_id),]
+memberships_table <- memberships_table[!duplicated(
+  memberships_table$membership_type_id),]
 
 ##Normalising Customers Table
 customers_table <- customers_file %>%
-  select(cust_id, first_name, last_name, cust_email,password, cust_birth_date, block_num, postcode, address_type,cust_telephone)
+  select(
+    cust_id, first_name, last_name, cust_email,password, cust_birth_date, 
+    block_num, postcode, address_type,cust_telephone)
 customers_table <- merge(customers_table,memberships_file, by = "cust_id")
 customers_table$X <- NULL
 customers_table$membership_type <- NULL
@@ -1267,11 +1365,16 @@ order_details_table <- orders_file %>%
 
 ##Normalising Payments Table
 payments_table <- payments_file %>%
-  select(payment_id,order_id,payment_amount,payment_method,payment_status,payment_date)
+  select(
+    payment_id,order_id,payment_amount,payment_method,payment_status,
+    payment_date)
 
 ##Normalising Shipments Table
 shipments_table <- shipments_file %>%
-  select(shipment_id, order_id, prod_id, delivery_departed_date, delivery_received_date,est_delivery_date,shipper_name, delivery_recipient, delivery_fee,delivery_status)
+  select(shipment_id, order_id, prod_id, delivery_departed_date, 
+         delivery_received_date,est_delivery_date,
+         shipper_name, delivery_recipient,
+         delivery_fee,delivery_status)
 
 ##Normalising Suppliers Table
 suppliers_table <- suppliers_file %>%
@@ -1303,72 +1406,98 @@ advertisements_table <- advertisements_file
 
 ## Advertisement table
 ### Checking the date format for ads_start_date and ads_end_date
-if (all(!inherits(try(as.Date(advertisements_table$ads_start_date, format = "%d-%m-%Y")),"try-error"))) {
+if (all(!inherits(try(as.Date(advertisements_table$ads_start_date, 
+                              format = "%d-%m-%Y")),"try-error"))) {
   print("Dates are already in the correct format")
 } else {
   print("Dates are not in the correct format")
 }
 
-if (all(!inherits(try(as.Date(advertisements_table$ads_end_date, format = "%d-%m-%Y")),"try-error"))) {
+if (all(!inherits(try(as.Date(advertisements_table$ads_end_date, 
+                              format = "%d-%m-%Y")),"try-error"))) {
   print("Dates are already in the correct format")
 } else {
   print("Dates are not in the correct format")
 }
 
 ## Ensuring advertisement end date is after the advertisement start date
-for (i in 1:length(as.Date(advertisements_table$ads_start_date, format = "%d-%m-%Y"))) {
-  if (as.Date(advertisements_table$ads_end_date, format = "%d-%m-%Y")[i] > as.Date(advertisements_table$ads_start_date, format = "%d-%m-%Y")[i]) {
+for (i in 1:length(as.Date(advertisements_table$ads_start_date, 
+                           format = "%d-%m-%Y"))) {
+  if (
+    as.Date(
+      advertisements_table$ads_end_date, format = "%d-%m-%Y")[i] > 
+    as.Date(advertisements_table$ads_start_date, format = "%d-%m-%Y")[i]) {
     print("Ends date happened after the starts date")
   } else {
-    print(paste("Error!","Query",i,": ends date happened before the starts date"))
+    print(
+      paste("Error!","Query",i,": ends date happened before the starts date"))
   }
 }
 
 ### Checking duplicate values for ads_id and prod_id
-if(length(advertisements_table$ads_id[duplicated(advertisements_table$ads_id)]) > 0) {
+if(length(
+  advertisements_table$ads_id[duplicated(advertisements_table$ads_id)]) > 0) {
   print("Duplicate ads_ids found")
 } else {
   print("No duplicate ads_ids found")
 }
 
-if(length(advertisements_table$prod_id[duplicated(advertisements_table$prod_id)]) > 0) {
+if(length(
+  advertisements_table$prod_id[duplicated(advertisements_table$prod_id)]) > 0) {
   print("Duplicate prod_ids found")
 } else {
   print("No duplicate prod_ids found")
 }
 
 ## Advertisers file
-### Checking duplicate values for advertiser_id, advertiser_email, and advertisers name
+### Checking duplicate values for advertisers file
 
-if(length(advertisers_table$advertiser_id[duplicated(advertisers_table$advertiser_id)]) > 0) {
+if(length(
+  advertisers_table$advertiser_id[duplicated(advertisers_table$advertiser_id)]) 
+  > 0) {
   print("Duplicate advertiser_ids found")
 } else {
   print("No duplicate advertiser_ids found")
 }
 
-if(length(advertisers_table$advertiser_email[duplicated(advertisers_table$advertiser_email)]) > 0) {
+if(length(
+  advertisers_table$advertiser_email[duplicated(
+    advertisers_table$advertiser_email)]) > 0) {
   print("Duplicate advertisers' emails found")
 } else {
   print("No duplicate advertisers' emails found")
 }
 
-if(length(advertisers_table$advertiser_name[duplicated(advertisers_table$advertiser_name)]) > 0) {
+if(length(advertisers_table$advertiser_name[duplicated(
+  advertisers_table$advertiser_name)]) > 0) {
   print("Duplicate advertisers' names found")
 } else {
   print("No duplicate advertisers' names found")
 }
 
 ## Checking the advertiser_email format
-if(length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),advertisers_table$advertiser_email, value = TRUE)) == length(advertisers_table$advertiser_email)) {
+if(
+  length(grep((
+    "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),
+               advertisers_table$advertiser_email, 
+    value = TRUE)) == 
+   length(advertisers_table$advertiser_email)) {
   print("All email format are correct")
 } else {
-  print(paste("There are:", length(advertisers_table$advertiser_email) - length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),advertisers_table$advertiser_email, value = TRUE)),"wrong emails found"))
+  print(
+    paste(
+    "There are:", 
+    length(advertisers_table$advertiser_email) - 
+      length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),
+                                                                                     advertisers_table$advertiser_email, value = TRUE)),"wrong emails found"))
 }
 
 ## Customer_queries file
 ### Checking duplicate values for query_id
 
-if(length(customer_queries_table$query_id[duplicated(customer_queries_table$query_id)]) > 0) {
+if(length(
+  customer_queries_table$query_id[duplicated(customer_queries_table$query_id)]) 
+  > 0) {
   print("Duplicate queries_ids found")
 } else {
   print("No duplicate queries_ids found")
@@ -1376,23 +1505,28 @@ if(length(customer_queries_table$query_id[duplicated(customer_queries_table$quer
 
 ### Checking the date format for query_submission_date and query_closure_date
 correct_date_format <- function(date_column) {
-  converted_dates <- try(as.Date(date_column, format = "%d-%m-%Y"), silent = TRUE)
+  converted_dates <- try(as.Date(date_column, format = "%d-%m-%Y"), 
+                         silent = TRUE)
   if (inherits(converted_dates, "try-error")) {
     return(format(mdy(date_column), "%d-%m-%Y"))
   } else {
     return(date_column)
   }
 }
-customer_queries_table$query_submission_date <- correct_date_format(customer_queries_table$query_submission_date)
-customer_queries_table$query_closure_date <- correct_date_format(customer_queries_table$query_closure_date)
+customer_queries_table$query_submission_date <- correct_date_format(
+  customer_queries_table$query_submission_date)
+customer_queries_table$query_closure_date <- correct_date_format(
+  customer_queries_table$query_closure_date)
 
-if (all(!inherits(try(as.Date(customer_queries_table$query_submission_date, format = "%d-%m-%Y")), "try-error"))) {
+if (all(!inherits(try(as.Date(customer_queries_table$query_submission_date, 
+                              format = "%d-%m-%Y")), "try-error"))) {
   print("Query Submission Dates are now in the correct format")
 } else {
   print("There was an issue with converting the Query Submission Dates")
 }
 
-if (all(!inherits(try(as.Date(customer_queries_table$query_closure_date, format = "%d-%m-%Y")), "try-error"))) {
+if (all(!inherits(try(as.Date(customer_queries_table$query_closure_date, 
+                              format = "%d-%m-%Y")), "try-error"))) {
   print("Query Closure Dates are now in the correct format")
 } else {
   print("There was an issue with converting the Query Closure Dates")
@@ -1407,8 +1541,10 @@ if (any(!is.na(memberships_table))) {
 }
 
 ## Orders file
-### Checking NA values inside order_id, cust_id, order_quantity, order_price, prod_id
-if (any(!is.na(order_details_table[,c("order_id", "order_quantity", "order_price", "prod_id")]))) {
+### Checking NA values inside order table
+if (any(!is.na(
+  order_details_table[,c("order_id", "order_quantity", "order_price", "prod_id")]
+  ))) {
   print("There are no NA values in the dataset")
 } else {
   print("Error! There are NA values in the dataset")
@@ -1416,31 +1552,37 @@ if (any(!is.na(order_details_table[,c("order_id", "order_quantity", "order_price
 
 ### Checking date format for the order_date
 correct_date_format <- function(date_column) {
-  converted_dates <- try(as.Date(date_column, format = "%d-%m-%Y"), silent = TRUE)
+  converted_dates <- try(as.Date(date_column, format = "%d-%m-%Y"), 
+                         silent = TRUE)
   if (inherits(converted_dates, "try-error")) {
     return(format(mdy(date_column), "%d-%m-%Y"))
   } else {
     return(date_column)
   }
 }
-order_details_table$order_date <- correct_date_format(order_details_table$order_date)
+order_details_table$order_date <- correct_date_format(
+  order_details_table$order_date)
 
 # Print a message based on the result
-if (all(!inherits(try(as.Date(order_details_table$order_date, format = "%d-%m-%Y")), "try-error"))) {
+if (all(!inherits(try(as.Date(order_details_table$order_date, 
+                              format = "%d-%m-%Y")), "try-error"))) {
   print("Dates are now in the correct format")
 } else {
   print("There was an issue with converting the dates")
 }
+
 ## Payment_file
-### Checking NA values inside payment_id, payment_method, payment_status, and order_id 
-if (any(!is.na(payments_table[,c("payment_id", "payment_method", "payment_status", "order_id")]))) {
+### Checking NA values inside payment file
+if (any(!is.na(payments_table[,c("payment_id", "payment_method", 
+                                 "payment_status", "order_id")]))) {
   print("There are no NA values in the dataset")
 } else {
   print("Error! There are NA values in the dataset")
 }
 
 ### Checking date format for the payment_date
-if (all(!inherits(try(as.Date(payments_table$payment_date, format = "%d-%m-%Y")),"try-error"))) {
+if (all(!inherits(try(as.Date(payments_table$payment_date, 
+                              format = "%d-%m-%Y")),"try-error"))) {
   print("Dates are already in the correct format")
 } else {
   print("Dates are not in the correct format")
@@ -1469,29 +1611,37 @@ if (any(!is.na(products_table[,c("prod_id", "prod_url", "prod_unit_price")]))) {
 
 ### Checking date format for the review_date
 check_and_correct_date_format <- function(date_column_data) {
-  if (all(!inherits(try(as.Date(date_column_data, format = "%d-%m-%Y")), "try-error"))) {
+  if (all(!inherits(try(as.Date(date_column_data, format = "%d-%m-%Y")), 
+                    "try-error"))) {
     return(date_column_data) 
   } else {
     return(format(mdy(date_column_data), "%d-%m-%Y"))
   }
 }
-reviews_table$review_date <- check_and_correct_date_format(reviews_table$review_date)
-if (all(!inherits(try(as.Date(reviews_table$review_date, format = "%d-%m-%Y")), "try-error"))) {
+reviews_table$review_date <- check_and_correct_date_format(
+  reviews_table$review_date)
+if (all(!inherits(try(as.Date(reviews_table$review_date, 
+                              format = "%d-%m-%Y")), "try-error"))) {
   print("Review Dates are now in the correct format")
 } else {
   print("There was an issue with converting the Review Dates")
 }
 
 ### Checking the URL format of the prod_url
-if(length(grep(("^(http|https)://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(\\S*)$"),products_table$prod_url, value = TRUE)) == length(products_table$prod_url)) {
+if(length(grep(("^(http|https)://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(\\S*)$"),
+               products_table$prod_url, value = TRUE)) == 
+   length(products_table$prod_url)) {
   print("All product url format are correct")
 } else {
-  print(paste("There are:", length(products_table$prod_url) - length(grep(("^(http|https)://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(\\S*)$"),products_table$prod_url, value = TRUE)),"wrong product urls found"))
+  print(paste("There are:", length(products_table$prod_url) - length(
+    grep(("^(http|https)://[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}(\\S*)$"),
+         products_table$prod_url, value = TRUE)),"wrong product urls found"))
 }
 
 ## Shipments file 
 ### Checking duplicate values in shipment_id
-if(length(shipments_table$shipment_id[duplicated(shipments_table$shipment_id)]) == 0) {
+if(length(shipments_table$shipment_id[duplicated(shipments_table$shipment_id)]) 
+   == 0) {
   print("No duplicate shipment_ids found")
 } else {
   print("Duplicate shipment_ids found")
@@ -1504,19 +1654,22 @@ if (any(!is.na(shipments_table[,c("prod_id", "order_id", "shipment_id")]))) {
   print("Error! There are NA values in the dataset")
 }
 
-### Checking date format for the delivery_departed_date, delivery_received_date, est_delivery_date
+### Checking date format for the inside shipment table
 check_and_correct_date_format <- function(date_column_data) {
-  if (all(!inherits(try(as.Date(date_column_data, format = "%d-%m-%Y")), "try-error"))) {
+  if (all(!inherits(try(as.Date(date_column_data, format = "%d-%m-%Y")), 
+                    "try-error"))) {
     return(date_column_data)  # Return the original data if format is correct
   } else {
-    # Correcting the format assuming the original format is mm-dd-yyyy, adjust as necessary
     return(format(mdy(date_column_data), "%d-%m-%Y"))
   }
 }
 
-shipments_table$delivery_departed_date <- check_and_correct_date_format(shipments_table$delivery_departed_date)
-shipments_table$delivery_received_date <- check_and_correct_date_format(shipments_table$delivery_received_date)
-shipments_table$est_delivery_date <- check_and_correct_date_format(shipments_table$est_delivery_date)
+shipments_table$delivery_departed_date <- check_and_correct_date_format(
+  shipments_table$delivery_departed_date)
+shipments_table$delivery_received_date <- check_and_correct_date_format(
+  shipments_table$delivery_received_date)
+shipments_table$est_delivery_date <- check_and_correct_date_format(
+  shipments_table$est_delivery_date)
 
 columns_to_check <- list(
   "Delivery Departed Date" = shipments_table$delivery_departed_date,
@@ -1525,7 +1678,8 @@ columns_to_check <- list(
 )
 
 for (column_name in names(columns_to_check)) {
-  if (all(!inherits(try(as.Date(columns_to_check[[column_name]], format = "%d-%m-%Y")), "try-error"))) {
+  if (all(!inherits(try(as.Date(columns_to_check[[column_name]], 
+                                format = "%d-%m-%Y")), "try-error"))) {
     print(paste(column_name, "are now in the correct format"))
   } else {
     print(paste("There was an issue with converting the", column_name))
@@ -1568,14 +1722,19 @@ if (any(grepl("[',]", customers_table$last_name))) {
 
 
 ### Checking the customer_email format
-if(length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),customers_table$cust_email, value = TRUE)) == length(customers_table$cust_email)) {
+if(length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),
+               customers_table$cust_email, value = TRUE)) == 
+   length(customers_table$cust_email)) {
   print("All customer email format are correct")
 } else {
-  print(paste("There are:", length(customers_table$cust_email) - length(grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),customers_table$cust_email, value = TRUE)),"wrong emails found"))
+  print(paste("There are:", length(customers_table$cust_email) - length(
+    grep(("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.com$"),
+         customers_table$cust_email, value = TRUE)),"wrong emails found"))
 }
 
 ### Checking the customer birth_date format
-if (all(!inherits(try(as.Date(customers_table$cust_birth_date, format = "%d-%m-%Y")),"try-error"))) {
+if (all(!inherits(try(as.Date(customers_table$cust_birth_date, 
+                              format = "%d-%m-%Y")),"try-error"))) {
   print("Dates are already in the correct format")
 } else {
   print("Dates are not in the correct format")
@@ -1599,7 +1758,8 @@ log_file_path <- "error_log.txt"
 for(i in 1:nrow(products_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO products(prod_id, prod_name, prod_desc, voucher, prod_url, prod_unit_price) VALUES('",
+      "INSERT INTO products(prod_id, prod_name, prod_desc, voucher, prod_url, 
+      prod_unit_price) VALUES('",
       products_table$prod_id[i], "','",
       products_table$prod_name[i], "','",
       products_table$prod_desc[i], "','",
@@ -1607,9 +1767,11 @@ for(i in 1:nrow(products_table)){
       products_table$prod_url[i], "',",
       products_table$prod_unit_price[i], ");", sep = "")
     )
-    write_log(sprintf("Product %s inserted successfully.", products_table$prod_id[i]), log_file_path)
+    write_log(sprintf("Product %s inserted successfully.", 
+                      products_table$prod_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert product %s: %s", products_table$prod_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert product %s: %s", 
+                      products_table$prod_id[i], e$message), log_file_path)
   })
 }
 
@@ -1617,15 +1779,18 @@ for(i in 1:nrow(products_table)){
 for(i in 1:nrow(reviews_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO reviews(review_id, prod_rating, review_date, prod_id) VALUES('",
+      "INSERT INTO reviews(review_id, prod_rating, review_date, prod_id) 
+      VALUES('",
       reviews_table$review_id[i], "',",
       reviews_table$prod_rating[i], ",'",
       reviews_table$review_date[i], "','",
       reviews_table$prod_id[i], "');", sep = "")
     )
-    write_log(sprintf("Review %s inserted successfully.", reviews_table$review_id[i]), log_file_path)
+    write_log(sprintf("Review %s inserted successfully.", 
+                      reviews_table$review_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert review %s: %s", reviews_table$review_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert review %s: %s", 
+                      reviews_table$review_id[i], e$message), log_file_path)
   })
 }
 
@@ -1633,13 +1798,17 @@ for(i in 1:nrow(reviews_table)){
 for(i in 1:nrow(memberships_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO memberships(membership_type_id, membership_type) VALUES(",
+      "INSERT INTO memberships(membership_type_id, membership_type) 
+      VALUES(",
       "'", memberships_table$membership_type_id[i], "',",
       "'", memberships_table$membership_type[i], "');", sep = "")
     )
-    write_log(sprintf("Membership %s inserted successfully.", memberships_table$membership_type_id[i]), log_file_path)
+    write_log(sprintf("Membership %s inserted successfully.", 
+                      memberships_table$membership_type_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert membership %s: %s", memberships_table$membership_type_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert membership %s: %s", 
+                      memberships_table$membership_type_id[i], e$message), 
+              log_file_path)
   })
 }
 
@@ -1647,7 +1816,9 @@ for(i in 1:nrow(memberships_table)){
 for(i in 1:nrow(customers_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO customers(cust_id, first_name, last_name, cust_email, password, cust_birth_date, address_type, block_num, postcode, cust_telephone, membership_type_id) VALUES(",
+      "INSERT INTO customers(cust_id, first_name, last_name, cust_email, 
+      password, cust_birth_date, address_type, block_num, postcode, 
+      cust_telephone, membership_type_id) VALUES(",
       "'", customers_table$cust_id[i], "',",
       "'", customers_table$first_name[i], "',",
       "'", customers_table$last_name[i], "',",
@@ -1660,9 +1831,11 @@ for(i in 1:nrow(customers_table)){
       "'", customers_table$cust_telephone[i], "',",
       "'", customers_table$membership_type_id[i], "');", sep = "")
     )
-    write_log(sprintf("Customer %s inserted successfully.", customers_table$cust_id[i]), log_file_path)
+    write_log(sprintf("Customer %s inserted successfully.", 
+                      customers_table$cust_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert customer %s: %s", customers_table$cust_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert customer %s: %s", 
+                      customers_table$cust_id[i], e$message), log_file_path)
   })
 }
 
@@ -1674,9 +1847,11 @@ for(i in 1:nrow(orders_table)){
       orders_table$order_id[i], "','",
       orders_table$cust_id[i], "');", sep = "")
     )
-    write_log(sprintf("Order %s inserted successfully.", orders_table$order_id[i]), log_file_path)
+    write_log(sprintf("Order %s inserted successfully.", 
+                      orders_table$order_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert order %s: %s", orders_table$order_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert order %s: %s", 
+                      orders_table$order_id[i], e$message), log_file_path)
   })
 }
 
@@ -1684,7 +1859,8 @@ for(i in 1:nrow(orders_table)){
 for(i in 1:nrow(payments_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO payments(payment_id, payment_method, payment_amount, payment_status, payment_date, order_id) VALUES(",
+      "INSERT INTO payments(payment_id, payment_method, 
+      payment_amount, payment_status, payment_date, order_id) VALUES(",
       "'", payments_table$payment_id[i], "',",
       "'", payments_table$payment_method[i], "',",
       payments_table$payment_amount[i], ",",
@@ -1692,9 +1868,11 @@ for(i in 1:nrow(payments_table)){
       "'", payments_table$payment_date[i], "',",
       "'", payments_table$order_id[i], "');",sep = "") 
     )
-    write_log(sprintf("Payment %s inserted successfully.", payments_table$payment_id[i]), log_file_path)
+    write_log(sprintf("Payment %s inserted successfully.", 
+                      payments_table$payment_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert payment %s: %s", payments_table$payment_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert payment %s: %s", 
+                      payments_table$payment_id[i], e$message), log_file_path)
   })
 }
 
@@ -1702,22 +1880,29 @@ for(i in 1:nrow(payments_table)){
 for(i in 1:nrow(shipments_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO shipments(shipment_id, delivery_status, delivery_fee, delivery_recipient, shipper_name, est_delivery_date, delivery_departed_date, delivery_received_date
-, prod_id, order_id) VALUES(",
+      "INSERT INTO shipments(shipment_id, delivery_status, 
+      delivery_fee, delivery_recipient, shipper_name, est_delivery_date, 
+      delivery_departed_date, delivery_received_date, prod_id, order_id) 
+      VALUES(",
       "'", shipments_table$shipment_id[i], "',",
       "'", shipments_table$delivery_status[i], "',",
       shipments_table$delivery_fee[i], ",",
       "'", shipments_table$delivery_recipient[i], "',",
       "'", shipments_table$shipper_name[i], "',",
-      "'", format(as.Date(shipments_table$est_delivery_date[i], format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
-      "'", format(as.Date(shipments_table$delivery_departed_date[i], format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
-      "'", format(as.Date(shipments_table$delivery_received_date[i], format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
+      "'", format(as.Date(shipments_table$est_delivery_date[i], 
+                          format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
+      "'", format(as.Date(shipments_table$delivery_departed_date[i], 
+                          format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
+      "'", format(as.Date(shipments_table$delivery_received_date[i], 
+                          format = "%d-%m-%Y"), "%Y-%m-%d"), "',",
       "'", shipments_table$prod_id[i], "',",
       "'", shipments_table$order_id[i], "');", sep = "")
     )
-    write_log(sprintf("Shipment %s inserted successfully.", shipments_table$shipment_id[i]), log_file_path)
+    write_log(sprintf("Shipment %s inserted successfully.", 
+                      shipments_table$shipment_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert shipment %s: %s", shipments_table$shipment_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert shipment %s: %s", 
+                      shipments_table$shipment_id[i], e$message), log_file_path)
   })
 }
 
@@ -1725,7 +1910,8 @@ for(i in 1:nrow(shipments_table)){
 for(i in 1:nrow(order_details_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO order_details(order_quantity,order_date,order_price,order_value,prod_id,order_id) VALUES(",
+      "INSERT INTO order_details(order_quantity,order_date,order_price,
+      order_value,prod_id,order_id) VALUES(",
       order_details_table$order_quantity[i], ",",
       "'", order_details_table$order_date[i], "',",
       order_details_table$order_price[i], ",",
@@ -1734,9 +1920,12 @@ for(i in 1:nrow(order_details_table)){
       "'", order_details_table$order_id[i], "');",sep = "") 
     )
     
-    write_log(sprintf("Order detail %s inserted successfully.", order_details_table$order_id[i]), log_file_path)
+    write_log(sprintf("Order detail %s inserted successfully.", 
+                      order_details_table$order_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert order detail %s: %s", order_details_table$order_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert order detail %s: %s", 
+                      order_details_table$order_id[i], e$message), 
+              log_file_path)
   })
 }
 
@@ -1744,15 +1933,18 @@ for(i in 1:nrow(order_details_table)){
 for(i in 1:nrow(suppliers_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO suppliers(supplier_id, supplier_name, supplier_postcode, supplier_contact) VALUES('",
+      "INSERT INTO suppliers(supplier_id, supplier_name, supplier_postcode, 
+      supplier_contact) VALUES('",
       suppliers_table$supplier_id[i], "','",
       suppliers_table$supplier_name[i], "','",
       suppliers_table$supplier_postcode[i], "','",
       suppliers_table$supplier_contact[i], "');", sep = "")
     )
-    write_log(sprintf("Supplier %s inserted successfully.", suppliers_table$supplier_id[i]), log_file_path)
+    write_log(sprintf("Supplier %s inserted successfully.", 
+                      suppliers_table$supplier_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert supplier %s: %s", suppliers_table$supplier_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert supplier %s: %s", 
+                      suppliers_table$supplier_id[i], e$message), log_file_path)
   })
 }
 
@@ -1761,16 +1953,19 @@ for(i in 1:nrow(suppliers_table)){
 for(i in 1:nrow(supplies_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO supplies(supply_id, inventory_quantity, sold_quantity, supplier_id, prod_id) VALUES('",
+      "INSERT INTO supplies(supply_id, inventory_quantity, 
+      sold_quantity, supplier_id, prod_id) VALUES('",
       supplies_table$supply_id[i], "',",
       supplies_table$inventory_quantity[i], ",",
       supplies_table$sold_quantity[i], ",'",
       supplies_table$supplier_id[i], "','",
       supplies_table$prod_id[i], "');", sep = "")
     )
-    write_log(sprintf("Supply %s inserted successfully.", supplies_table$supply_id[i]), log_file_path)
+    write_log(sprintf("Supply %s inserted successfully.", 
+                      supplies_table$supply_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert supply %s: %s", supplies_table$supply_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert supply %s: %s", 
+                      supplies_table$supply_id[i], e$message), log_file_path)
   })
 }
 
@@ -1778,7 +1973,8 @@ for(i in 1:nrow(supplies_table)){
 for(i in 1:nrow(customer_queries_table)){
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO customer_queries(query_id, query_title, query_submission_date, query_closure_date, query_status, cust_id) VALUES(",
+      "INSERT INTO customer_queries(query_id, query_title, 
+      query_submission_date, query_closure_date, query_status, cust_id) VALUES(",
       "'", customer_queries_table$query_id[i], "',",
       "'", customer_queries_table$query_title[i], "',",
       "'", customer_queries_table$query_submission_date[i], "',",
@@ -1786,9 +1982,12 @@ for(i in 1:nrow(customer_queries_table)){
       "'", customer_queries_table$query_status[i], "',",
       "'", customer_queries_table$cust_id[i], "');", sep = "")
     )
-    write_log(sprintf("Customer query %s inserted successfully.", customer_queries_table$query_id[i]), log_file_path)
+    write_log(sprintf("Customer query %s inserted successfully.", 
+                      customer_queries_table$query_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert customer query %s: %s", customer_queries_table$query_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert customer query %s: %s", 
+                      customer_queries_table$query_id[i], e$message), 
+              log_file_path)
   })
 }
 
@@ -1800,9 +1999,12 @@ for(i in 1:nrow(categories_table)){
       categories_table$category_id[i], "','",
       categories_table$category_name[i], "');", sep = "")
     )
-    write_log(sprintf("Category %s inserted successfully.", categories_table$category_id[i]), log_file_path)
+    write_log(sprintf("Category %s inserted successfully.", 
+                      categories_table$category_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert category %s: %s", categories_table$category_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert category %s: %s", 
+                      categories_table$category_id[i], e$message), 
+              log_file_path)
   })
 }
 
@@ -1814,9 +2016,20 @@ for(i in 1:nrow(product_categories_table)){
       product_categories_table$category_id[i], "','",
       product_categories_table$prod_id[i], "');", sep = "")
     )
-    write_log(sprintf("Product category link for product %s and category %s inserted successfully.", product_categories_table$prod_id[i], product_categories_table$category_id[i]), log_file_path)
+    write_log(
+      sprintf(
+        "Product category link for product %s and 
+        category %s inserted successfully.", 
+        product_categories_table$prod_id[i], 
+        product_categories_table$category_id[i]), 
+      log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert product category link for product %s and category %s: %s", product_categories_table$prod_id[i], product_categories_table$category_id[i], e$message), log_file_path)
+    write_log(
+      sprintf(
+        "Failed to insert product category link for product %s and 
+        category %s: %s", product_categories_table$prod_id[i], 
+        product_categories_table$category_id[i], 
+        e$message), log_file_path)
   })
 }
 
@@ -1824,14 +2037,18 @@ for(i in 1:nrow(product_categories_table)){
 for(i in 1:nrow(advertisers_table)) {
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO advertisers(advertiser_id, advertiser_name, advertiser_email) VALUES(",
+      "INSERT INTO advertisers(advertiser_id, advertiser_name, 
+      advertiser_email) VALUES(",
       "'", advertisers_table$advertiser_id[i], "',",
       "'", advertisers_table$advertiser_name[i], "',",
       "'", advertisers_table$advertiser_email[i], "');",sep = "")
     )
-    write_log(sprintf("Advertiser %s inserted successfully.", advertisers_table$advertiser_id[i]), log_file_path)
+    write_log(sprintf("Advertiser %s inserted successfully.", 
+                      advertisers_table$advertiser_id[i]), log_file_path)
   }, error = function(e) {
-    write_log(sprintf("Failed to insert advertiser %s: %s", advertisers_table$advertiser_id[i], e$message), log_file_path)
+    write_log(sprintf("Failed to insert advertiser %s: %s", 
+                      advertisers_table$advertiser_id[i], e$message), 
+              log_file_path)
   })
 }
 
@@ -1839,16 +2056,19 @@ for(i in 1:nrow(advertisers_table)) {
 for(i in 1:nrow(advertisements_table)) {
   tryCatch({
     dbExecute(db_connection, paste(
-      "INSERT INTO advertisements(ads_id, ads_start_date, ads_end_date, prod_id, advertiser_id) VALUES(",
+      "INSERT INTO advertisements(ads_id, ads_start_date, ads_end_date, 
+      prod_id, advertiser_id) VALUES(",
       "'", advertisements_table$ads_id[i], "',",
       "'", advertisements_table$ads_start_date[i], "',",
       "'", advertisements_table$ads_end_date[i], "',",
       "'", advertisements_table$prod_id[i], "',",
       "'", advertisements_table$advertiser_id[i], "');", sep = "")
     )
-    write_log(sprintf("Advertisement %s inserted successfully.", advertisements_table$ads_id[i]), log_file_path)
+    write_log(sprintf("Advertisement %s inserted successfully.", 
+                      advertisements_table$ads_id[i]), log_file_path)
   }, error = function(e) {
-    error_message <- sprintf("Failed to insert advertisement %s: %s", advertisements_table$ads_id[i], e$message)
+    error_message <- sprintf("Failed to insert advertisement %s: %s", 
+                             advertisements_table$ads_id[i], e$message)
     write_log(error_message, log_file_path)
   })
 }
@@ -1885,7 +2105,7 @@ This structure ensures the seamless execution of multiple processes within the w
 
 The GitHub repository consists of a Continuous Integration Workflow. The Continuous Integration Workflow has been structured to automatically perform validation, insertion, update and analysis parts of the project.
 
-![](images/trigger_conditions.png){width="323"}
+![](images/Screenshot 2024-03-19 at 00.49.13.png)
 
 **Figure 4 Workflow of the E-Commerce Repository**
 
@@ -1991,12 +2211,17 @@ p.mnth.price <- ggplot(filter(sales_performance,
   scale_y_continuous(labels = comma,
                      limits = c(0, 100))
 #### Combine value and volume sales graphs
-gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, p.mnth.price, ncol = 3, widths = c(0.9, 0.9, 1.1),
+(gridExtra::grid.arrange(p.mnth.val, p.mnth.vol, p.mnth.price, ncol = 3, 
+                        widths = c(0.9, 0.9, 1.1),
                         top = ggpubr::text_grob("Monthly Sales Trend", 
-                                                size = 15, face = "bold"))
+                                                size = 15, face = "bold")))
 ```
 
-Although the company's monthly sales decreased from around £12, 500 in January to around £7,500 in December during 2022, its monthly sales gradually increased from January to around £10,000 during 2013. Meanwhile, the company's overall trend of monthly sales is similar to that of monthly sales in 2022 and 2023.
+![](images/Monthly_sales_trend.png)
+
+**Figure 5. Monthly Sales Trend Analysis**
+
+Figure 5 shows although the company's monthly sales decreased from around £12, 500 in January to around £7,500 in December during 2022, its monthly sales gradually increased from January to around £10,000 during 2013. Meanwhile, the company's overall trend of monthly sales is similar to that of monthly sales in 2022 and 2023.
 
 ## Top 10 Products and Their Rating
 
@@ -2037,13 +2262,18 @@ p.top_prod_rating <- ggplot(top_products_rating,
         axis.title = element_blank()) +
   scale_y_continuous(limits = c(0,5))
 #### Combine value and volume sales graphs
-gridExtra::grid.arrange(p.top_prod_sales, p.top_prod_rating, ncol = 2, 
+(gridExtra::grid.arrange(p.top_prod_sales, p.top_prod_rating, ncol = 2, 
                         widths = c(1.1, 0.5),
-                        top = ggpubr::text_grob("Top 10 Products and Their Rating", 
-                                                size = 15, face = "bold"))
+                        top = ggpubr::text_grob(
+                          "Top 10 Products and Their Rating", 
+                                                size = 15, face = "bold")))
 ```
 
-While the company's top 10 products have all totaled more than 400 sales, their corresponding ratings aren't the best among all products. Meanwhile, only two of these products have achieved a rating of 4 and three have a rating of only 1 (refer to lightweight backpacks, packing cubes and plush throw blankets), which warrants further improvement by the company.
+![](images/top_products.png)
+
+**Figure 6. Top 10 Products and Rating Analysis**
+
+As illustrated in Figure 6, while the company's top 10 products have all totaled more than 400 sales, their corresponding ratings aren't the best among all products. Meanwhile, only two of these products have achieved a rating of 4 and three have a rating of only 1 (refer to lightweight backpacks, packing cubes and plush throw blankets), which warrants further improvement by the company.
 
 ## Spending by Membership Type
 
@@ -2097,13 +2327,17 @@ p.membership_mnth <- ggplot(membership_by_mnth_date,
   scale_y_continuous(labels = comma,
                      limits = c(0, 90000))
 ### Combine two membership charts 
-gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
+(gridExtra::grid.arrange(p.membership, p.membership_mnth, ncol = 2,
                         widths = c(0.5, 1.1),
                         top = ggpubr::text_grob("Spending by Membership Type", 
-                                                size = 15, face = "bold"))
+                                                size = 15, face = "bold")))
 ```
 
-From the macro level, the total spent for all membership types is above 75,000 pounds between 2022 and 2023. However, in the micro view, the degree of decline in total spent for student type and premium type increases in descending order from 2022 to 2023, and only the trial type saw an increase.
+![](images/membership_spend.png)
+
+**Figure 7. Total Spend by Membership Analysis**
+
+As illustrated in figure 7, from the macro level, the total spent for all membership types is above 75,000 pounds between 2022 and 2023. However, in the micro view, the degree of decline in total spent for student type and premium type increases in descending order from 2022 to 2023, and only the trial type saw an increase.
 
 ## Customer Queries Analysis
 
@@ -2137,7 +2371,8 @@ p.query_freq <- ggplot(queries_frequencies,
 
 ### Transform data - get turnaround time
 response_time <- filter(response_time, query_closure_date != "NA") %>%
-  mutate(turnaround_time = round(difftime(query_closure_date, query_submission_date,
+  mutate(turnaround_time = round(
+    difftime(query_closure_date, query_submission_date,
                                     units = "weeks"),0) ) %>%
   group_by(query_title) %>%
   summarise(avg_turnaround_time = round(mean(turnaround_time),1)) %>%
@@ -2157,14 +2392,18 @@ p.query_time <- ggplot(response_time,
        subtitle = "Turnaround Time") +
   theme_light()
 ### Combine frequency and turnaround time
-gridExtra::grid.arrange(p.query_freq, p.query_time, ncol = 2,
+(gridExtra::grid.arrange(p.query_freq, p.query_time, ncol = 2,
                         top = ggpubr::text_grob("Customer Queries", 
-                                                size = 15, face = "bold"))
+                                                size = 15, face = "bold")))
 ```
 
-Though customers’ queries include few delivery issue, the turnaround time that is the longest, which may have a significant negative effect on membership subscription.
+![](images/customer_queries.png)
 
-## Payment Methods
+**Figure 8. Customer Queries Analysis**
+
+Figure 8 shows though customers’ queries include few delivery issue, the turnaround time that is the longest, which may have a significant negative effect on membership subscription.
+
+## Payment Methods Analysis
 
 ```{r}
 ### Get data from the db
@@ -2176,7 +2415,8 @@ Though customers’ queries include few delivery issue, the turnaround time that
                GROUP BY payment_method
                ORDER BY frequencies DESC"))
 ### Plot payment method by frequency
-p.frequency <- ggplot(top_payment, aes(x= reorder(payment_method, desc(frequencies)), 
+p.frequency <- ggplot(top_payment, aes(x= reorder(payment_method, 
+                                                  desc(frequencies)), 
                         y = frequencies)) +
   geom_bar(stat = "identity") +
   labs(x = "Payment Method", y = "Frequency", 
@@ -2195,12 +2435,16 @@ p.payment_amnt <- ggplot(top_payment,
   theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
   scale_y_continuous(labels = comma)
 ### Combine payment method by frequency and value
-gridExtra::grid.arrange(p.frequency, p.payment_amnt, ncol = 2,
+(gridExtra::grid.arrange(p.frequency, p.payment_amnt, ncol = 2,
                         top = ggpubr::text_grob("Payment Methods", 
-                                                size = 15, face = "bold"))
+                                                size = 15, face = "bold")))
 ```
 
-Obviously, Visa is the top 1 payment method in terms of frequency and payment amount. It's clear that although Mastercard is used by customers a little more often than Gpay, Gpay accounts for more of the payment amount. Gpay is considered to be the top 2 payment method as payment amount is a higher priority for the company, followed by Mastercard, Paypal, Bank Transfer, Apple Pay.
+![](images/payment_methods.png)
+
+**Figure 9. Payment Method Analysis**
+
+Based on Figure 9, obviously, Visa is the top 1 payment method in terms of frequency and payment amount. It's clear that although Mastercard is used by customers a little more often than Gpay, Gpay accounts for more of the payment amount. Gpay is considered to be the top 2 payment method as payment amount is a higher priority for the company, followed by Mastercard, Paypal, Bank Transfer, Apple Pay.
 
 ## Insight and Recommendation
 
@@ -2228,3 +2472,9 @@ To be able to improved the performance of the e-commerce database, several limit
 Additionally, it is important to integrate the database into the other e-commerce system. The database need to integrate seamlessly with other business systems such as inventory management, CRM, and logistics. Integration issues can lead to data silos and operational inefficiencies.
 
 # Conclusion
+
+This project has demonstrated a comprehensive approach to database design and management for an e-commerce platform. Initiating with a detailed database design, this project carefully considered various entities and their relationships, adhering strictly to the third normal form to ensure data integrity and optimize query performance. Additionally, the use of synthetic data generation provided a simulation of e-commerce activities, along with quality assurance and validation process processes to guarante the accuracy and reliability of this data.
+
+A significant advancement was made in automating the data pipeline through GitHub Actions. This automation not only streamlined processes but also enhanced the system's responsiveness to changing data needs.
+
+The data analysis component of the project offered deep insights into customer behavior, product performance, and sales trends, providing valuable inputs for strategic business decision-making. By integrating sophisticated database design, advanced automation techniques, and thorough data analysis, this project shows the effectiveness of combining technical precision with practical business insight.
